@@ -53,13 +53,8 @@ export class MChart {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-
     if (this.options.display_grid) {
       console.log("MChart  draw grid");
-    }
-    else {
-      console.log("MChart don't draw grid");
-
     }
 
     this.objects.forEach((object) => {
