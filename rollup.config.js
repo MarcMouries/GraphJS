@@ -12,7 +12,7 @@ export default [
       babel({
         babelHelpers: "bundled",
       }),
-      terser(),
+      //terser(),
     ],
     output: {
       file: `dist/umd/${pkg.name}.min.js`,
