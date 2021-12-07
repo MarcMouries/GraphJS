@@ -71,7 +71,13 @@ var graph_walker = new Graph();
 // layout
 
 
+function change_option() {
 
+	mChart.options.display_grid  = control_form.display_grid.checked;
+	console.log("change_option option  draw grid: " + mChart.options.display_grid );
+
+	mChart.draw();
+}
 
 
 </script>
