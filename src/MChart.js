@@ -1,5 +1,6 @@
 import InputDeviceTracker from './InputDeviceTracker'
-import {Rectangle, Circle} from './shape';
+import { Rectangle, Circle } from './shape';
+import { Renderer } from './Renderer';
 
 export class MChart {
 
@@ -10,7 +11,16 @@ export class MChart {
     this.startX = 0, this.startY = 0;
     this.lastMoveX = 0, this.lastMoveY = 0;
 
+    this.canvas = document.getElementById("canvas");
+    this.ctx = this.canvas.getContext("2d");
 
+    //let w = canvas.width = canvas2.width = window.innerWidth * 0.9;
+    //let h = canvas.height = canvas2.height = window.innerHeight * 0.9;
+
+    this.w = this.canvas.width = window.innerWidth ;
+    this.h = this.canvas.height = window.innerHeight ;
+
+    this.renderer = new Renderer(this.ctx);
 
     const DEFAULTS = {
       display_grid: false,
@@ -31,8 +41,7 @@ export class MChart {
     /* The list of ojbects to draw */
     this.objects = [];
 
-    this.canvas = document.getElementById("canvas");
-    this.ctx = this.canvas.getContext("2d");
+
 
     this.isSelecting = false;
     this.isDragging = false;
@@ -54,7 +63,7 @@ export class MChart {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     if (this.options.display_grid) {
-      console.log("MChart  draw grid");
+      this.renderer.drawGrid(this.w, this.h);
     }
 
     this.objects.forEach((object) => {
