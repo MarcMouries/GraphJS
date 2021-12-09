@@ -1,7 +1,7 @@
 {
-  "name": "mylibrary",
+  "name": "graphboard",
   "version": "1.0.0",
-  "description": "for testing rollup",
+  "description": "Graph board",
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
