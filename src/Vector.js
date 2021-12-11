@@ -2,7 +2,7 @@
 2D vector implementation.
 Based on the vector functions in P5.js 
 */
-class Vector {
+export class Vector {
 	constructor(x, y) {
 		this.x = x || 0;
 		this.y = y || 0;
@@ -36,18 +36,5 @@ class Vector {
 		return "[" + this.x + ", " + this.y + "]";
 	}
 }
-
-
-let v1 = new Vector(0, 0);
-let v2 = new Vector(100, 100);
-
-let amount = 0.5;
-let v3 = Vector.lerp(v1, v2, amount);
-
-// v3 has components [50,50]
-console.log("=====================");
-console.log("v1 = " + v1.toString());
-console.log("v2 = " + v2.toString());
-console.log("v3 = " + v3.toString());
 
 export default Vector;
