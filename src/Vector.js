@@ -20,6 +20,13 @@ class Vector {
 		return new Vector(this.x, this.y);
 	}
 
+	/* divide vector length (ie magnitude) by a constant*/
+	div(n) {
+		this.x /= n;
+		this.y /= n;
+		return this;
+	}
+
 	lerp(v1, amount) {
 		this.x += (v1.x - this.x) * amount || 0;
 		this.y += (v1.y - this.y) * amount || 0;
