@@ -61,6 +61,13 @@ class Vector {
 		return this;
 	}
 
+	/**
+	 *  set magnitude to a given value
+	 */
+	setMag(n) {
+		return this.normalize().mult(n);
+	}
+
 	sub(v) {
 		this.x -= v.x || 0;
 		this.y -= v.y || 0;
