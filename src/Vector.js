@@ -48,6 +48,10 @@ class Vector {
 		return Math.sqrt(this.magSq());
 	}
 
+	normalize() {
+		return this.div(this.mag());
+	}
+
 	/**
 	Multiply vector length (ie magnitude) by a constant
 	*/
