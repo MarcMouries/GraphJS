@@ -1,0 +1,50 @@
+<html>
+<head>
+
+	<link rel="stylesheet" href="./style.css">
+    <script src="../dist/umd/graphboard.min.js"></script>
+<body>
+    <canvas class="canvas" width="800" height="800" ></canvas>
+
+</body>
+<script>
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+const CENTER = { x: canvas.width / 2, y: canvas.height / 2 };
+
+const PI2 = Math.PI * 2;
+const link_distance = 100;
+const node_radius = 20;
+const gravity = 0.5;
+
+var noNodes = 8;
+var noConn = 2;
+var gravityConstant = 0.9;
+var forceConstant = 1000;
+
+let nodes = [];
+let nodeCon = [];
+
+ nodes = [
+  { id: "1" },
+  { id: "1_1" },
+  { id: "1_2" },
+  { id: "1_3" },
+  { id: "1_4" }
+];
+ links = [
+  { source: "1", target: "1_1" },
+  { source: "1", target: "1_2" },
+  { source: "1", target: "1_3" },
+  { source: "1", target: "1_4" }
+];
+
+function setup() {
+
+}
+
+
+setup();
+
+
+</script>
