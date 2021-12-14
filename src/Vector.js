@@ -1,7 +1,7 @@
-/*
-2D vector implementation.
-Based on the vector functions in P5.js 
-*/
+/**
+ *  A vector is an entity that has both magnitude and direction.
+ *  2D vector implementation based on the vector functions in P5.js 
+ */
 class Vector {
 	constructor(x, y) {
 		this.x = x || 0;
