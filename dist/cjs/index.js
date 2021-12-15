@@ -2,7 +2,6 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-//export default function hello(name) {
 function hello(name) {
     return ("hello " + name) ;
   }
@@ -521,11 +520,11 @@ function rectContainsCircle(rectangle, circle) {
   return true;
 }
 
-/*
-2D vector implementation.
-Based on the vector functions in P5.js 
-*/
-class Vector {
+/**
+ *  A vector is an entity that has both magnitude and direction.
+ *  2D vector implementation based on the vector functions in P5.js 
+ */
+ class Vector {
 	constructor(x, y) {
 		this.x = x || 0;
 		this.y = y || 0;
@@ -539,13 +538,61 @@ class Vector {
 		return result.lerp(v2, amount);
 	}
 
+	add(n) {
+		this.x += n;
+		this.y += n;
+		return this;
+	}
+	copy() {
+		return new Vector(this.x, this.y);
+	}
+
+	/* divide vector length (ie magnitude) by a constant*/
+	div(n) {
+		this.x /= n;
+		this.y /= n;
+		return this;
+	}
+
 	lerp(v1, amount) {
 		this.x += (v1.x - this.x) * amount || 0;
 		this.y += (v1.y - this.y) * amount || 0;
 		return this;
 	}
-	copy() {
-		return new Vector(this.x, this.y);
+
+	heading() {
+		const h = Math.atan2(this.y, this.x);
+		return h;
+	}
+
+	magSq() {
+		const x = this.x;
+		const y = this.y;
+		return x * x + y * y;
+	}
+
+	mag() {
+		return Math.sqrt(this.magSq());
+	}
+
+	normalize() {
+		return this.div(this.mag());
+	}
+
+	/**
+	Multiply vector length (ie magnitude) by a constant
+	*/
+	mult(n) {
+		this.x *= n;
+		this.y *= n;
+		return this;
+	}
+
+	/**
+	 *  set magnitude to a given value
+	 */
+	setMag(n) {
+		return this.normalize().mult(n);
 	}
 
 	sub(v) {
