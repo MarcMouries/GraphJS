@@ -21,39 +21,33 @@
 	</div>
 </body>
 <script>
-function change_option() {
-    mChart.options.display_grid  = control_form.display_grid.checked;
-    mChart.draw();
-		}
+let threefour = new graphboard.Vector(3, 4);
+console.log("new Vector 3-4 = ");
+console.log(threefour);
 
-</script>
+console.log("* mag = " + threefour.mag());
+console.log(threefour.mag());
 
-<script>
+console.log("* copy");
+let copy = threefour.copy();
+console.log(copy);
 
-var chart_container = document.getElementById("chart_container");
-var mChart = new graphboard.MChart(chart_container);
-mChart.init();
+console.log("sub");
+let  sub = threefour.sub(threefour);
+console.log(sub);
 
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
+console.log("dir");
+let  dir = threefour.copy().sub(threefour);
+console.log(dir);
 
-var circle = new graphboard.Circle(150, 150, 50);circle.fillStyle = "LightSeaGreen";
+console.log("dir_copy");
+let   dir_copy = dir.copy();
+console.log(dir_copy);
 
-//var rectangle1 = new graphboard.Rectangle(100, 100, 200, 100);rectangle1.fillStyle = "CadetBlue";
+console.log("div");
 
+let   force = dir_copy.div(dir.mag());
+console.log(force);
 
-
-mChart.addObject(circle);
-
-
-
-function change_option() {
-
-	mChart.options.display_grid  = control_form.display_grid.checked;
-	console.log("change_option option  draw grid: " + mChart.options.display_grid );
-
-	mChart.draw();
-}
-
-
+//
 </script>
