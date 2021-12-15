@@ -44,17 +44,48 @@ let nodeCon = [];
 
 class Node {
   constructor(id, pos, size) {
+    this.id = id;
     this.pos = pos;
     this.force = new graphboard.Vector(0, 0);
     this.mass = (PI_2 * size) / 1.5;
+    this.radius = size;
+    
+  }
+  draw(ctx) {
+    ctx.beginPath();
+    ctx.fillStyle = "darkGrey";
+    ctx.arc(this.pos.x, this.pos.y, this.radius, 0, PI_2, false);
+    ctx.fill();
+    ctx.closePath();
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(this.id, this.pos.x, this.pos.y);
+  }
+  update() {
+    force = this.force.copy();
+    let vel = force.copy().div(this.mass);
+    // print("VEL", vel, "FORCE", force)
+    this.pos.add(vel);
   }
 }
 
+function randomBounds(min, max) {
+  return Math.random () * (max - min) + min;
+}
+
 function setup() {
-  let x = Math.random(-10 * height, 10 * height);
-  let y = Math.random(-10 * height, 10 * height);
+  let x = randomBounds(-10 * height, 10 * height);
+  let y = randomBounds(-10 * height, 10 * height);
+  console.log(x);
+  console.log(y);
+
   let size = 5;
   let pos = new graphboard.Vector(x, y);
+  console.log("pos = " + pos.toString());
+  console.log(pos);
+
+
   let node;
   node = new Node("1", pos, size);    nodes.push(node);
   node = new Node("1_1", pos, size);  nodes.push(node);
@@ -67,6 +98,11 @@ function setup() {
   nodeCon.push([0, 3, 500]);
   nodeCon.push([0, 4, 500]);
 }
+
+function clear ()  {
+  ctx.fillStyle = "rgba(255, 255, 255, 1)";
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+};
 
 function draw_line (v1, v2) {
     ctx.beginPath();
@@ -115,20 +151,30 @@ function applyForces(nodes) {
   });
 }
 
-function draw() {
-  //translate(width / 2, height / 2);
-  //background(255);
+function loop() {
+  clear();
+    //translate(width / 2, height / 2);
+    draw_links();
 
-  draw_links();
-
-  applyForces(nodes);
+/*
+    applyForces(nodes);
   nodes.forEach((node) => {
-    node.draw();
+    node.draw(ctx);
     node.update();
   });
-}
+*/
+ // requestAnimationFrame(loop);
+};
+
+
+let v1 = new graphboard.Vector(3, 4);
+console.log("v1 = " + v1.toString());
+console.log(v1);
+
 
 setup();
-draw();
 
+//console.log("node 0 = " + nodes[0].pos.toString());
+
+loop();
 </script>

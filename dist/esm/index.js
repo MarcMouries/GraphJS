@@ -518,12 +518,18 @@ function rectContainsCircle(rectangle, circle) {
 
 /**
  *  A vector is an entity that has both magnitude and direction.
- *  2D vector implementation based on the vector functions in P5.js 
+ *  2D vector implementation based on the vector functions in P5.js
  */
- class Vector {
+class Vector {
 	constructor(x, y) {
-		this.x = x || 0;
-		this.y = y || 0;
+		this.x = x;
+		this.y = y;
+		console.log("in Vector()");
+		console.log("this.x  = " + this.x);
+		console.log("this.y  = " + this.y);
+
+		console.log("typeof x  = " + typeof y);
+		console.log("typeof y  = " + typeof y);
 	}
 
 	static add(v1, v2) {
@@ -545,6 +551,10 @@ function rectContainsCircle(rectangle, circle) {
 
 	/* divide vector length (ie magnitude) by a constant*/
 	div(n) {
+		if (n === 0) {
+			console.warn("Vector.div:", "divide by 0");
+			return this;
+		}
 		this.x /= n;
 		this.y /= n;
 		return this;
@@ -592,8 +602,8 @@ function rectContainsCircle(rectangle, circle) {
 	}
 
 	sub(v) {
-		this.x -= v.x || 0;
-		this.y -= v.y || 0;
+		this.x -= v.x;
+		this.y -= v.y;
 
 		return this;
 	}
