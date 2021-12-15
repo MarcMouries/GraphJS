@@ -2,7 +2,7 @@
  *  A vector is an entity that has both magnitude and direction.
  *  2D vector implementation based on the vector functions in P5.js 
  */
-class Vector {
+ export class Vector {
 	constructor(x, y) {
 		this.x = x || 0;
 		this.y = y || 0;
@@ -16,6 +16,11 @@ class Vector {
 		return result.lerp(v2, amount);
 	}
 
+	add(n) {
+		this.x += n;
+		this.y += n;
+		return this;
+	}
 	copy() {
 		return new Vector(this.x, this.y);
 	}
