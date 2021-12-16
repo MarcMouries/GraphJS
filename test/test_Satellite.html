@@ -28,6 +28,9 @@
     let num_movers = 100;
     let movers_list = [];
 
+    let min = -width;
+    let max = 2 * width;
+
     class Mover {
         constructor(id, loc, mass) {
             this.id = id;
@@ -105,10 +108,10 @@
     }
 
     function clear() {
-    ctx.fillStyle = "rgba(220, 220, 220, 1)";
-    //ctx.fillRect(-width, -height, 2 * width, 2 * height);
-    ctx.clearRect(-width, -height, 2 * width, 2 * height);
-  };
+        ctx.fillStyle = "rgba(220, 220, 220, 1)";
+        //ctx.fillRect(-width, -height, 2 * width, 2 * height);
+        ctx.clearRect(-width, -height, 2 * width, 2 * height);
+    };
 
     function setup() {
         let center = new graphboard.Vector(width / 2, height / 2);
@@ -116,13 +119,13 @@
         attractor = new Attractor("Attractor", center);
 
         for (var i = 0; i < num_movers; i++) {
-            movers_list.push(new Mover("", new graphboard.Vector(0, 0), Math.random() * 25));
+            let size = 15;
+            let loc = new graphboard.Vector.random(min, max);
+            movers_list.push(new Mover("", loc, Math.random() * 25));
         }
-
     }
 
     function draw() {
-
 
         attractor.draw(ctx);
 
@@ -137,8 +140,6 @@
             movers_list[i].checkEdges();
         }
     }
-
-
 
     function loop() {
 
@@ -157,6 +158,6 @@
     var i = 0;
     const max_iterations = 2000;
     setup();
-loop();
+    loop();
 
 </script>
