@@ -135,11 +135,29 @@ export class Vector {
 		return this.normalize().mult(n);
 	}
 
-	sub(v) {
+	sub_OLD(v) {
 		this.x -= v.x;
 		this.y -= v.y;
 
 		return this;
+	}
+	/**
+	 * 
+	 * @param {*} n 
+	 * @returns 
+	 */
+	sub(n) {
+		if (n instanceof Vector) {
+			this.x -= n.x;
+			this.y -= n.y;
+			return this;
+		} else if (typeof n === "number") {
+			this.x -= n;
+			this.y -= n;
+			return this;
+		} else {
+			console.error(`Parameter in Vector.sub(n) Not supported: ${n})`);
+		}
 	}
 
 	toString() {
