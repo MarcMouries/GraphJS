@@ -6,27 +6,56 @@ export class Vector {
 	constructor(x, y) {
 		this.x = x;
 		this.y = y;
+
+		if (isNaN(x) || isNaN(y)) {
+			console.warn(`Vector(): parameters are not number: (${x}), ${y} `);
+		}
+		/*
 		console.log("in Vector()");
 		console.log("this.x  = " + this.x);
 		console.log("this.y  = " + this.y);
 
 		console.log("typeof x  = " + typeof y);
 		console.log("typeof y  = " + typeof y);
+		*/
 	}
 
 	static add(v1, v2) {
 		return new Vector(v1.x + v2.x, v1.y + v2.y);
 	}
+
+	/**
+	 * Linear interpolate the vector to another vector
+	 */
 	static lerp(v1, v2, amount) {
 		let result = v1.copy();
 		return result.lerp(v2, amount);
 	}
 
+	/**
+	 *
+	 * @param {*} n
+	 * @returns
+	 */
 	add(n) {
-		this.x += n;
-		this.y += n;
-		return this;
+		if (n instanceof Vector) {
+			this.x += n.x;
+			this.y += n.y;
+			return this;
+		} else if (typeof n === "number") {
+			console.warn(`in Vector.add(n) = YES it's a number = ${n})`);
+			this.x += n;
+			this.y += n;
+			return this;
+		} else {
+			console.error(`Parameter in Vector.add(n) Not supported: ${n})`);
+		}
 	}
+
+	/**
+	 *  Return a new vector
+	 * @returns
+	 */
 	copy() {
 		return new Vector(this.x, this.y);
 	}
