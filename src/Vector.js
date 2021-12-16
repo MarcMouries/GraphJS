@@ -4,8 +4,8 @@
  */
 export class Vector {
 	constructor(x, y) {
-		this.x = x;
-		this.y = y;
+		this.x = x || 0;
+		this.y = y || 0;
 
 		if (isNaN(x) || isNaN(y)) {
 			console.warn(`Vector(): parameters are not number: (${x}), ${y} `);
@@ -135,12 +135,7 @@ export class Vector {
 		return this.normalize().mult(n);
 	}
 
-	sub_OLD(v) {
-		this.x -= v.x;
-		this.y -= v.y;
 
-		return this;
-	}
 	/**
 	 * 
 	 * @param {*} n 
