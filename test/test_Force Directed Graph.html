@@ -22,7 +22,7 @@
   const CENTER = { x: width / 2, y: height / 2 };
 
   const PI_2 = Math.PI * 2;
-  // const link_distance = 200;
+  const MAX_DISTANCE = 500; // not much effect
   const node_radius = 20;
   const gravity = 0.5;
 
@@ -48,6 +48,7 @@
     { source: "1", target: "1_3" },
     { source: "1", target: "1_4" }
   ];
+
 
   class Node {
     constructor(id, pos, size) {
@@ -88,47 +89,43 @@
     let y = 0;
 
     ctx.translate(width / 2, height / 2);
+    //ctx.fillRect(-width, -height, 2 * width, 2 * height);
 
+    /* we may want to have distinct min, max values for x and y */
+    let min = -width;
+    let max = 2 * width;
 
     let size = 15;
 
     let node;
 
-    x = randomIntBounds(-1 * height, 1 * height);
-    y = randomIntBounds(-1 * height, 1 * height);
-    let pos1 = new graphboard.Vector(x, y);
+
+    let pos1 = new graphboard.Vector.random(min, max);
     node = new Node("1", pos1, size); nodes.push(node);
 
-    x = randomIntBounds(-1 * height, 1 * height);
-    y = randomIntBounds(-1 * height, 1 * height);
-    let pos2 = new graphboard.Vector(x, y);
+
+    let pos2 = new graphboard.Vector.random(min, max);
     node = new Node("1_1", pos2, size); nodes.push(node);
 
-    x = randomIntBounds(-1 * height, 1 * height);
-    y = randomIntBounds(-1 * height, 1 * height);
-    let pos3 = new graphboard.Vector(x, y);
+    let pos3 = new graphboard.Vector.random(min, max);
     node = new Node("1_2", pos3, size); nodes.push(node);
 
-    x = randomIntBounds(-1 * height, 1 * height);
-    y = randomIntBounds(-1 * height, 1 * height);
-    pos = new graphboard.Vector(x, y);
-    node = new Node("1_3", pos, size); nodes.push(node);
+    let pos4 = new graphboard.Vector.random(min, max);
+    node = new Node("1_3", pos4, size); nodes.push(node);
 
-    x = randomIntBounds(-1 * height, 1 * height);
-    y = randomIntBounds(-1 * height, 1 * height);
-    pos = new graphboard.Vector(x, y);
-    node = new Node("1_4", pos, size); nodes.push(node);
+    let pos5 = new graphboard.Vector.random(min, max);
+    node = new Node("1_4", pos5, size); nodes.push(node);
 
-    link_list.push([0, 1, 5000]);
-    link_list.push([0, 2, 5000]);
-    link_list.push([0, 3, 5000]);
-    link_list.push([0, 4, 5000]);
+    link_list.push([0, 1, MAX_DISTANCE]);
+    link_list.push([0, 2, MAX_DISTANCE]);
+    link_list.push([0, 3, MAX_DISTANCE]);
+    link_list.push([0, 4, MAX_DISTANCE]);
   }
 
   function clear() {
-    ctx.fillStyle = "rgba(200, 200, 200, 1)";
+    ctx.fillStyle = "rgba(220, 220, 220, 1)";
     ctx.fillRect(-width, -height, 2 * width, 2 * height);
-    //ctx.clearRect(-width, -height, width, height);
+    //ctx.clearRect(-width, -height, 2 * width, 2 * height);
 
   };
 
@@ -152,6 +149,10 @@
 
   function applyForces(nodes) {
 
+    // Force equals mass times acceleration.
+    // Force = mass * acceleration
+    // Newton’s second law, F→=M×A→ (or force = mass * acceleration).
+    // 	normalize() = div(this.mag());
     // apply force towards center
     nodes.forEach((node) => {
       let gravity = node.pos.copy().mult(-1).mult(GRAVITY);
@@ -205,7 +206,7 @@
   };
 
   var i = 0;
-  const max_iterations = 1150;
+  const max_iterations = 200;
   setup();
   loop();
 
