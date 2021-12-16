@@ -88,4 +88,16 @@
 	vRandom = graphboard.Vector.random(-100, 100) ;
 	console.log("" + vRandom);
 
+
+	// DIV
+	console.log("DIVISION");
+	vDiv1 = new graphboard.Vector(6, 4);
+	console.log(vDiv1 + " divided by 2 = " + vDiv1.div(2));
+	console.log("=> vDiv1 is changed to: " + vDiv1);
+	
+	
+	vDiv1 = new graphboard.Vector(6, 4);
+	console.log(vDiv1 + " divided by 2 = " + graphboard.Vector.div(vDiv1, 2));
+	console.log("=> vDiv1 is unchanged: " + vDiv1);
+
 </script>
