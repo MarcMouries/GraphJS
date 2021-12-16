@@ -60,15 +60,11 @@
 	let dir_copy = dir.copy();
 	console.log(dir_copy);
 
-	console.log("div");
 
-	console.log("force 1");
-	let force = dir_copy.div(dir.mag());
-	console.log(force);
 
-	console.log("force 2");
-	let force2 = new graphboard.Vector(0, 0);
-	console.log(force);
+	// console.log("force 2");
+	// let force2 = new graphboard.Vector(0, 0);
+	// console.log(force);
 
 	// LERP
 	let v1 = new graphboard.Vector(0, 0, 0);
@@ -81,11 +77,11 @@
 
 
 	console.log("Random 1");
-	let vRandom = graphboard.Vector.random(-100, 100) ;
+	let vRandom = graphboard.Vector.random(-100, 100);
 	console.log(vRandom);
 	console.log("Random 2");
 
-	vRandom = graphboard.Vector.random(-100, 100) ;
+	vRandom = graphboard.Vector.random(-100, 100);
 	console.log("" + vRandom);
 
 
@@ -94,10 +90,29 @@
 	vDiv1 = new graphboard.Vector(6, 4);
 	console.log(vDiv1 + " divided by 2 = " + vDiv1.div(2));
 	console.log("=> vDiv1 is changed to: " + vDiv1);
-	
-	
+
+
 	vDiv1 = new graphboard.Vector(6, 4);
 	console.log(vDiv1 + " divided by 2 = " + graphboard.Vector.div(vDiv1, 2));
 	console.log("=> vDiv1 is unchanged: " + vDiv1);
+
+	console.log("div");
+	let mass = 1;
+	let force1 = new graphboard.Vector(50, 50);
+	let force2 = new graphboard.Vector(50, 50);
+	let dist = 20;
+	let force1_expected = force1.copy().sub(dist);
+	let force2_expected = force2.copy().add(dist);
+
+	let new_force1 = new graphboard.Vector(-dist, -dist);
+	let new_force2 = new graphboard.Vector(dist, dist);
+
+	let force1_actual = force1.add(new_force1);
+	let force2_actual = force2.add(new_force2);
+
+
+
+	console.log("=> force1: " + force1 + " - Expected: " + force1_expected + " - Actual: " + force1_actual);
+	console.log("=> force2: " + force2 + " - Expected: " + force2_expected + " - Actual: " + force2_actual);
 
 </script>

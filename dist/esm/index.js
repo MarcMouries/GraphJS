@@ -522,8 +522,8 @@ function rectContainsCircle(rectangle, circle) {
  */
 class Vector {
 	constructor(x, y) {
-		this.x = x;
-		this.y = y;
+		this.x = x || 0;
+		this.y = y || 0;
 
 		if (isNaN(x) || isNaN(y)) {
 			console.warn(`Vector(): parameters are not number: (${x}), ${y} `);
@@ -543,6 +543,20 @@ class Vector {
 	}
 
 	/**
+	 * Divides a vector by a scalar and returns a new vector.
+	 *
+	 * @method div
+	 * @static
+	 * @param  {Vector} v
+	 * @param  {Number}  n
+	 * @return  {Vector}
+	 */
+	static div(v, n) {
+		let result = v.copy();
+		return result.div(n);
+	}
+
+	/**
 	 * Linear interpolate the vector to another vector
 	 */
 	static lerp(v1, v2, amount) {
@@ -556,7 +570,9 @@ class Vector {
 		return new Vector(x, y);
 	}
 
-
+	static sub(v1, v2) {
+		return new Vector(v1.x - v2.x, v1.y - v2.y);
+	}
 
 	/**
 	 * Supports adding a Vector or a Scalar
@@ -637,11 +653,24 @@ class Vector {
 		return this.normalize().mult(n);
 	}
 
-	sub(v) {
-		this.x -= v.x;
-		this.y -= v.y;
 
-		return this;
+	/**
+	 * 
+	 * @param {*} n 
+	 * @returns 
+	 */
+	sub(n) {
+		if (n instanceof Vector) {
+			this.x -= n.x;
+			this.y -= n.y;
+			return this;
+		} else if (typeof n === "number") {
+			this.x -= n;
+			this.y -= n;
+			return this;
+		} else {
+			console.error(`Parameter in Vector.sub(n) Not supported: ${n})`);
+		}
 	}
 
 	toString() {
@@ -649,12 +678,10 @@ class Vector {
 	}
 }
 
-
-
-    /* Return a random integer between min and max (inclusive) */
+/* Return a random integer between min and max (inclusive) */
 function randomIntBounds(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
 var version = "0.1";
 

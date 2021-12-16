@@ -1,0 +1,162 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="./style.css">
+    <script src="../dist/umd/graphboard.min.js"></script>
+    <style>
+        canvas {
+            border: 1px solid red;
+        }
+    </style>
+
+<body>
+    <canvas class="canvas" width="800" height="800"></canvas>
+
+</body>
+<script>
+    const canvas = document.querySelector("canvas");
+    const ctx = canvas.getContext("2d");
+    var width = canvas.width;
+    var height = canvas.height;
+    const CENTER = { x: width / 2, y: height / 2 };
+
+    const PI_2 = Math.PI * 2;
+    const MAX_DISTANCE = 500; // not used
+    const node_radius = 20;
+
+    let attractor;
+    let num_movers = 100;
+    let movers_list = [];
+
+    class Mover {
+        constructor(id, loc, mass) {
+            this.id = id;
+            this.mass = mass;
+            this.location = loc;
+            this.velocity = new graphboard.Vector(0, 0);
+            this.acceleration = new graphboard.Vector(0, 0);
+        }
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.fillStyle = "darkGrey";
+            ctx.arc(this.location.x, this.location.y, this.mass, 0, PI_2, false);
+            ctx.fill();
+            ctx.closePath();
+            ctx.fillStyle = "black";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(this.id, this.location.x, this.location.y);
+        }
+        applyForce(force) {
+            //Receive a force, divide by mass, and add to acceleration.
+            let f = graphboard.Vector.div(force, this.mass);
+            this.acceleration.add(f);
+        }
+        update() {
+            this.velocity.add(this.acceleration);
+            this.location.add(this.velocity);
+            //Now add clearing the acceleration each time!
+            this.acceleration.mult(0);
+        }
+        checkEdges() {
+            if (this.location.x > width) {
+                this.location.x = width;
+                this.velocity.x *= -1;
+            } else if (this.location.x < 0) {
+                this.velocity.x *= -1;
+                this.location.x = 0;
+            }
+
+            if (this.location.y > height) {
+                //Even though we said we shouldn't touch location and velocity directly, 
+                // there are some exceptions. Here we are doing so as a quick and easy way
+                //  to reverse the direction of our object when it reaches the edge.
+                this.velocity.y *= -1;
+                this.location.y = height;
+            }
+        }
+
+    }
+
+
+    class Attractor {
+        constructor(id, loc, size) {
+            this.id = id;
+            this.mass = 20;
+            this.G = 0.4;
+
+            this.location = loc;
+            //this.velocity = new graphboard.Vector(0, 0);
+            //this.acceleration = new graphboard.Vector(0, 0);
+        }
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.fillStyle = "darkGrey";
+            ctx.arc(this.location.x, this.location.y, this.mass, 0, PI_2, false);
+            ctx.fill();
+            ctx.closePath();
+            ctx.fillStyle = "black";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(this.id, this.location.x, this.location.y);
+        }
+
+
+    }
+
+    function clear() {
+    ctx.fillStyle = "rgba(220, 220, 220, 1)";
+    //ctx.fillRect(-width, -height, 2 * width, 2 * height);
+    ctx.clearRect(-width, -height, 2 * width, 2 * height);
+  };
+
+    function setup() {
+        let center = new graphboard.Vector(width / 2, height / 2);
+
+        attractor = new Attractor("Attractor", center);
+
+        for (var i = 0; i < num_movers; i++) {
+            movers_list.push(new Mover("", new graphboard.Vector(0, 0), Math.random() * 25));
+        }
+
+    }
+
+    function draw() {
+
+
+        attractor.draw(ctx);
+
+        let wind = new graphboard.Vector(0.01, 0);
+        let gravity = new graphboard.Vector(0, 0.1);
+
+        for (var i = 0; i < movers_list.length; i++) {
+            movers_list[i].applyForce(wind);
+            movers_list[i].applyForce(gravity);
+            movers_list[i].update();
+            movers_list[i].draw(ctx);
+            movers_list[i].checkEdges();
+        }
+    }
+
+
+
+    function loop() {
+
+        clear();
+
+        //draw_links();
+
+        draw();
+
+        if (i < max_iterations) {
+            requestAnimationFrame(loop);
+            i++;
+        }
+    };
+
+    var i = 0;
+    const max_iterations = 2000;
+    setup();
+loop();
+
+</script>
