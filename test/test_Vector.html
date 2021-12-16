@@ -1,53 +1,82 @@
 <html>
+
 <head>
 
 	<link rel="stylesheet" href="./style.css">
-    <script src="../dist/umd/graphboard.min.js"></script>
+	<script src="../dist/umd/graphboard.min.js"></script>
+
 <body>
-    <h1>Test Vector</h1>
-    <ul class="breadcrumb">
-        <li><a href="../index.html">Home</a></li>
-        <li>Org Chart</li>
-    </ul>
-    <form id="control_form">
+	<h1>Test Vector</h1>
+	<ul class="breadcrumb">
+		<li><a href="../index.html">Home</a></li>
+		<li>Org Chart</li>
+	</ul>
+	<form id="control_form">
 		<fieldset>
 			<legend>Options:</legend>
 			<input type="checkbox" id="display_grid" onchange="change_option();">
 			<label for="fname">Show grid</label>
 		</fieldset>
 	</form>
-    <div id="chart_container" class="chart_container">
+	<div id="chart_container" class="chart_container">
 		<canvas id="canvas" width="800" height="800"></canvas>
 	</div>
 </body>
 <script>
-let threefour = new graphboard.Vector(3, 4);
-console.log("new Vector 3-4 = ");
-console.log(threefour);
 
-console.log("* mag = " + threefour.mag());
-console.log(threefour.mag());
+	console.log("new Vector 0-0 = ");
+	let zero = new graphboard.Vector(0, 0);
+	console.log(zero);
+	zero.add(10);
+	console.log("Add 10");
+	console.log(zero);
 
-console.log("* copy");
-let copy = threefour.copy();
-console.log(copy);
 
-console.log("sub");
-let  sub = threefour.sub(threefour);
-console.log(sub);
+	let threefour = new graphboard.Vector(3, 4);
+	console.log("new Vector 3-4 = ");
+	console.log(threefour);
 
-console.log("dir");
-let  dir = threefour.copy().sub(threefour);
-console.log(dir);
+	let add = zero.add(threefour);
+	console.log("Add Vector 3-4 to Zero Vector = ");
+	console.log(zero);
+	console.log(add);
 
-console.log("dir_copy");
-let   dir_copy = dir.copy();
-console.log(dir_copy);
+	console.log("* mag = " + threefour.mag());
+	console.log(threefour.mag());
 
-console.log("div");
+	console.log("* copy");
+	let copy = threefour.copy();
+	console.log(copy);
 
-let   force = dir_copy.div(dir.mag());
-console.log(force);
+	console.log("sub");
+	let sub = threefour.sub(threefour);
+	console.log(sub);
 
-//
+	console.log("dir");
+	let dir = threefour.copy().sub(threefour);
+	console.log(dir);
+
+	console.log("dir_copy");
+	let dir_copy = dir.copy();
+	console.log(dir_copy);
+
+	console.log("div");
+
+	console.log("force 1");
+	let force = dir_copy.div(dir.mag());
+	console.log(force);
+
+	console.log("force 2");
+	let force2 = new graphboard.Vector(0, 0);
+	console.log(force);
+
+	// LERP
+	let v1 = new graphboard.Vector(0, 0, 0);
+	let v2 = new graphboard.Vector(100, 100, 0);
+
+	let v3 = graphboard.Vector.lerp(v1, v2, 0.5);
+	// v3 has components [50,50,0]
+	console.log("LERP ");
+	console.log(v3);
+
 </script>
