@@ -25,6 +25,20 @@ export class Vector {
 	}
 
 	/**
+	 * Divides a vector by a scalar and returns a new vector.
+	 *
+	 * @method div
+	 * @static
+	 * @param  {Vector} v
+	 * @param  {Number}  n
+	 * @return  {Vector}
+	 */
+	static div(v, n) {
+		let result = v.copy();
+		return result.div(n);
+	}
+
+	/**
 	 * Linear interpolate the vector to another vector
 	 */
 	static lerp(v1, v2, amount) {
@@ -33,12 +47,14 @@ export class Vector {
 	}
 
 	static random(min, max) {
-		let x = randomIntBounds(min, max)
-		let y = randomIntBounds(min, max)
+		let x = randomIntBounds(min, max);
+		let y = randomIntBounds(min, max);
 		return new Vector(x, y);
 	}
 
-
+	static sub(v1, v2) {
+		return new Vector(v1.x - v2.x, v1.y - v2.y);
+	}
 
 	/**
 	 * Supports adding a Vector or a Scalar
@@ -131,11 +147,9 @@ export class Vector {
 	}
 }
 
-
-
-    /* Return a random integer between min and max (inclusive) */
+/* Return a random integer between min and max (inclusive) */
 function randomIntBounds(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
 export default Vector;
