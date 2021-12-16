@@ -1,180 +1,212 @@
 <html>
+
 <head>
 
-	<link rel="stylesheet" href="./style.css">
-    <script src="../dist/umd/graphboard.min.js"></script>
+  <link rel="stylesheet" href="./style.css">
+  <script src="../dist/umd/graphboard.min.js"></script>
+  <style>
+    canvas {
+      border: 1px solid red;
+    }
+  </style>
+
 <body>
-    <canvas class="canvas" width="800" height="800" ></canvas>
+  <canvas class="canvas" width="800" height="800"></canvas>
 
 </body>
 <script>
-const canvas = document.querySelector("canvas");
-const ctx = canvas.getContext("2d");
-var width = canvas.width;
-var height = canvas.height;
-const CENTER = { x: width / 2, y: height / 2 };
+  const canvas = document.querySelector("canvas");
+  const ctx = canvas.getContext("2d");
+  var width = canvas.width;
+  var height = canvas.height;
+  const CENTER = { x: width / 2, y: height / 2 };
 
-const PI_2 = Math.PI * 2;
-const link_distance = 100;
-const node_radius = 20;
-const gravity = 0.5;
+  const PI_2 = Math.PI * 2;
+  // const link_distance = 200;
+  const node_radius = 20;
+  const gravity = 0.5;
 
-var noNodes = 8;
-var noConn = 2;
-var gravityConstant = 0.9;
-var forceConstant = 1000;
+  var noNodes = 8;
+  var noConn = 2;
+  var GRAVITY = 0.9;
+  var REPULSION = 5000;
 
-let nodes = [];
-let nodeCon = [];
+  let nodes = [];
+  let link_list = [];
 
- nodes = [];
- /*
-  { id: "1" },
-  { id: "1_1" },
-  { id: "1_2" },
-  { id: "1_3" },
-  { id: "1_4" }
-];*/
- links = [
-  { source: "1", target: "1_1" },
-  { source: "1", target: "1_2" },
-  { source: "1", target: "1_3" },
-  { source: "1", target: "1_4" }
-];
+  nodes = [];
+  /*
+   { id: "1" },
+   { id: "1_1" },
+   { id: "1_2" },
+   { id: "1_3" },
+   { id: "1_4" }
+ ];*/
+  links = [
+    { source: "1", target: "1_1" },
+    { source: "1", target: "1_2" },
+    { source: "1", target: "1_3" },
+    { source: "1", target: "1_4" }
+  ];
 
-class Node {
-  constructor(id, pos, size) {
-    this.id = id;
-    this.pos = pos;
-    this.force = new graphboard.Vector(0, 0);
-    this.mass = (PI_2 * size) / 1.5;
-    this.radius = size;
-    
-  }
-  draw(ctx) {
-    ctx.beginPath();
-    ctx.fillStyle = "darkGrey";
-    ctx.arc(this.pos.x, this.pos.y, this.radius, 0, PI_2, false);
-    ctx.fill();
-    ctx.closePath();
-    ctx.fillStyle = "black";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(this.id, this.pos.x, this.pos.y);
-  }
-  update() {
-    force = this.force.copy();
-    let vel = force.copy().div(this.mass);
-    // print("VEL", vel, "FORCE", force)
-    this.pos.add(vel);
-  }
-}
+  class Node {
+    constructor(id, pos, size) {
+      this.id = id;
+      this.pos = pos;
+      this.force = new graphboard.Vector(0, 0);
+      this.mass = (PI_2 * size) / 1.5;
+      this.radius = size;
+    }
+    draw(ctx) {
+      ctx.beginPath();
+      ctx.fillStyle = "darkGrey";
+      ctx.arc(this.pos.x, this.pos.y, this.radius, 0, PI_2, false);
+      ctx.fill();
+      ctx.closePath();
+      ctx.fillStyle = "black";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(this.id, this.pos.x, this.pos.y);
+    }
+    update() {
+      let force = this.force.copy();
+      let vel = force.copy().div(this.mass);
+      this.pos.add(vel);
+    }
 
-function randomBounds(min, max) {
-  return Math.random () * (max - min) + min;
-}
-
-function setup() {
-  let x = randomBounds(-10 * height, 10 * height);
-  let y = randomBounds(-10 * height, 10 * height);
-  console.log(x);
-  console.log(y);
-
-  let size = 5;
-  let pos = new graphboard.Vector(x, y);
-  console.log("pos = " + pos.toString());
-  console.log(pos);
-
-
-  let node;
-  node = new Node("1", pos, size);    nodes.push(node);
-  node = new Node("1_1", pos, size);  nodes.push(node);
-  node = new Node("1_2", pos, size);  nodes.push(node);
-  node = new Node("1_3", pos, size);  nodes.push(node);
-  node = new Node("1_4", pos, size);  nodes.push(node);
-
-  nodeCon.push([0, 1, 500]);
-  nodeCon.push([0, 2, 500]);
-  nodeCon.push([0, 3, 500]);
-  nodeCon.push([0, 4, 500]);
-}
-
-function clear ()  {
-  ctx.fillStyle = "rgba(255, 255, 255, 1)";
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-};
-
-function draw_line (v1, v2) {
-    ctx.beginPath();
-    ctx.moveTo(v1.x, v1.y);
-    ctx.lineTo(v2.x, v2.y);
-    ctx.stroke();
-    ctx.closePath();
-}
-
-function draw_links() {
-  nodeCon.forEach((con) => {
-    node1 = nodes[con[0]];
-    node2 = nodes[con[1]];
-    draw_line(node1.pos, node2.pos);
-  });
-}
-
-function applyForces(nodes) {
-  // apply force towards centre
-  nodes.forEach((node) => {
-    let gravity = node.pos.copy().mult(-1).mult(gravityConstant);
-    node.force = gravity;
-  });
-
-  // apply repulsive force between nodes
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      pos = nodes[i].pos;
-      dir = nodes[j].pos.copy().sub(pos);
-      force = dir.div(dir.mag() * dir.mag());
-      force.mult(forceConstant);
-      nodes[i].force.add(force.copy().mult(-1));
-      nodes[j].force.add(force);
+    toString() {
+      return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
     }
   }
 
-  // apply forces applied by connections
-  nodeCon.forEach((con) => {
-    let node1 = nodes[con[0]];
-    let node2 = nodes[con[1]];
-    let maxDis = con[2];
-    let dis = node1.pos.copy().sub(node2.pos);
-    diff = dis.mag() - maxDis;
-    node1.force.sub(dis);
-    node2.force.add(dis);
-  });
-}
 
-function loop() {
-  clear();
-    //translate(width / 2, height / 2);
+
+
+
+  function setup() {
+    let x = 0;
+    let y = 0;
+
+    ctx.translate(width / 2, height / 2);
+
+
+    let size = 15;
+
+    let node;
+
+    x = randomIntBounds(-1 * height, 1 * height);
+    y = randomIntBounds(-1 * height, 1 * height);
+    let pos1 = new graphboard.Vector(x, y);
+    node = new Node("1", pos1, size); nodes.push(node);
+
+    x = randomIntBounds(-1 * height, 1 * height);
+    y = randomIntBounds(-1 * height, 1 * height);
+    let pos2 = new graphboard.Vector(x, y);
+    node = new Node("1_1", pos2, size); nodes.push(node);
+
+    x = randomIntBounds(-1 * height, 1 * height);
+    y = randomIntBounds(-1 * height, 1 * height);
+    let pos3 = new graphboard.Vector(x, y);
+    node = new Node("1_2", pos3, size); nodes.push(node);
+
+    x = randomIntBounds(-1 * height, 1 * height);
+    y = randomIntBounds(-1 * height, 1 * height);
+    pos = new graphboard.Vector(x, y);
+    node = new Node("1_3", pos, size); nodes.push(node);
+
+    x = randomIntBounds(-1 * height, 1 * height);
+    y = randomIntBounds(-1 * height, 1 * height);
+    pos = new graphboard.Vector(x, y);
+    node = new Node("1_4", pos, size); nodes.push(node);
+
+    link_list.push([0, 1, 5000]);
+    link_list.push([0, 2, 5000]);
+    link_list.push([0, 3, 5000]);
+    link_list.push([0, 4, 5000]);
+  }
+
+  function clear() {
+    ctx.fillStyle = "rgba(200, 200, 200, 1)";
+    ctx.fillRect(-width, -height, 2 * width, 2 * height);
+    //ctx.clearRect(-width, -height, width, height);
+
+  };
+
+  function draw_line(v1, v2) {
+    ctx.beginPath();
+    ctx.moveTo(v1.x, v1.y);
+    ctx.lineTo(v2.x, v2.y);
+    ctx.strokeStyle = "rgba(50, 50, 50, 1)";
+
+    ctx.stroke();
+    ctx.closePath();
+  }
+
+  function draw_links() {
+    link_list.forEach((con) => {
+      node1 = nodes[con[0]];
+      node2 = nodes[con[1]];
+      draw_line(node1.pos, node2.pos);
+    });
+  }
+
+  function applyForces(nodes) {
+
+    // apply force towards center
+    nodes.forEach((node) => {
+      let gravity = node.pos.copy().mult(-1).mult(GRAVITY);
+      node.force = gravity;
+    });
+
+    // apply repulsive force between nodes
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        if (i != j) {
+          let pos = nodes[i].pos;
+          let dir = nodes[j].pos.copy().sub(pos);
+          let force = dir.div(dir.mag() * dir.mag());
+          force.mult(REPULSION);
+          nodes[i].force.add(force.copy().mult(-1));
+          nodes[j].force.add(force);
+        }
+      }
+    }
+
+    // apply forces applied by connections
+    link_list.forEach((con) => {
+      let node1 = nodes[con[0]];
+      let node2 = nodes[con[1]];
+      let maxDis = con[2];
+      let dis = node1.pos.copy().sub(node2.pos);
+      diff = dis.mag() - maxDis;
+      node1.force.sub(dis);
+      node2.force.add(dis);
+    });
+
+  }
+
+  function loop() {
+
+    clear();
+
     draw_links();
 
-/*
     applyForces(nodes);
-  nodes.forEach((node) => {
-    node.draw(ctx);
-    node.update();
-  });
-*/
- // requestAnimationFrame(loop);
-};
 
+    nodes.forEach((node) => {
+      node.draw(ctx);
+      node.update();
+    });
 
-let v1 = new graphboard.Vector(3, 4);
-console.log("v1 = " + v1.toString());
-console.log(v1);
+    if (i < max_iterations) {
+      requestAnimationFrame(loop);
+      i++;
+    }
+  };
 
+  var i = 0;
+  const max_iterations = 1150;
+  setup();
+  loop();
 
-setup();
-
-//console.log("node 0 = " + nodes[0].pos.toString());
-
-loop();
 </script>
