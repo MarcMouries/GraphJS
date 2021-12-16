@@ -32,8 +32,16 @@ export class Vector {
 		return result.lerp(v2, amount);
 	}
 
+	static random(min, max) {
+		let x = randomIntBounds(min, max)
+		let y = randomIntBounds(min, max)
+		return new Vector(x, y);
+	}
+
+
+
 	/**
-	 *
+	 * Supports adding a Vector or a Scalar
 	 * @param {*} n
 	 * @returns
 	 */
@@ -43,7 +51,6 @@ export class Vector {
 			this.y += n.y;
 			return this;
 		} else if (typeof n === "number") {
-			console.warn(`in Vector.add(n) = YES it's a number = ${n})`);
 			this.x += n;
 			this.y += n;
 			return this;
@@ -123,5 +130,12 @@ export class Vector {
 		return "[" + this.x + ", " + this.y + "]";
 	}
 }
+
+
+
+    /* Return a random integer between min and max (inclusive) */
+function randomIntBounds(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
 
 export default Vector;
