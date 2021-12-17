@@ -90,11 +90,11 @@
       let force = this.force.copy();
       let vel = force.copy().div(this.mass);
       this.pos.add(vel);
-/*
-      this.velocity.add(this.acceleration);
-      this.pos.add(this.velocity);
-      this.acceleration.mult(0);
-      */
+      /*
+            this.velocity.add(this.acceleration);
+            this.pos.add(this.velocity);
+            this.acceleration.mult(0);
+            */
     }
 
     toString() {
@@ -143,7 +143,9 @@
 
 
   function clear() {
-    ctx.fillStyle = "rgba(220, 220, 220, 1)";
+    //ctx.fillStyle = "rgba(220, 220, 220, 1)";
+    ctx.fillStyle = "rgba(234, 236, 238, 1)";
+
     ctx.fillRect(-width, -height, 2 * width, 2 * height);
     //ctx.clearRect(-width, -height, 2 * width, 2 * height);
 
@@ -201,9 +203,9 @@
           // The farther away an object is, the weaker the force; the closer, the stronger.
           let force = dir.div(distance * distance);
           force.mult(REPULSION);
-          nodes[j].force.add(force);
-          let inverseForce = force.copy().mult(-1); 
-          nodes[i].force.add(inverseForce);
+          node2.force.add(force);
+          let inverseForce = force.copy().mult(-1);
+          node1.force.add(inverseForce);
         }
       }
     }
@@ -215,23 +217,33 @@
       let maxDis = con[2];
 
       let dir = graphboard.Vector.sub(node1.pos, node2.pos);
-    //  diff = dir.mag() - maxDis;
-     node1.force.sub(dir);
-      node2.force.add(dir);
+      //  diff = dir.mag() - maxDis;
 
-      console.log("original DIR: " + dir.toString());
-      
-      //node1.acceleration.sub(dist);
-      //node2.acceleration.add(dist);
+      //console.log("1. DIR: " + dir.toString());
+      //console.log("node1.force (before): " + node1.force.toString());
+      //let node1_copy =   node1.force.copy();
+      //let node2_copy =   node2.force.copy();
+
+    //////// node1.force.sub(dir);
+    ///////  node2.force.add(dir);
+
+     // console.log("node1.force (after): " + node1.force.toString());
+      //console.log("node2.force (after): " + node2.force.toString());
+
+      let neg_force = new graphboard.Vector(0,0).sub(dir);
+     // console.log("neg_force : " + neg_force.toString());
+      //node1_copy.add(neg_force);
+      //console.log("node1_copy : " + node1_copy.toString());
+      //  node1.applyForce(neg_force);
 
 
-      //let neg_force = new graphboard.Vector(0,0);
-     // console.log(neg_force);
-    //  neg_force.sub(dist);
-    //  node1.applyForce(neg_force);
+      let pos_force = new graphboard.Vector(0,0).add(dir);
+      //console.log("pos_force : " + pos_force.toString());
+      //node2_copy.add(pos_force);
+      //console.log("node2_copy : " + node2_copy.toString());
 
-	  //let pos_force = new graphboard.Vector(0,0).add(dist);
-    //  node2.applyForce(pos_force);
+      node1.force.add(neg_force);
+      node2.force.add(pos_force);
     });
 
   }
@@ -256,7 +268,7 @@
   };
 
   var i = 0;
-  const max_iterations = 200;
+  const max_iterations = 120;
   setup();
   loop();
 
