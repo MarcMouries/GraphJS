@@ -83,7 +83,7 @@
      *  Receive a force, divide by mass, and add to acceleration.
     */
     __applyForce(force) {
-      let f = graphboard.Vector.div(force, this.mass);
+      let f = Vector.div(force, this.mass);
       this.acceleration.add(f);
     }
 
@@ -139,6 +139,12 @@
 
     let pos6 = new graphboard.Vector.random(min, max);
     node = new Node("2_1_4", pos6, size); nodes.push(node);
+
+    let pos7 = new graphboard.Vector.random(min, max);
+    node = new Node("3", pos7, size); nodes.push(node);
+
+    let pos8 = new graphboard.Vector.random(min, max);
+    node = new Node("4", pos8, size); nodes.push(node);
 
     link_list.push([0, 1, MAX_DISTANCE]);
     link_list.push([0, 2, MAX_DISTANCE]);
@@ -228,6 +234,15 @@
       node2.force.add(pos_force);
     });
 
+  // kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
+  let total_KE  = 0.0;
+  /*
+  nodes.forEach((node) => {
+    let node_KE = (0.5 * node.mass * node.velocity * node.velocity);
+    total_KE =+  node_KE;
+    });
+    console.log("total_KE=" + total_KE);
+*/
   }
 
   function loop() {
