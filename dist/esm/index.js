@@ -683,7 +683,25 @@ function randomIntBounds(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+// =============================================================
+//                          Graph
+// =============================================================
+class Graph {
+    constructor() {
+        
+        this.graph = {};
+        this.nodeList = [];
+        this.linkList = [];
+        this.adjacency = {};
+        this.changed = false;
+        this.root;    
+    }
+
+    test () {
+    }
+}
+
 var version = "0.1";
 
-export { Arc, Circle, MChart, Rectangle, Vector, hello, version };
+export { Arc, Circle, Graph, MChart, Rectangle, Vector, hello, version };
 //# sourceMappingURL=index.js.map

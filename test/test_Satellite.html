@@ -33,23 +33,23 @@
     let max = 2 * width;
 
     class Mover {
-        constructor(id, loc, mass) {
+        constructor(id, pos, mass) {
             this.id = id;
             this.mass = mass;
-            this.location = loc;
+            this.pos = pos;
             this.velocity = new graphboard.Vector(1, 0);
             this.acceleration = new graphboard.Vector(0, 0);
         }
         draw(ctx) {
             ctx.beginPath();
             ctx.fillStyle = "darkGrey";
-            ctx.arc(this.location.x, this.location.y, this.mass*10, 0, PI_2, false);
+            ctx.arc(this.pos.x, this.pos.y, this.mass * 10, 0, PI_2, false);
             ctx.fill();
             ctx.closePath();
             ctx.fillStyle = "black";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText(this.id, this.location.x, this.location.y);
+            ctx.fillText(this.id, this.pos.x, this.pos.y);
         }
         applyForce(force) {
             //Receive a force, divide by mass, and add to acceleration.
@@ -58,25 +58,25 @@
         }
         update() {
             this.velocity.add(this.acceleration);
-            this.location.add(this.velocity);
+            this.pos.add(this.velocity);
             //Now add clearing the acceleration each time!
             this.acceleration.mult(0);
         }
         checkEdges() {
-            if (this.location.x > width) {
-                this.location.x = 0;
+            if (this.pos.x > width) {
+                this.pos.x = 0;
                 //this.velocity.x *= -1;
-            } else if (this.location.x < 0) {
+            } else if (this.pos.x < 0) {
                 //this.velocity.x *= -1;
-                this.location.x = width;
+                this.pos.x = width;
             }
 
-            if (this.location.y > height) {
+            if (this.pos.y > height) {
                 //Even though we said we shouldn't touch location and velocity directly, 
                 // there are some exceptions. Here we are doing so as a quick and easy way
                 //  to reverse the direction of our object when it reaches the edge.
                 this.velocity.y *= -1;
-                this.location.y = height;
+                this.pos.y = height;
             }
         }
 
@@ -84,35 +84,32 @@
 
 
     class Attractor {
-        constructor(id, loc, size) {
+        constructor(id, pos, size) {
             this.id = id;
             this.mass = 20;
-            this.G = 0.10;//0.4;
-
-            this.location = loc;
-            //this.velocity = new graphboard.Vector(0, 0);
-            //this.acceleration = new graphboard.Vector(0, 0);
+            this.G = 0.4;//0.4;
+            this.pos = pos;
         }
         draw(ctx) {
             ctx.beginPath();
             ctx.fillStyle = "darkGrey";
-            ctx.arc(this.location.x, this.location.y, this.mass, 0, PI_2, false);
+            ctx.arc(this.pos.x, this.pos.y, this.mass, 0, PI_2, false);
             ctx.fill();
             ctx.closePath();
             ctx.fillStyle = "black";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText(this.id, this.location.x, this.location.y);
+            ctx.fillText(this.id, this.pos.x, this.pos.y);
         }
         attract(object) {
 
             // Calculate direction of force
-            let force = new graphboard.Vector.sub(this.location, object.location);
+            let force = new graphboard.Vector.sub(this.pos, object.pos);
             // Distance between objects
             let distance = force.mag();
             // Limiting the distance to eliminate "extreme" results for very close or very far objects
-            distance = constrain(distance,5.0,25.0);  
-           // Normalize vector (distance doesn't matter here, we just want this vector for direction)
+            distance = constrain(distance, 5.0, 50.0);
+            // Normalize vector (distance doesn't matter here, we just want this vector for direction)
             force.normalize();
             // Calculate gravitional force magnitude
             let strength = (this.G * this.mass * object.mass) / (distance * distance);
@@ -124,25 +121,25 @@
         }
     }
 
-/**
- * Constrains a value between a minimum and maximum value.
- *
- * @method constrain
- * @param  {Number} n    number to constrain
- * @param  {Number} low  minimum limit
- * @param  {Number} high maximum limit
- * @return {Number}      constrained number
- * @example
- */
- constrain = function(n, low, high) {
-  return Math.max(Math.min(n, high), low);
-};
+    /**
+     * Constrains a value between a minimum and maximum value.
+     *
+     * @method constrain
+     * @param  {Number} n    number to constrain
+     * @param  {Number} low  minimum limit
+     * @param  {Number} high maximum limit
+     * @return {Number}      constrained number
+     * @example
+     */
+    constrain = function (n, low, high) {
+        return Math.max(Math.min(n, high), low);
+    };
 
 
     function clear() {
-        ctx.fillStyle = "rgba(220, 220, 220, 1)";
-        //ctx.fillRect(-width, -height, 2 * width, 2 * height);
-        ctx.clearRect(-width, -height, 2 * width, 2 * height);
+        ctx.fillStyle = 'rgba(255, 255, 255, .05)';
+        ctx.fillRect(-width, -height, 2 * width, 2 * height);
+        //ctx.clearRect(-width, -height, 2 * width, 2 * height);
     };
 
     function setup() {
@@ -150,7 +147,7 @@
 
         attractor = new Attractor("Attractor", center);
         let m_loc = center.copy().add(40);
-        mover = new Mover("M", m_loc, 1);
+        mover = new Mover("M", m_loc, 0.5);
 
         /*
         for (var i = 0; i < num_movers; i++) {
@@ -166,26 +163,26 @@
         attractor.draw(ctx);
 
         let wind = new graphboard.Vector(0.05, 0.0);
-        let gravity = new graphboard.Vector(0, 0.1);
+        let gravity = new graphboard.Vector(0, 0.0001);
 
 
-       // for (var i = 0; i < movers_list.length; i++) {
+        // for (var i = 0; i < movers_list.length; i++) {
 
-            //let object = movers_list[i];
-           // object.applyForce(wind);
-            //object.applyForce(gravity);
+        //let object = movers_list[i];
+        // object.applyForce(wind);
+       // mover.applyForce(gravity);
 
-            let attractionForce = attractor.attract(mover);
-            mover.applyForce(attractionForce);
-            mover.update();
-            mover.draw(ctx);
-            mover.checkEdges();
+        let attractionForce = attractor.attract(mover);
+        mover.applyForce(attractionForce);
+        mover.update();
+        mover.draw(ctx);
+        mover.checkEdges();
         //}
     }
 
     function loop() {
 
-        clear();
+         clear();
 
         //draw_links();
 
@@ -198,7 +195,7 @@
     };
 
     var i = 0;
-    const max_iterations = 2000;
+    const max_iterations = 5000;
     setup();
     loop();
 

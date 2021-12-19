@@ -115,4 +115,40 @@
 	console.log("=> force1: " + force1 + " - Expected: " + force1_expected + " - Actual: " + force1_actual);
 	console.log("=> force2: " + force2 + " - Expected: " + force2_expected + " - Actual: " + force2_actual);
 
+	console.log("");
+	console.log("Force: order of operations");
+	console.log("--------------------------");
+	console.log("The strength of the force is inversely proportional to the distance squared")
+	console.log("F = ");
+
+	let point1 = new graphboard.Vector(0, 0);
+	console.log("point1            = " + point1);
+
+	let point2 = new graphboard.Vector(3, 4);
+	console.log("point2            = " + point2);
+
+	// the vector that points from one object to the other
+	dir = graphboard.Vector.sub(point2, point1);
+	console.log("direction         = " + dir);
+	// the length (magnitude) of that vector is the distance between the two objects.
+	let distance = dir.mag();
+	console.log("distance          = " + distance);
+	let repulsion = 100;
+	console.log("repulsion         = " + repulsion);
+	console.log("OPTION 1");
+	force1 = dir.copy().div(distance * distance);
+	console.log("force / dist Sq   = " + force1);
+	force1.mult(repulsion);
+	console.log("force * repulsion = " + force1);
+
+	console.log("OPTION 2");
+	console.log("direction         = " + dir);
+	console.log("distance          = " + distance);
+
+	let unit = dir.copy().normalize();
+	console.log("unit vector       = " + unit);
+	let strength = unit.mult(repulsion);
+	console.log("strength          = " + strength);
+	force2 = strength.div(distance * distance);
+	console.log("force2 / dist Sq  = " + force2);
 </script>
