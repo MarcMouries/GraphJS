@@ -24,32 +24,13 @@
   const MAX_DISTANCE = 500; // not used
   const node_radius = 20;
 
-  var noNodes = 8;
-  var noConn = 2;
 
+  let graph = new graphboard.Graph();
 
+  //let nodes = [];
+  //let link_list = [];
 
-  let nodes = [];
-  let link_list = [];
-
-  nodes = [];
-  /*
-   { id: "1" },
-   { id: "1_1" },
-   { id: "1_2" },
-   { id: "1_3" },
-   { id: "1_4" },
-   { id: "2_4" }
-
- ];*/
-  links = [
-    { source: "1", target: "1_1" },
-    { source: "1", target: "1_2" },
-    { source: "1", target: "1_3" },
-    { source: "1", target: "1_4" }
-  ];
-
-
+ 
   class Node {
     constructor(id, pos, size) {
       this.id = id;
@@ -59,8 +40,8 @@
       this.pos = pos;
       this.force = new graphboard.Vector(0, 0);
 
-      //this.velocity = new graphboard.Vector(0, 0);
-      //this.acceleration = new graphboard.Vector(0, 0);
+      this.velocity = new graphboard.Vector(0, 0);
+      this.acceleration = new graphboard.Vector(0, 0);
     }
     draw(ctx) {
       ctx.beginPath();
@@ -80,7 +61,7 @@
      *  Newton’s second law.
      *  Receive a force, divide by mass, and add to acceleration.
     */
-    applyForce(force) {
+    __applyForce(force) {
       let f = Vector.div(force, this.mass);
       this.acceleration.add(f);
     }
@@ -88,7 +69,7 @@
     update() {
 
       let force_copy = this.force.copy();
-      let velocity = force_copy.div(30)//this.mass);
+      let velocity = force_copy.div(this.mass);
       this.pos.add(velocity);
       /*
             this.velocity.add(this.acceleration);
@@ -103,73 +84,78 @@
   }
 
 
-class ForceDirected {
-  constructor(graph) {
+  class ForceDirected {
+    constructor(graph) {
 
-    this.GRAVITY = 2;//0.9;
-    this.REPULSION = 5000;
+      this.GRAVITY = 2;//0.9;
+      this.REPULSION = 500000;
+      this.graph = graph;
 
-  }
-   applyForcesTowardsCenter() {
-    // apply force towards center
-    nodes.forEach((node) => {
-      let gravity = node.pos.copy().mult(-1).mult(this.GRAVITY);
-      node.force = gravity;
-      //node.applyForce(gravity);
-      //console.log(node);
-    });
-  }
+    }
+    applyForcesTowardsCenter() {
+      // apply force towards center
+      this.graph.nodeList.forEach((node) => {
+        let gravity = node.pos.copy().mult(-1).mult(this.GRAVITY);
+        node.force = gravity;
+        //node.applyForce(gravity);
+        //console.log(node);
+      });
+    }
 
-  applyRepulsiveForces() {
-    // apply repulsive force between nodes
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        if (i != j) {
-          let node1 = nodes[i];
-          let node2 = nodes[j];
-          // The gravitational force F between two bodies of mass m1 and m2 is
-          // F = G*m1*m2 / r2
-          // the vector that points from one object to the other
-          // let dir = graphboard.Vector.sub(nodes[j].pos, nodes[i].pos);
-          let dir = graphboard.Vector.sub(node2.pos, node1.pos);
-          // the length (magnitude) of that vector is the distance between the two objects.
-          let distance = dir.mag();
+    applyRepulsiveForces() {
+      // apply repulsive force between nodes
+      for (let i = 0; i < graph.nodeList.length; i++) {
+        for (let j = i + 1; j < graph.nodeList.length; j++) {
+          if (i != j) {
+            let node1 = graph.nodeList[i];
+            let node2 = graph.nodeList[j];
 
-          //dir.normalize()
+            // The gravitational force F between two bodies of mass m1 and m2 is
+            // F = G*m1*m2 / r2
+            // the vector that points from one object to the other
+            let dir = graphboard.Vector.sub(node2.pos, node1.pos);
+            let unit = dir.copy().normalize()
 
+            // the length (magnitude) of that vector is the distance between the two objects.
+            let distance = dir.mag();
 
-          // The strength of the force is inversely proportional to the distance squared.
-          // The farther away an object is, the weaker the force; the closer, the stronger.
-          let force = dir.div(distance * distance);
-          force.mult(this.REPULSION);
-          console.log(this.REPULSION);
-          node2.force.add(force);
-          let inverseForce = force.copy().mult(-1);
-          node1.force.add(inverseForce);
+            // The strength of the force is inversely proportional to the distance squared.
+            // The farther away an object is, the weaker the force; the closer, the stronger.
+
+            // original  : without the normalize
+            dir.normalize()
+
+            let force1 = dir.mult(this.REPULSION);
+            force1.div(distance * distance);
+
+            let inverseForce = force1.copy().mult(-1);
+            node2.force.add(force1);
+            node1.force.add(inverseForce);
+          }
         }
       }
     }
-  }
 
     applyForcesExertedByConnections() {
-    link_list.forEach((con) => {
-      let node1 = nodes[con[0]];
-      let node2 = nodes[con[1]];
-      let maxDis = con[2];
+      graph.linkList.forEach((con) => {
+        let node1 = graph.nodeList[con[0]];
+        let node2 = graph.nodeList[con[1]];
+        let maxDis = con[2];
 
-      let dir = graphboard.Vector.sub(node1.pos, node2.pos);
+        let dir = graphboard.Vector.sub(node1.pos, node2.pos);
 
-      let neg_force = new graphboard.Vector(0,0).sub(dir);
-      let pos_force = new graphboard.Vector(0,0).add(dir);
+        let neg_force = new graphboard.Vector(0, 0).sub(dir);
+        let pos_force = new graphboard.Vector(0, 0).add(dir);
 
-      node1.force.add(neg_force);
-      node2.force.add(pos_force);
-    });
+        node1.force.add(neg_force);
+        node2.force.add(pos_force);
+      });
+    }
+
   }
 
-}
-
-var layout = new ForceDirected();
+  var layout;
+  new ForceDirected(graph);
 
 
 
@@ -186,44 +172,46 @@ var layout = new ForceDirected();
 
 
     let pos1 = new graphboard.Vector.random(min, max);
-    node = new Node("1", pos1, size); nodes.push(node);
+    node = new Node("1", pos1, size); graph.nodeList.push(node);
 
 
     let pos2 = new graphboard.Vector.random(min, max);
-    node = new Node("1_1", pos2, size); nodes.push(node);
+    node = new Node("1_1", pos2, size); graph.nodeList.push(node);
 
     let pos3 = new graphboard.Vector.random(min, max);
-    node = new Node("1_2", pos3, size); nodes.push(node);
+    node = new Node("1_2", pos3, size); graph.nodeList.push(node);
 
     let pos4 = new graphboard.Vector.random(min, max);
-    node = new Node("1_3", pos4, size); nodes.push(node);
+    node = new Node("1_3", pos4, size); graph.nodeList.push(node);
 
     let pos5 = new graphboard.Vector.random(min, max);
-    node = new Node("1_4", pos5, size); nodes.push(node);
+    node = new Node("1_4", pos5, size); graph.nodeList.push(node);
 
     let pos6 = new graphboard.Vector.random(min, max);
-    node = new Node("2_1_4", pos6, size); nodes.push(node);
+    node = new Node("2_1_4", pos6, size); graph.nodeList.push(node);
 
     let pos7 = new graphboard.Vector.random(min, max);
-    node = new Node("3", pos7, size); nodes.push(node);
+    node = new Node("3", pos7, size); graph.nodeList.push(node);
 
     let pos8 = new graphboard.Vector.random(min, max);
-    node = new Node("4", pos8, size); nodes.push(node);
+    node = new Node("4", pos8, size); graph.nodeList.push(node);
 
-    link_list.push([0, 1, MAX_DISTANCE]);
-    link_list.push([0, 2, MAX_DISTANCE]);
-    link_list.push([0, 3, MAX_DISTANCE]);
-    link_list.push([0, 4, MAX_DISTANCE]);
-    link_list.push([4, 5, MAX_DISTANCE]);
+    graph.linkList.push([0, 1, MAX_DISTANCE]);
+    graph.linkList.push([0, 2, MAX_DISTANCE]);
+    graph.linkList.push([0, 3, MAX_DISTANCE]);
+    graph.linkList.push([0, 4, MAX_DISTANCE]);
+    graph.linkList.push([4, 5, MAX_DISTANCE]);
+
+
+    layout = new ForceDirected(graph);
+
   }
 
 
   function clear() {
-    //ctx.fillStyle = "rgba(220, 220, 220, 1)";
-    ctx.fillStyle = "rgba(234, 236, 238, 1)";
-
+    ctx.fillStyle = "rgba(234, 236, 238, 0.9)";
+    // change origin due to translation
     ctx.fillRect(-width, -height, 2 * width, 2 * height);
-    //ctx.clearRect(-width, -height, 2 * width, 2 * height);
   };
 
 
@@ -238,9 +226,9 @@ var layout = new ForceDirected();
   }
 
   function draw_links() {
-    link_list.forEach((con) => {
-      node1 = nodes[con[0]];
-      node2 = nodes[con[1]];
+    graph.linkList.forEach((con) => {
+      node1 = graph.nodeList[con[0]];
+      node2 = graph.nodeList[con[1]];
       draw_line(node1.pos, node2.pos);
     });
   }
@@ -260,15 +248,15 @@ var layout = new ForceDirected();
 
 
 
-  // kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
-  let total_KE  = 0.0;
-  /*
-  nodes.forEach((node) => {
-    let node_KE = (0.5 * node.mass * node.velocity * node.velocity);
-    total_KE =+  node_KE;
-    });
-    console.log("total_KE=" + total_KE);
-*/
+    // kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
+    let total_KE = 0.0;
+    /*
+    nodes.forEach((node) => {
+      let node_KE = (0.5 * node.mass * node.velocity * node.velocity);
+      total_KE =+  node_KE;
+      });
+      console.log("total_KE=" + total_KE);
+  */
   }
 
   function loop() {
@@ -279,7 +267,7 @@ var layout = new ForceDirected();
 
     applyForces();
 
-    nodes.forEach((node) => {
+    graph.nodeList.forEach((node) => {
       node.draw(ctx);
       node.update();
     });
