@@ -151,6 +151,22 @@ class ForceDirected {
     }
   }
 
+    applyForcesExertedByConnections() {
+    link_list.forEach((con) => {
+      let node1 = nodes[con[0]];
+      let node2 = nodes[con[1]];
+      let maxDis = con[2];
+
+      let dir = graphboard.Vector.sub(node1.pos, node2.pos);
+
+      let neg_force = new graphboard.Vector(0,0).sub(dir);
+      let pos_force = new graphboard.Vector(0,0).add(dir);
+
+      node1.force.add(neg_force);
+      node2.force.add(pos_force);
+    });
+  }
+
 }
 
 var layout = new ForceDirected();
@@ -160,7 +176,6 @@ var layout = new ForceDirected();
   function setup() {
 
     ctx.translate(width / 2, height / 2);
-    //ctx.fillRect(-width, -height, 2 * width, 2 * height);
 
     /* we may want to have distinct min, max values for x and y */
     let min = -width;
@@ -237,24 +252,13 @@ var layout = new ForceDirected();
 
     // Force equals mass times acceleration.
     // Newton’s second law, F→=M×A→ (or force = mass * acceleration).
-    layout.applyForcesTowardsCenter() ;
+    layout.applyForcesTowardsCenter();
 
     layout.applyRepulsiveForces();
 
-    // apply forces exerted by connections
-    link_list.forEach((con) => {
-      let node1 = nodes[con[0]];
-      let node2 = nodes[con[1]];
-      let maxDis = con[2];
+    layout.applyForcesExertedByConnections();
 
-      let dir = graphboard.Vector.sub(node1.pos, node2.pos);
 
-      let neg_force = new graphboard.Vector(0,0).sub(dir);
-      let pos_force = new graphboard.Vector(0,0).add(dir);
-
-      node1.force.add(neg_force);
-      node2.force.add(pos_force);
-    });
 
   // kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
   let total_KE  = 0.0;
