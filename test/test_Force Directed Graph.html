@@ -27,8 +27,7 @@
   var noNodes = 8;
   var noConn = 2;
 
-  var GRAVITY = 0.9;
-  var REPULSION = 5000;
+
 
   let nodes = [];
   let link_list = [];
@@ -49,7 +48,6 @@
     { source: "1", target: "1_3" },
     { source: "1", target: "1_4" }
   ];
-
 
 
   class Node {
@@ -82,7 +80,7 @@
      *  Newton’s second law.
      *  Receive a force, divide by mass, and add to acceleration.
     */
-    __applyForce(force) {
+    applyForce(force) {
       let f = Vector.div(force, this.mass);
       this.acceleration.add(f);
     }
@@ -105,6 +103,57 @@
   }
 
 
+class ForceDirected {
+  constructor(graph) {
+
+    this.GRAVITY = 2;//0.9;
+    this.REPULSION = 5000;
+
+  }
+   applyForcesTowardsCenter() {
+    // apply force towards center
+    nodes.forEach((node) => {
+      let gravity = node.pos.copy().mult(-1).mult(this.GRAVITY);
+      node.force = gravity;
+      //node.applyForce(gravity);
+      //console.log(node);
+    });
+  }
+
+  applyRepulsiveForces() {
+    // apply repulsive force between nodes
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        if (i != j) {
+          let node1 = nodes[i];
+          let node2 = nodes[j];
+          // The gravitational force F between two bodies of mass m1 and m2 is
+          // F = G*m1*m2 / r2
+          // the vector that points from one object to the other
+          // let dir = graphboard.Vector.sub(nodes[j].pos, nodes[i].pos);
+          let dir = graphboard.Vector.sub(node2.pos, node1.pos);
+          // the length (magnitude) of that vector is the distance between the two objects.
+          let distance = dir.mag();
+
+          //dir.normalize()
+
+
+          // The strength of the force is inversely proportional to the distance squared.
+          // The farther away an object is, the weaker the force; the closer, the stronger.
+          let force = dir.div(distance * distance);
+          force.mult(this.REPULSION);
+          console.log(this.REPULSION);
+          node2.force.add(force);
+          let inverseForce = force.copy().mult(-1);
+          node1.force.add(inverseForce);
+        }
+      }
+    }
+  }
+
+}
+
+var layout = new ForceDirected();
 
 
 
@@ -181,43 +230,16 @@
     });
   }
 
-  function applyForces(nodes) {
+
+
+
+  function applyForces() {
 
     // Force equals mass times acceleration.
     // Newton’s second law, F→=M×A→ (or force = mass * acceleration).
+    layout.applyForcesTowardsCenter() ;
 
-    // apply force towards center
-    nodes.forEach((node) => {
-      let gravity = node.pos.copy().mult(-1).mult(GRAVITY);
-      node.force = gravity;
-      //node.applyForce(gravity);
-      //console.log(node);
-    });
-
-    // apply repulsive force between nodes
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        if (i != j) {
-          let node1 = nodes[i];
-          let node2 = nodes[j];
-          // The gravitational force F between two bodies of mass m1 and m2 is
-          // F = G*m1*m2 / r2
-          // the vector that points from one object to the other
-          // let dir = graphboard.Vector.sub(nodes[j].pos, nodes[i].pos);
-          let dir = graphboard.Vector.sub(node2.pos, node1.pos);
-          //dir.normalize()
-          // the length (magnitude) of that vector is the distance between the two objects.
-          let distance = dir.mag();
-          // The strength of the force is inversely proportional to the distance squared.
-          // The farther away an object is, the weaker the force; the closer, the stronger.
-          let force = dir.div(distance * distance);
-          force.mult(REPULSION);
-          node2.force.add(force);
-          let inverseForce = force.copy().mult(-1);
-          node1.force.add(inverseForce);
-        }
-      }
-    }
+    layout.applyRepulsiveForces();
 
     // apply forces exerted by connections
     link_list.forEach((con) => {
@@ -251,7 +273,7 @@
 
     draw_links();
 
-    applyForces(nodes);
+    applyForces();
 
     nodes.forEach((node) => {
       node.draw(ctx);
@@ -265,7 +287,7 @@
   };
 
   var i = 0;
-  const max_iterations = 220;
+  const max_iterations = 100;
   setup();
   loop();
 
