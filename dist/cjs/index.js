@@ -292,17 +292,20 @@ function randomIntBounds(min, max) {
 }
 
 class ForceDirected {
-  constructor(graph) {
+  constructor(graph, options) {
 
-    this.GRAVITY = 2;//0.9;
-    this.REPULSION = 500000;
     this.graph = graph;
 
+    const DEFAULTS = {
+      GRAVITY: 2, // 0.9,
+      REPULSION: 500000,
+    };
+    this.options = Object.assign({}, DEFAULTS, options);
   }
   applyForcesTowardsCenter() {
     // apply force towards center
     this.graph.nodeList.forEach((node) => {
-      let gravity = node.pos.copy().mult(-1).mult(this.GRAVITY);
+      let gravity = node.pos.copy().mult(-1).mult(this.options.GRAVITY);
       node.force = gravity;
       //node.applyForce(gravity);
       //console.log(node);
@@ -332,7 +335,7 @@ class ForceDirected {
           // original  : without the normalize
           dir.normalize();
 
-          let force1 = dir.mult(this.REPULSION);
+          let force1 = dir.mult(this.options.REPULSION);
           force1.div(distance * distance);
 
           let inverseForce = force1.copy().mult(-1);
@@ -347,7 +350,7 @@ class ForceDirected {
     this.graph.linkList.forEach((con) => {
       let node1 = this.graph.nodeList[con[0]];
       let node2 = this.graph.nodeList[con[1]];
-      
+
       //let maxDis = con[2];
 
       let dir = Vector.sub(node1.pos, node2.pos);
@@ -651,7 +654,7 @@ class MChart {
       case "move":
         if (this.clicked_on_the_canvas && this.mouseIsDown) {
           this.isSelecting = true;
-          // getting the min & max to handle when the user selects going up
+          // getting the min & max to handle when the user selects from bottom right to top left 
           const x1 = Math.min(this.selection_startX, this.lastMoveX);
           const y1 = Math.min(this.selection_startY, this.lastMoveY);
           const x2 = Math.max(this.selection_startX, this.lastMoveX);

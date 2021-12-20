@@ -1,17 +1,20 @@
 import Vector from '../Vector';
 
 export default class ForceDirected {
-  constructor(graph) {
+  constructor(graph, options) {
 
-    this.GRAVITY = 2;//0.9;
-    this.REPULSION = 500000;
     this.graph = graph;
 
+    const DEFAULTS = {
+      GRAVITY: 2, // 0.9,
+      REPULSION: 500000,
+    }
+    this.options = Object.assign({}, DEFAULTS, options);
   }
   applyForcesTowardsCenter() {
     // apply force towards center
     this.graph.nodeList.forEach((node) => {
-      let gravity = node.pos.copy().mult(-1).mult(this.GRAVITY);
+      let gravity = node.pos.copy().mult(-1).mult(this.options.GRAVITY);
       node.force = gravity;
       //node.applyForce(gravity);
       //console.log(node);
@@ -41,7 +44,7 @@ export default class ForceDirected {
           // original  : without the normalize
           dir.normalize()
 
-          let force1 = dir.mult(this.REPULSION);
+          let force1 = dir.mult(this.options.REPULSION);
           force1.div(distance * distance);
 
           let inverseForce = force1.copy().mult(-1);
@@ -56,7 +59,7 @@ export default class ForceDirected {
     this.graph.linkList.forEach((con) => {
       let node1 = this.graph.nodeList[con[0]];
       let node2 = this.graph.nodeList[con[1]];
-      
+
       //let maxDis = con[2];
 
       let dir = Vector.sub(node1.pos, node2.pos);
