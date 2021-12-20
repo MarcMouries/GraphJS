@@ -124,6 +124,243 @@ class Rectangle extends Shape {
     }
 }
 
+/**
+ *  A vector is an entity that has both magnitude and direction.
+ *  2D vector implementation based on the vector functions in P5.js
+ */
+class Vector {
+	constructor(x, y) {
+		this.x = x || 0;
+		this.y = y || 0;
+
+		if (isNaN(x) || isNaN(y)) {
+			console.warn(`Vector(): parameters are not number: (${x}), ${y} `);
+		}
+		/*
+		console.log("in Vector()");
+		console.log("this.x  = " + this.x);
+		console.log("this.y  = " + this.y);
+
+		console.log("typeof x  = " + typeof y);
+		console.log("typeof y  = " + typeof y);
+		*/
+	}
+
+	static add(v1, v2) {
+		return new Vector(v1.x + v2.x, v1.y + v2.y);
+	}
+
+	/**
+	 * Divides a vector by a scalar and returns a new vector.
+	 *
+	 * @method div
+	 * @static
+	 * @param  {Vector} v
+	 * @param  {Number}  n
+	 * @return  {Vector}
+	 */
+	static div(v, n) {
+		let result = v.copy();
+		return result.div(n);
+	}
+
+	/**
+	 * Linear interpolate the vector to another vector
+	 */
+	static lerp(v1, v2, amount) {
+		let result = v1.copy();
+		return result.lerp(v2, amount);
+	}
+
+	static random(min, max) {
+		let x = randomIntBounds(min, max);
+		let y = randomIntBounds(min, max);
+		return new Vector(x, y);
+	}
+
+	static sub(v1, v2) {
+		return new Vector(v1.x - v2.x, v1.y - v2.y);
+	}
+
+	/**
+	 * Supports adding a Vector or a Scalar
+	 * @param {*} n
+	 * @returns
+	 */
+	add(n) {
+		if (n instanceof Vector) {
+			this.x += n.x;
+			this.y += n.y;
+			return this;
+		} else if (typeof n === "number") {
+			this.x += n;
+			this.y += n;
+			return this;
+		} else {
+			console.error(`Parameter in Vector.add(n) Not supported: ${n})`);
+		}
+	}
+
+	/**
+	 *  Return a new vector
+	 * @returns
+	 */
+	copy() {
+		return new Vector(this.x, this.y);
+	}
+
+	/* divide vector length (ie magnitude) by a constant*/
+	div(n) {
+		if (n === 0) {
+			//console.warn("Vector.div:", "divide by 0");
+			return this;
+		}
+		this.x /= n;
+		this.y /= n;
+		return this;
+	}
+
+	lerp(v1, amount) {
+		this.x += (v1.x - this.x) * amount || 0;
+		this.y += (v1.y - this.y) * amount || 0;
+		return this;
+	}
+
+	heading() {
+		const h = Math.atan2(this.y, this.x);
+		return h;
+	}
+
+	magSq() {
+		const x = this.x;
+		const y = this.y;
+		return x * x + y * y;
+	}
+
+	mag() {
+		return Math.sqrt(this.magSq());
+	}
+
+	normalize() {
+		return this.div(this.mag());
+	}
+
+	/**
+	Multiply vector length (ie magnitude) by a constant
+	*/
+	mult(n) {
+		this.x *= n;
+		this.y *= n;
+		return this;
+	}
+
+	/**
+	 *  set magnitude to a given value
+	 */
+	setMag(n) {
+		return this.normalize().mult(n);
+	}
+
+
+	/**
+	 * 
+	 * @param {*} n 
+	 * @returns 
+	 */
+	sub(n) {
+		if (n instanceof Vector) {
+			this.x -= n.x;
+			this.y -= n.y;
+			return this;
+		} else if (typeof n === "number") {
+			this.x -= n;
+			this.y -= n;
+			return this;
+		} else {
+			console.error(`Parameter in Vector.sub(n) Not supported: ${n})`);
+		}
+	}
+
+	toString() {
+		return "[" + this.x + ", " + this.y + "]";
+	}
+}
+
+/* Return a random integer between min and max (inclusive) */
+function randomIntBounds(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+class ForceDirected {
+  constructor(graph) {
+
+    this.GRAVITY = 2;//0.9;
+    this.REPULSION = 500000;
+    this.graph = graph;
+
+  }
+  applyForcesTowardsCenter() {
+    // apply force towards center
+    this.graph.nodeList.forEach((node) => {
+      let gravity = node.pos.copy().mult(-1).mult(this.GRAVITY);
+      node.force = gravity;
+      //node.applyForce(gravity);
+      //console.log(node);
+    });
+  }
+
+  applyRepulsiveForces() {
+    // apply repulsive force between nodes
+    for (let i = 0; i < this.graph.nodeList.length; i++) {
+      for (let j = i + 1; j < this.graph.nodeList.length; j++) {
+        if (i != j) {
+          let node1 = this.graph.nodeList[i];
+          let node2 = this.graph.nodeList[j];
+
+          // The gravitational force F between two bodies of mass m1 and m2 is
+          // F = G*m1*m2 / r2
+          // the vector that points from one object to the other
+          let dir = Vector.sub(node2.pos, node1.pos);
+         // let unit = dir.copy().normalize()
+
+          // the length (magnitude) of that vector is the distance between the two objects.
+          let distance = dir.mag();
+
+          // The strength of the force is inversely proportional to the distance squared.
+          // The farther away an object is, the weaker the force; the closer, the stronger.
+
+          // original  : without the normalize
+          dir.normalize();
+
+          let force1 = dir.mult(this.REPULSION);
+          force1.div(distance * distance);
+
+          let inverseForce = force1.copy().mult(-1);
+          node2.force.add(force1);
+          node1.force.add(inverseForce);
+        }
+      }
+    }
+  }
+
+  applyForcesExertedByConnections() {
+    this.graph.linkList.forEach((con) => {
+      let node1 = this.graph.nodeList[con[0]];
+      let node2 = this.graph.nodeList[con[1]];
+      
+      //let maxDis = con[2];
+
+      let dir = Vector.sub(node1.pos, node2.pos);
+
+      let neg_force = new Vector(0, 0).sub(dir);
+      let pos_force = new Vector(0, 0).add(dir);
+
+      node1.force.add(neg_force);
+      node2.force.add(pos_force);
+    });
+  }
+}
+
 class InputDeviceTracker {
 
     constructor(canvas, callback) {
@@ -520,173 +757,6 @@ function rectContainsCircle(rectangle, circle) {
   return true;
 }
 
-/**
- *  A vector is an entity that has both magnitude and direction.
- *  2D vector implementation based on the vector functions in P5.js
- */
-class Vector {
-	constructor(x, y) {
-		this.x = x || 0;
-		this.y = y || 0;
-
-		if (isNaN(x) || isNaN(y)) {
-			console.warn(`Vector(): parameters are not number: (${x}), ${y} `);
-		}
-		/*
-		console.log("in Vector()");
-		console.log("this.x  = " + this.x);
-		console.log("this.y  = " + this.y);
-
-		console.log("typeof x  = " + typeof y);
-		console.log("typeof y  = " + typeof y);
-		*/
-	}
-
-	static add(v1, v2) {
-		return new Vector(v1.x + v2.x, v1.y + v2.y);
-	}
-
-	/**
-	 * Divides a vector by a scalar and returns a new vector.
-	 *
-	 * @method div
-	 * @static
-	 * @param  {Vector} v
-	 * @param  {Number}  n
-	 * @return  {Vector}
-	 */
-	static div(v, n) {
-		let result = v.copy();
-		return result.div(n);
-	}
-
-	/**
-	 * Linear interpolate the vector to another vector
-	 */
-	static lerp(v1, v2, amount) {
-		let result = v1.copy();
-		return result.lerp(v2, amount);
-	}
-
-	static random(min, max) {
-		let x = randomIntBounds(min, max);
-		let y = randomIntBounds(min, max);
-		return new Vector(x, y);
-	}
-
-	static sub(v1, v2) {
-		return new Vector(v1.x - v2.x, v1.y - v2.y);
-	}
-
-	/**
-	 * Supports adding a Vector or a Scalar
-	 * @param {*} n
-	 * @returns
-	 */
-	add(n) {
-		if (n instanceof Vector) {
-			this.x += n.x;
-			this.y += n.y;
-			return this;
-		} else if (typeof n === "number") {
-			this.x += n;
-			this.y += n;
-			return this;
-		} else {
-			console.error(`Parameter in Vector.add(n) Not supported: ${n})`);
-		}
-	}
-
-	/**
-	 *  Return a new vector
-	 * @returns
-	 */
-	copy() {
-		return new Vector(this.x, this.y);
-	}
-
-	/* divide vector length (ie magnitude) by a constant*/
-	div(n) {
-		if (n === 0) {
-			//console.warn("Vector.div:", "divide by 0");
-			return this;
-		}
-		this.x /= n;
-		this.y /= n;
-		return this;
-	}
-
-	lerp(v1, amount) {
-		this.x += (v1.x - this.x) * amount || 0;
-		this.y += (v1.y - this.y) * amount || 0;
-		return this;
-	}
-
-	heading() {
-		const h = Math.atan2(this.y, this.x);
-		return h;
-	}
-
-	magSq() {
-		const x = this.x;
-		const y = this.y;
-		return x * x + y * y;
-	}
-
-	mag() {
-		return Math.sqrt(this.magSq());
-	}
-
-	normalize() {
-		return this.div(this.mag());
-	}
-
-	/**
-	Multiply vector length (ie magnitude) by a constant
-	*/
-	mult(n) {
-		this.x *= n;
-		this.y *= n;
-		return this;
-	}
-
-	/**
-	 *  set magnitude to a given value
-	 */
-	setMag(n) {
-		return this.normalize().mult(n);
-	}
-
-
-	/**
-	 * 
-	 * @param {*} n 
-	 * @returns 
-	 */
-	sub(n) {
-		if (n instanceof Vector) {
-			this.x -= n.x;
-			this.y -= n.y;
-			return this;
-		} else if (typeof n === "number") {
-			this.x -= n;
-			this.y -= n;
-			return this;
-		} else {
-			console.error(`Parameter in Vector.sub(n) Not supported: ${n})`);
-		}
-	}
-
-	toString() {
-		return "[" + this.x + ", " + this.y + "]";
-	}
-}
-
-/* Return a random integer between min and max (inclusive) */
-function randomIntBounds(min, max) {
-	return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
 // =============================================================
 //                          Graph
 // =============================================================
@@ -709,6 +779,7 @@ var version = "0.1";
 
 exports.Arc = Arc;
 exports.Circle = Circle;
+exports.ForceDirected = ForceDirected;
 exports.Graph = Graph;
 exports.MChart = MChart;
 exports.Rectangle = Rectangle;
