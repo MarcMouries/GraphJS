@@ -1,5 +1,0 @@
-//export {} from "./Constants";
-//export * from "./Rectangle";
-//export {Circle} from "./Circle";
-export {default as Circle} from "./Circle.js";
-export {default as Rectangle} from "./Rectangle.js";
