@@ -20,70 +20,11 @@
   var height = canvas.height;
   const CENTER = { x: width / 2, y: height / 2 };
 
-  const PI_2 = Math.PI * 2;
   const MAX_DISTANCE = 500; // not used
   const node_radius = 20;
 
 
   let graph = new graphboard.Graph();
-
-  //let nodes = [];
-  //let link_list = [];
-
- 
-  class Node {
-    constructor(id, pos, size) {
-      this.id = id;
-      this.mass = (PI_2 * size) / 1.5;
-      this.radius = size;
-
-      this.pos = pos;
-      this.force = new graphboard.Vector(0, 0);
-
-      this.velocity = new graphboard.Vector(0, 0);
-      this.acceleration = new graphboard.Vector(0, 0);
-    }
-    draw(ctx) {
-      ctx.beginPath();
-      ctx.fillStyle = "darkGrey";
-      ctx.arc(this.pos.x, this.pos.y, this.radius, 0, PI_2, false);
-      ctx.fill();
-      ctx.closePath();
-      ctx.fillStyle = "black";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(this.id, this.pos.x, this.pos.y);
-    }
-
-    /**
-     *  applyForce
-     *
-     *  Newton’s second law.
-     *  Receive a force, divide by mass, and add to acceleration.
-    */
-    __applyForce(force) {
-      let f = Vector.div(force, this.mass);
-      this.acceleration.add(f);
-    }
-
-    update() {
-
-      let force_copy = this.force.copy();
-      let velocity = force_copy.div(this.mass);
-      this.pos.add(velocity);
-      /*
-            this.velocity.add(this.acceleration);
-            this.pos.add(this.velocity);
-            this.acceleration.mult(0);
-            */
-    }
-
-    toString() {
-      return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
-    }
-  }
-
-
 
   var layout;
 
@@ -101,29 +42,29 @@
 
 
     let pos1 = new graphboard.Vector.random(min, max);
-    node = new Node("1", pos1, size); graph.nodeList.push(node);
+    node = new graphboard.Node("1", pos1, size); graph.nodeList.push(node);
 
 
     let pos2 = new graphboard.Vector.random(min, max);
-    node = new Node("1_1", pos2, size); graph.nodeList.push(node);
+    node = new graphboard.Node("1_1", pos2, size); graph.nodeList.push(node);
 
     let pos3 = new graphboard.Vector.random(min, max);
-    node = new Node("1_2", pos3, size); graph.nodeList.push(node);
+    node = new graphboard.Node("1_2", pos3, size); graph.nodeList.push(node);
 
     let pos4 = new graphboard.Vector.random(min, max);
-    node = new Node("1_3", pos4, size); graph.nodeList.push(node);
+    node = new graphboard.Node("1_3", pos4, size); graph.nodeList.push(node);
 
     let pos5 = new graphboard.Vector.random(min, max);
-    node = new Node("1_4", pos5, size); graph.nodeList.push(node);
+    node = new graphboard.Node("1_4", pos5, size); graph.nodeList.push(node);
 
     let pos6 = new graphboard.Vector.random(min, max);
-    node = new Node("2_1_4", pos6, size); graph.nodeList.push(node);
+    node = new graphboard.Node("2_1_4", pos6, size); graph.nodeList.push(node);
 
     let pos7 = new graphboard.Vector.random(min, max);
-    node = new Node("3", pos7, size); graph.nodeList.push(node);
+    node = new graphboard.Node("3", pos7, size); graph.nodeList.push(node);
 
     let pos8 = new graphboard.Vector.random(min, max);
-    node = new Node("4", pos8, size); graph.nodeList.push(node);
+    node = new graphboard.Node("4", pos8, size); graph.nodeList.push(node);
 
     graph.linkList.push([0, 1, MAX_DISTANCE]);
     graph.linkList.push([0, 2, MAX_DISTANCE]);

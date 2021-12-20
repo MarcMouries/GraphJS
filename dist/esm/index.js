@@ -358,6 +358,30 @@ class ForceDirected {
       node2.force.add(pos_force);
     });
   }
+
+  applyForces() {
+
+    // Force equals mass times acceleration.
+    // Newton’s second law, F→=M×A→ (or force = mass * acceleration).
+    this.applyForcesTowardsCenter();
+
+    this.applyRepulsiveForces();
+
+    this.applyForcesExertedByConnections();
+
+
+
+    // kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
+    //let total_KE = 0.0;
+    /*
+    nodes.forEach((node) => {
+      let node_KE = (0.5 * node.mass * node.velocity * node.velocity);
+      total_KE =+  node_KE;
+      });
+      console.log("total_KE=" + total_KE);
+  */
+  }
+
 }
 
 class InputDeviceTracker {
@@ -774,7 +798,62 @@ class Graph {
     }
 }
 
+const PI_2 = Math.PI * 2;
+
+class Node {
+
+    constructor(id, pos, size) {
+      this.id = id;
+      this.mass = (PI_2 * size) / 1.5;
+      this.radius = size;
+
+      this.pos = pos;
+      this.force = new Vector(0, 0);
+
+      this.velocity = new Vector(0, 0);
+      this.acceleration = new Vector(0, 0);
+    }
+    draw(ctx) {
+      ctx.beginPath();
+      ctx.fillStyle = "darkGrey";
+      ctx.arc(this.pos.x, this.pos.y, this.radius, 0, PI_2, false);
+      ctx.fill();
+      ctx.closePath();
+      ctx.fillStyle = "black";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(this.id, this.pos.x, this.pos.y);
+    }
+
+    /**
+     *  applyForce
+     *
+     *  Newton’s second law.
+     *  Receive a force, divide by mass, and add to acceleration.
+    */
+    __applyForce(force) {
+      let f = Vector.div(force, this.mass);
+      this.acceleration.add(f);
+    }
+
+    update() {
+
+      let force_copy = this.force.copy();
+      let velocity = force_copy.div(this.mass);
+      this.pos.add(velocity);
+      /*
+            this.velocity.add(this.acceleration);
+            this.pos.add(this.velocity);
+            this.acceleration.mult(0);
+            */
+    }
+
+    toString() {
+      return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
+    }
+  }
+
 var version = "0.1";
 
-export { Arc, Circle, ForceDirected, Graph, MChart, Rectangle, Vector, hello, version };
+export { Arc, Circle, ForceDirected, Graph, MChart, Node, Rectangle, Vector, hello, version };
 //# sourceMappingURL=index.js.map
