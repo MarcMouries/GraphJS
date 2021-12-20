@@ -1,98 +1,104 @@
-import Vector from '../Vector';
+import Vector from "../Vector";
 
 export default class ForceDirected {
-  constructor(graph, options) {
+	constructor(graph, options) {
+		this.graph = graph;
+		this.initNodes();
 
-    this.graph = graph;
+		const DEFAULTS = {
+			GRAVITY: 2, // 0.9,
+			REPULSION: 500000,
+		};
+		this.options = Object.assign({}, DEFAULTS, options);
+	}
 
-    const DEFAULTS = {
-      GRAVITY: 2, // 0.9,
-      REPULSION: 500000,
-    }
-    this.options = Object.assign({}, DEFAULTS, options);
-  }
-  applyForcesTowardsCenter() {
-    // apply force towards center
-    this.graph.nodeList.forEach((node) => {
-      let gravity = node.pos.copy().mult(-1).mult(this.options.GRAVITY);
-      node.force = gravity;
-      //node.applyForce(gravity);
-      //console.log(node);
-    });
-  }
+	initNodes() {
+		let min = -1000;
+		let max = 1000;
 
-  applyRepulsiveForces() {
-    // apply repulsive force between nodes
-    for (let i = 0; i < this.graph.nodeList.length; i++) {
-      for (let j = i + 1; j < this.graph.nodeList.length; j++) {
-        if (i != j) {
-          let node1 = this.graph.nodeList[i];
-          let node2 = this.graph.nodeList[j];
+		this.graph.nodeList.forEach((node) => {
+			node.pos = new Vector.random(min, max);
+		});
+	}
 
-          // The gravitational force F between two bodies of mass m1 and m2 is
-          // F = G*m1*m2 / r2
-          // the vector that points from one object to the other
-          let dir = Vector.sub(node2.pos, node1.pos);
-         // let unit = dir.copy().normalize()
+	applyForcesTowardsCenter() {
+		// apply force towards center
+		this.graph.nodeList.forEach((node) => {
+			let gravity = node.pos.copy().mult(-1).mult(this.options.GRAVITY);
+			node.force = gravity;
+			//node.applyForce(gravity);
+			//console.log(node);
+		});
+	}
 
-          // the length (magnitude) of that vector is the distance between the two objects.
-          let distance = dir.mag();
+	applyRepulsiveForces() {
+		// apply repulsive force between nodes
+		for (let i = 0; i < this.graph.nodeList.length; i++) {
+			for (let j = i + 1; j < this.graph.nodeList.length; j++) {
+				if (i != j) {
+					let node1 = this.graph.nodeList[i];
+					let node2 = this.graph.nodeList[j];
 
-          // The strength of the force is inversely proportional to the distance squared.
-          // The farther away an object is, the weaker the force; the closer, the stronger.
+					// The gravitational force F between two bodies of mass m1 and m2 is
+					// F = G*m1*m2 / r2
+					// the vector that points from one object to the other
+					let dir = Vector.sub(node2.pos, node1.pos);
+					// let unit = dir.copy().normalize()
 
-          // original  : without the normalize
-          dir.normalize()
+					// the length (magnitude) of that vector is the distance between the two objects.
+					let distance = dir.mag();
 
-          let force1 = dir.mult(this.options.REPULSION);
-          force1.div(distance * distance);
+					// The strength of the force is inversely proportional to the distance squared.
+					// The farther away an object is, the weaker the force; the closer, the stronger.
 
-          let inverseForce = force1.copy().mult(-1);
-          node2.force.add(force1);
-          node1.force.add(inverseForce);
-        }
-      }
-    }
-  }
+					// original  : without the normalize
+					dir.normalize();
 
-  applyForcesExertedByConnections() {
-    this.graph.linkList.forEach((con) => {
-      let node1 = this.graph.nodeList[con[0]];
-      let node2 = this.graph.nodeList[con[1]];
+					let force1 = dir.mult(this.options.REPULSION);
+					force1.div(distance * distance);
 
-      //let maxDis = con[2];
+					let inverseForce = force1.copy().mult(-1);
+					node2.force.add(force1);
+					node1.force.add(inverseForce);
+				}
+			}
+		}
+	}
 
-      let dir = Vector.sub(node1.pos, node2.pos);
+	applyForcesExertedByConnections() {
+		this.graph.linkList.forEach((con) => {
+			let node1 = this.graph.nodeList[con[0]];
+			let node2 = this.graph.nodeList[con[1]];
 
-      let neg_force = new Vector(0, 0).sub(dir);
-      let pos_force = new Vector(0, 0).add(dir);
+			//let maxDis = con[2];
 
-      node1.force.add(neg_force);
-      node2.force.add(pos_force);
-    });
-  }
+			let dir = Vector.sub(node1.pos, node2.pos);
 
-  applyForces() {
+			let neg_force = new Vector(0, 0).sub(dir);
+			let pos_force = new Vector(0, 0).add(dir);
 
-    // Force equals mass times acceleration.
-    // Newton’s second law, F→=M×A→ (or force = mass * acceleration).
-    this.applyForcesTowardsCenter();
+			node1.force.add(neg_force);
+			node2.force.add(pos_force);
+		});
+	}
 
-    this.applyRepulsiveForces();
+	applyForces() {
+		// Force equals mass times acceleration.
+		// Newton’s second law, F→=M×A→ (or force = mass * acceleration).
+		this.applyForcesTowardsCenter();
 
-    this.applyForcesExertedByConnections();
+		this.applyRepulsiveForces();
 
+		this.applyForcesExertedByConnections();
 
-
-    // kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
-    //let total_KE = 0.0;
-    /*
+		// kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
+		//let total_KE = 0.0;
+		/*
     nodes.forEach((node) => {
       let node_KE = (0.5 * node.mass * node.velocity * node.velocity);
       total_KE =+  node_KE;
       });
       console.log("total_KE=" + total_KE);
   */
-  }
-
+	}
 }

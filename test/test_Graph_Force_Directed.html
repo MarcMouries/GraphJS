@@ -33,38 +33,15 @@
 
     ctx.translate(width / 2, height / 2);
 
-    /* we may want to have distinct min, max values for x and y */
-    let min = -width;
-    let max = 2 * width;
-
-    let size = 15;
     let node;
-
-
-    let pos1 = new graphboard.Vector.random(min, max);
-    node = new graphboard.Node("1", pos1, size); graph.nodeList.push(node);
-
-
-    let pos2 = new graphboard.Vector.random(min, max);
-    node = new graphboard.Node("1_1", pos2, size); graph.nodeList.push(node);
-
-    let pos3 = new graphboard.Vector.random(min, max);
-    node = new graphboard.Node("1_2", pos3, size); graph.nodeList.push(node);
-
-    let pos4 = new graphboard.Vector.random(min, max);
-    node = new graphboard.Node("1_3", pos4, size); graph.nodeList.push(node);
-
-    let pos5 = new graphboard.Vector.random(min, max);
-    node = new graphboard.Node("1_4", pos5, size); graph.nodeList.push(node);
-
-    let pos6 = new graphboard.Vector.random(min, max);
-    node = new graphboard.Node("2_1_4", pos6, size); graph.nodeList.push(node);
-
-    let pos7 = new graphboard.Vector.random(min, max);
-    node = new graphboard.Node("3", pos7, size); graph.nodeList.push(node);
-
-    let pos8 = new graphboard.Vector.random(min, max);
-    node = new graphboard.Node("4", pos8, size); graph.nodeList.push(node);
+    node = new graphboard.Node("1");        graph.nodeList.push(node);
+    node = new graphboard.Node("1_1");      graph.nodeList.push(node);
+    node = new graphboard.Node("1_2");      graph.nodeList.push(node);
+    node = new graphboard.Node("1_3");      graph.nodeList.push(node);
+    node = new graphboard.Node("1_4");      graph.nodeList.push(node);
+    node = new graphboard.Node("2_1_4");    graph.nodeList.push(node);
+    node = new graphboard.Node("3");        graph.nodeList.push(node);
+    node = new graphboard.Node("4");        graph.nodeList.push(node);
 
     graph.linkList.push([0, 1, MAX_DISTANCE]);
     graph.linkList.push([0, 2, MAX_DISTANCE]);
@@ -72,12 +49,8 @@
     graph.linkList.push([0, 4, MAX_DISTANCE]);
     graph.linkList.push([4, 5, MAX_DISTANCE]);
 
-
-    let circle = new graphboard.Circle();
-
     layout = new graphboard.ForceDirected(graph);
-    
-
+  
   }
 
 

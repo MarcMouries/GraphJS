@@ -5,14 +5,15 @@ import Vector from '../Vector';
 
 export default class Node {
 
-    constructor(id, pos, size) {
+
+    constructor(id) {
       this.id = id;
-      this.mass = (PI_2 * size) / 1.5;
-      this.radius = size;
+      this.size = 10;
+      this.mass = (PI_2 * this.size) / 1.5;
+      this.radius = this.size;
 
-      this.pos = pos;
+      this.pos = new Vector(0, 0);
       this.force = new Vector(0, 0);
-
       this.velocity = new Vector(0, 0);
       this.acceleration = new Vector(0, 0);
     }

@@ -291,13 +291,29 @@ class ForceDirected {
   constructor(graph, options) {
 
     this.graph = graph;
+    this.initNodes();
+
+
 
     const DEFAULTS = {
       GRAVITY: 2, // 0.9,
       REPULSION: 500000,
     };
     this.options = Object.assign({}, DEFAULTS, options);
+
   }
+
+  initNodes() {
+
+        /* we may want to have distinct min, max values for x and y */
+        let min = -1000;
+        let max =  1000;
+
+    this.graph.nodeList.forEach((node) => {
+      node.pos = new Vector.random(min, max);
+    });
+  }
+
   applyForcesTowardsCenter() {
     // apply force towards center
     this.graph.nodeList.forEach((node) => {
@@ -802,14 +818,15 @@ const PI_2 = Math.PI * 2;
 
 class Node {
 
-    constructor(id, pos, size) {
+
+    constructor(id) {
       this.id = id;
-      this.mass = (PI_2 * size) / 1.5;
-      this.radius = size;
+      this.size = 10;
+      this.mass = (PI_2 * this.size) / 1.5;
+      this.radius = this.size;
 
-      this.pos = pos;
+      this.pos = new Vector(0, 0);
       this.force = new Vector(0, 0);
-
       this.velocity = new Vector(0, 0);
       this.acceleration = new Vector(0, 0);
     }
