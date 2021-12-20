@@ -71,4 +71,28 @@ export default class ForceDirected {
       node2.force.add(pos_force);
     });
   }
+
+  applyForces() {
+
+    // Force equals mass times acceleration.
+    // Newton’s second law, F→=M×A→ (or force = mass * acceleration).
+    this.applyForcesTowardsCenter();
+
+    this.applyRepulsiveForces();
+
+    this.applyForcesExertedByConnections();
+
+
+
+    // kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
+    //let total_KE = 0.0;
+    /*
+    nodes.forEach((node) => {
+      let node_KE = (0.5 * node.mass * node.velocity * node.velocity);
+      total_KE =+  node_KE;
+      });
+      console.log("total_KE=" + total_KE);
+  */
+  }
+
 }
