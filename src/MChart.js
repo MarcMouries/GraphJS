@@ -159,7 +159,7 @@ export class MChart {
       case "move":
         if (this.clicked_on_the_canvas && this.mouseIsDown) {
           this.isSelecting = true;
-          // getting the min & max to handle when the user selects going up
+          // getting the min & max to handle when the user selects from bottom right to top left 
           const x1 = Math.min(this.selection_startX, this.lastMoveX);
           const y1 = Math.min(this.selection_startY, this.lastMoveY);
           const x2 = Math.max(this.selection_startX, this.lastMoveX);
