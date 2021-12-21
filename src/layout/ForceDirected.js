@@ -82,6 +82,18 @@ export default class ForceDirected {
 		});
 	}
 
+	/**
+     *  applyForce
+     *
+     *  Newton’s second law.
+     *  Receive a force, divide by mass, and add to acceleration.
+    */
+	applyForce(node, force) {
+		let forceOverMass = Vector.div(force, node.mass);
+		node.acceleration.add(forceOverMass);
+	}
+
+
 	updateNodesVelocity() {
 		this.graph.nodeList.forEach((node) => {
 			let force_copy = node.force.copy();
