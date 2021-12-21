@@ -54,6 +54,19 @@
     ctx.fillRect(-width, -height, 2 * width, 2 * height);
   };
 
+  function draw_node(node) {
+		ctx.beginPath();
+		//ctx.fillStyle = "darkGrey";
+		ctx.fillStyle = "rgb(176,225,206)";
+
+		ctx.arc(node.pos.x, node.pos.y, node.radius, 0, 2 * Math.PI, false);
+		ctx.fill();
+		ctx.closePath();
+		ctx.fillStyle = "black";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillText(node.id, node.pos.x, node.pos.y);
+  }
 
   function draw_line(v1, v2) {
     ctx.beginPath();
@@ -63,6 +76,8 @@
     ctx.stroke();
     ctx.closePath();
   }
+
+
 
   function draw_links() {
     graph.linkList.forEach((link) => {
@@ -81,7 +96,7 @@
     layout.applyForces();
 
     graph.nodeList.forEach((node) => {
-      node.draw(ctx);
+      draw_node(node);
       //node.update();
     });
 
