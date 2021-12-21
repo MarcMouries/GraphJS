@@ -2,125 +2,57 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-function hello(name) {
-    return ("hello " + name) ;
-  }
+/**
+ * Create a High Definition Canvas.
+ *
+ * @param {*} canvas
+ * @returns Scaled 2d Context
+ */
+function setupHiDefCanvas(canvas) {
+	// Get the device pixel ratio, falling back to 1.
+	var devicePixelRatio = window.devicePixelRatio || 1;
 
-var NONE = "none";
+	var ctx = canvas.getContext("2d");
+	const backingStoreRatio = ctx.backingStorePixelRatio  || 1;
 
-class Shape {
-    constructor(x, y, type) {
-        this.type = type;
-        this.x = x;
-        this.y = y;
-        this.isSelected = false;
-        this.strokeStyle = NONE;
+	const ratio = devicePixelRatio / backingStoreRatio;
 
-    }
-    getColor() {
-        return this.color;
-    }
+	console.log("ratio = " + ratio);
+
+
+	// Get the size of the canvas in CSS pixels.
+	//var rect = canvas.getBoundingClientRect();
+
+    const initialWidth = canvas.width;
+    const initialHeight = canvas.height;
+
+
+	// On Hi Def like Retina display we double the size of the canvas
+	canvas.width = initialWidth * ratio;
+	canvas.height = initialHeight * ratio;
+    ctx.scale(ratio, ratio);
+
+	// and we shrink the display size using CSS
+	canvas.style.width = initialWidth + 'px';
+    canvas.style.height = initialHeight + 'px';
+	return ctx;
 }
 
-class Arc extends Shape {
-  constructor(x, y, radius, radians) {
-    super(x, y);
-    this.radius = radius;
-    this.radians = radians;
-  }
-  isHit(x, y) {
-    var dx = this.x - x;
-    var dy = this.y - y;
-    if (dx * dx + dy * dy < this.radius * this.radius) {
-      return true;
-    }
-  }
-  render(ctx) {
-    ctx.save();
-
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, this.radians, false);
-
-    if (this.fillStyle) {
-      ctx.fillStyle = this.fillStyle;
-      ctx.fill();
+// =============================================================
+//                          Graph
+// =============================================================
+class Graph {
+    constructor() {
+        
+        this.graph = {};
+        this.nodeList = [];
+        this.linkList = [];
+        this.adjacency = {};
+        this.changed = false;
+        this.root;    
     }
 
-    if (this.strokeStyle != NONE) {
-      ctx.strokeStyle = this.strokeStyle;
-      ctx.lineWidth = this.lineWidth;
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  }
-}
-
-class Circle extends Arc {
-    constructor(x, y, radius) {
-      super(x, y, radius, Math.PI *2);
-    }
-    isHit(x, y) {
-      var dx = this.x - x;
-      var dy = this.y - y;
-      if (dx * dx + dy * dy < this.radius * this.radius) {
-        return true;
-      }
-    }
-
-    getBBox() {
-      return {
-        x: this.x - this.radius,
-        y: this.y - this.radius,
-        width : this.radius * 2,
-        height : this.radius * 2
-      }
-    }
-  }
-
-class Rectangle extends Shape {
-    constructor(x, y, width, height) {
-        super(x, y);
-        this.width = width;
-        this.height = height;
-    }
-    getArea() {
-        return this.width * this.height;
-    }
-
-    isHit(x, y) {
-        if (
-            x > this.x &&
-            x < this.x + this.width &&
-            y > this.y &&
-            y < this.y + this.height
-        ) {
-            return true;
-        }
-    }
-    render(ctx) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(
-            this.x,
-            this.y,
-            this.width,
-            this.height
-        );
-
-        if (this.fillStyle) {
-            ctx.fillStyle = this.fillStyle;
-            ctx.fill();
-        }
-        if (this.strokeStyle != NONE) {
-            ctx.strokeStyle = this.strokeStyle;
-            ctx.lineWidth = this.lineWidth;
-            ctx.stroke();
-        }
-        ctx.restore();
-    }
-    toString() {
-        return `rectangle:  (${this.x},${this.y}) x (${this.width},${this.height})`;
+    test () {
     }
 }
 
@@ -291,117 +223,283 @@ function randomIntBounds(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-class ForceDirected {
-  constructor(graph, options) {
+const PI_2 = Math.PI * 2;
 
-    this.graph = graph;
-    this.initNodes();
+class Node {
 
 
+    constructor(id) {
+      this.id = id;
+      this.size = 20;
+      this.mass = (PI_2 * this.size) / 1.5;
+      this.radius = this.size;
 
-    const DEFAULTS = {
-      GRAVITY: 2, // 0.9,
-      REPULSION: 500000,
-    };
-    this.options = Object.assign({}, DEFAULTS, options);
+      this.pos = new Vector(0, 0);
+      this.force = new Vector(0, 0);
+      this.velocity = new Vector(0, 0);
+      this.acceleration = new Vector(0, 0);
+    }
+    draw(ctx) {
+      ctx.beginPath();
+//      ctx.fillStyle = "darkGrey";
+      ctx.fillStyle = "rgb(176,225,206)";
 
-  }
+      ctx.arc(this.pos.x, this.pos.y, this.radius, 0, PI_2, false);
+      ctx.fill();
+      ctx.closePath();
+      ctx.fillStyle = "black";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(this.id, this.pos.x, this.pos.y);
+    }
 
-  initNodes() {
+    /**
+     *  applyForce
+     *
+     *  Newton’s second law.
+     *  Receive a force, divide by mass, and add to acceleration.
+    */
+    __applyForce(force) {
+      let f = Vector.div(force, this.mass);
+      this.acceleration.add(f);
+    }
 
-        /* we may want to have distinct min, max values for x and y */
-        let min = -1000;
-        let max =  1000;
+    update() {
 
-    this.graph.nodeList.forEach((node) => {
-      node.pos = new Vector.random(min, max);
-    });
-  }
+      let force_copy = this.force.copy();
+      let velocity = force_copy.div(this.mass);
+      this.pos.add(velocity);
+      /*
+            this.velocity.add(this.acceleration);
+            this.pos.add(this.velocity);
+            this.acceleration.mult(0);
+            */
+    }
 
-  applyForcesTowardsCenter() {
-    // apply force towards center
-    this.graph.nodeList.forEach((node) => {
-      let gravity = node.pos.copy().mult(-1).mult(this.options.GRAVITY);
-      node.force = gravity;
-      //node.applyForce(gravity);
-      //console.log(node);
-    });
-  }
-
-  applyRepulsiveForces() {
-    // apply repulsive force between nodes
-    for (let i = 0; i < this.graph.nodeList.length; i++) {
-      for (let j = i + 1; j < this.graph.nodeList.length; j++) {
-        if (i != j) {
-          let node1 = this.graph.nodeList[i];
-          let node2 = this.graph.nodeList[j];
-
-          // The gravitational force F between two bodies of mass m1 and m2 is
-          // F = G*m1*m2 / r2
-          // the vector that points from one object to the other
-          let dir = Vector.sub(node2.pos, node1.pos);
-         // let unit = dir.copy().normalize()
-
-          // the length (magnitude) of that vector is the distance between the two objects.
-          let distance = dir.mag();
-
-          // The strength of the force is inversely proportional to the distance squared.
-          // The farther away an object is, the weaker the force; the closer, the stronger.
-
-          // original  : without the normalize
-          dir.normalize();
-
-          let force1 = dir.mult(this.options.REPULSION);
-          force1.div(distance * distance);
-
-          let inverseForce = force1.copy().mult(-1);
-          node2.force.add(force1);
-          node1.force.add(inverseForce);
-        }
-      }
+    toString() {
+      return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
     }
   }
 
-  applyForcesExertedByConnections() {
-    this.graph.linkList.forEach((con) => {
-      let node1 = this.graph.nodeList[con[0]];
-      let node2 = this.graph.nodeList[con[1]];
+class ForceDirected {
+	constructor(graph, options) {
+		this.graph = graph;
+		this.initNodes();
 
-      //let maxDis = con[2];
+		const DEFAULTS = {
+			GRAVITY: 2, // 0.9,
+			REPULSION: 500000,
+		};
+		this.options = Object.assign({}, DEFAULTS, options);
+	}
 
-      let dir = Vector.sub(node1.pos, node2.pos);
+	initNodes() {
+		let min = -1000;
+		let max = 1000;
 
-      let neg_force = new Vector(0, 0).sub(dir);
-      let pos_force = new Vector(0, 0).add(dir);
+		this.graph.nodeList.forEach((node) => {
+			node.pos = new Vector.random(min, max);
+		});
+	}
 
-      node1.force.add(neg_force);
-      node2.force.add(pos_force);
-    });
-  }
+	applyForcesTowardsCenter() {
+		// apply force towards center
+		this.graph.nodeList.forEach((node) => {
+			let gravity = node.pos.copy().mult(-1).mult(this.options.GRAVITY);
+			node.force = gravity;
+			//node.applyForce(gravity);
+			//console.log(node);
+		});
+	}
 
-  applyForces() {
+	applyRepulsiveForces() {
+		// apply repulsive force between nodes
+		for (let i = 0; i < this.graph.nodeList.length; i++) {
+			for (let j = i + 1; j < this.graph.nodeList.length; j++) {
+				if (i != j) {
+					let node1 = this.graph.nodeList[i];
+					let node2 = this.graph.nodeList[j];
 
-    // Force equals mass times acceleration.
-    // Newton’s second law, F→=M×A→ (or force = mass * acceleration).
-    this.applyForcesTowardsCenter();
+					// The gravitational force F between two bodies of mass m1 and m2 is
+					// F = G*m1*m2 / r2
+					// the vector that points from one object to the other
+					let dir = Vector.sub(node2.pos, node1.pos);
+					// let unit = dir.copy().normalize()
 
-    this.applyRepulsiveForces();
+					// the length (magnitude) of that vector is the distance between the two objects.
+					let distance = dir.mag();
 
-    this.applyForcesExertedByConnections();
+					// The strength of the force is inversely proportional to the distance squared.
+					// The farther away an object is, the weaker the force; the closer, the stronger.
 
+					// original  : without the normalize
+					dir.normalize();
 
+					let force1 = dir.mult(this.options.REPULSION);
+					force1.div(distance * distance);
 
-    // kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
-    //let total_KE = 0.0;
-    /*
+					let inverseForce = force1.copy().mult(-1);
+					node2.force.add(force1);
+					node1.force.add(inverseForce);
+				}
+			}
+		}
+	}
+
+	applyForcesExertedByConnections() {
+		this.graph.linkList.forEach((con) => {
+			let node1 = this.graph.nodeList[con[0]];
+			let node2 = this.graph.nodeList[con[1]];
+
+			//let maxDis = con[2];
+
+			let dir = Vector.sub(node1.pos, node2.pos);
+
+			let neg_force = new Vector(0, 0).sub(dir);
+			let pos_force = new Vector(0, 0).add(dir);
+
+			node1.force.add(neg_force);
+			node2.force.add(pos_force);
+		});
+	}
+
+	applyForces() {
+		// Force equals mass times acceleration.
+		// Newton’s second law, F→=M×A→ (or force = mass * acceleration).
+		this.applyForcesTowardsCenter();
+
+		this.applyRepulsiveForces();
+
+		this.applyForcesExertedByConnections();
+
+		// kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
+		//let total_KE = 0.0;
+		/*
     nodes.forEach((node) => {
       let node_KE = (0.5 * node.mass * node.velocity * node.velocity);
       total_KE =+  node_KE;
       });
       console.log("total_KE=" + total_KE);
   */
+	}
+}
+
+var NONE = "none";
+
+class Shape {
+    constructor(x, y, type) {
+        this.type = type;
+        this.x = x;
+        this.y = y;
+        this.isSelected = false;
+        this.strokeStyle = NONE;
+
+    }
+    getColor() {
+        return this.color;
+    }
+}
+
+class Arc extends Shape {
+  constructor(x, y, radius, radians) {
+    super(x, y);
+    this.radius = radius;
+    this.radians = radians;
+  }
+  isHit(x, y) {
+    var dx = this.x - x;
+    var dy = this.y - y;
+    if (dx * dx + dy * dy < this.radius * this.radius) {
+      return true;
+    }
+  }
+  render(ctx) {
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, this.radians, false);
+
+    if (this.fillStyle) {
+      ctx.fillStyle = this.fillStyle;
+      ctx.fill();
+    }
+
+    if (this.strokeStyle != NONE) {
+      ctx.strokeStyle = this.strokeStyle;
+      ctx.lineWidth = this.lineWidth;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+}
+
+class Circle extends Arc {
+    constructor(x, y, radius) {
+      super(x, y, radius, Math.PI *2);
+    }
+    isHit(x, y) {
+      var dx = this.x - x;
+      var dy = this.y - y;
+      if (dx * dx + dy * dy < this.radius * this.radius) {
+        return true;
+      }
+    }
+
+    getBBox() {
+      return {
+        x: this.x - this.radius,
+        y: this.y - this.radius,
+        width : this.radius * 2,
+        height : this.radius * 2
+      }
+    }
   }
 
+class Rectangle extends Shape {
+    constructor(x, y, width, height) {
+        super(x, y);
+        this.width = width;
+        this.height = height;
+    }
+    getArea() {
+        return this.width * this.height;
+    }
+
+    isHit(x, y) {
+        if (
+            x > this.x &&
+            x < this.x + this.width &&
+            y > this.y &&
+            y < this.y + this.height
+        ) {
+            return true;
+        }
+    }
+    render(ctx) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(
+            this.x,
+            this.y,
+            this.width,
+            this.height
+        );
+
+        if (this.fillStyle) {
+            ctx.fillStyle = this.fillStyle;
+            ctx.fill();
+        }
+        if (this.strokeStyle != NONE) {
+            ctx.strokeStyle = this.strokeStyle;
+            ctx.lineWidth = this.lineWidth;
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+    toString() {
+        return `rectangle:  (${this.x},${this.y}) x (${this.width},${this.height})`;
+    }
 }
 
 class InputDeviceTracker {
@@ -561,8 +659,8 @@ class MChart {
       display_grid: false,
       selection: {
         strokeStyle: '#CC0000', //  'rgba(255,51,0,1)', //'rgba(0,128,255,1)';
-        lineWidth: 1,
-        fillStyle: 'rgba(255,51,0,0.01)'  //'rgba(0,128,255, 0.2)';
+        lineWidth: 0.5,
+        fillStyle: 'rgba(255,51,0,0.05)'  //'rgba(0,128,255, 0.2)';
       }
     };
     this.options = Object.assign({}, DEFAULTS, options);
@@ -575,8 +673,6 @@ class MChart {
 
     /* The list of ojbects to draw */
     this.objects = [];
-
-
 
     this.isSelecting = false;
     this.isDragging = false;
@@ -800,80 +896,6 @@ function rectContainsCircle(rectangle, circle) {
   return true;
 }
 
-// =============================================================
-//                          Graph
-// =============================================================
-class Graph {
-    constructor() {
-        
-        this.graph = {};
-        this.nodeList = [];
-        this.linkList = [];
-        this.adjacency = {};
-        this.changed = false;
-        this.root;    
-    }
-
-    test () {
-    }
-}
-
-const PI_2 = Math.PI * 2;
-
-class Node {
-
-
-    constructor(id) {
-      this.id = id;
-      this.size = 10;
-      this.mass = (PI_2 * this.size) / 1.5;
-      this.radius = this.size;
-
-      this.pos = new Vector(0, 0);
-      this.force = new Vector(0, 0);
-      this.velocity = new Vector(0, 0);
-      this.acceleration = new Vector(0, 0);
-    }
-    draw(ctx) {
-      ctx.beginPath();
-      ctx.fillStyle = "darkGrey";
-      ctx.arc(this.pos.x, this.pos.y, this.radius, 0, PI_2, false);
-      ctx.fill();
-      ctx.closePath();
-      ctx.fillStyle = "black";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(this.id, this.pos.x, this.pos.y);
-    }
-
-    /**
-     *  applyForce
-     *
-     *  Newton’s second law.
-     *  Receive a force, divide by mass, and add to acceleration.
-    */
-    __applyForce(force) {
-      let f = Vector.div(force, this.mass);
-      this.acceleration.add(f);
-    }
-
-    update() {
-
-      let force_copy = this.force.copy();
-      let velocity = force_copy.div(this.mass);
-      this.pos.add(velocity);
-      /*
-            this.velocity.add(this.acceleration);
-            this.pos.add(this.velocity);
-            this.acceleration.mult(0);
-            */
-    }
-
-    toString() {
-      return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
-    }
-  }
-
 var version = "0.1";
 
 exports.Arc = Arc;
@@ -884,6 +906,6 @@ exports.MChart = MChart;
 exports.Node = Node;
 exports.Rectangle = Rectangle;
 exports.Vector = Vector;
-exports.hello = hello;
+exports.setupHiDefCanvas = setupHiDefCanvas;
 exports.version = version;
 //# sourceMappingURL=index.js.map

@@ -8,7 +8,7 @@ export default class Node {
 
     constructor(id) {
       this.id = id;
-      this.size = 10;
+      this.size = 20;
       this.mass = (PI_2 * this.size) / 1.5;
       this.radius = this.size;
 
@@ -19,7 +19,9 @@ export default class Node {
     }
     draw(ctx) {
       ctx.beginPath();
-      ctx.fillStyle = "darkGrey";
+//      ctx.fillStyle = "darkGrey";
+      ctx.fillStyle = "rgb(176,225,206)";
+
       ctx.arc(this.pos.x, this.pos.y, this.radius, 0, PI_2, false);
       ctx.fill();
       ctx.closePath();

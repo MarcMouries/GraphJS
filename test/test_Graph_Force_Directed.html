@@ -15,9 +15,13 @@
 </body>
 <script>
   const canvas = document.querySelector("canvas");
-  const ctx = canvas.getContext("2d");
-  var width = canvas.width;
-  var height = canvas.height;
+
+  //const ctx = canvas.getContext("2d");
+  const ctx = graphboard.setupHiDefCanvas(canvas);
+
+  var rect = canvas.getBoundingClientRect();
+  var width = rect.width;
+  var height = rect.height;
   const CENTER = { x: width / 2, y: height / 2 };
 
   const MAX_DISTANCE = 500; // not used
@@ -50,12 +54,13 @@
     graph.linkList.push([4, 5, MAX_DISTANCE]);
 
     layout = new graphboard.ForceDirected(graph);
-  
   }
 
 
   function clear() {
     ctx.fillStyle = "rgba(234, 236, 238, 0.9)";
+    //ctx.fillStyle = "rgb(195,226,234)";
+    //ctx.fillStyle = "rgb(176,225,206)";
     // change origin due to translation
     ctx.fillRect(-width, -height, 2 * width, 2 * height);
   };
@@ -79,7 +84,6 @@
     });
   }
 
-
   function loop() {
 
     clear();
@@ -92,6 +96,7 @@
       node.draw(ctx);
       node.update();
     });
+
 
     if (i < max_iterations) {
       requestAnimationFrame(loop);

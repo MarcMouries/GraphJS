@@ -26,8 +26,8 @@ export class MChart {
       display_grid: false,
       selection: {
         strokeStyle: '#CC0000', //  'rgba(255,51,0,1)', //'rgba(0,128,255,1)';
-        lineWidth: 1,
-        fillStyle: 'rgba(255,51,0,0.01)'  //'rgba(0,128,255, 0.2)';
+        lineWidth: 0.5,
+        fillStyle: 'rgba(255,51,0,0.05)'  //'rgba(0,128,255, 0.2)';
       }
     }
     this.options = Object.assign({}, DEFAULTS, options);
@@ -40,8 +40,6 @@ export class MChart {
 
     /* The list of ojbects to draw */
     this.objects = [];
-
-
 
     this.isSelecting = false;
     this.isDragging = false;

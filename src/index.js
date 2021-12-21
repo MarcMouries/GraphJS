@@ -1,13 +1,11 @@
 
-export { default as hello } from "./hello";
-export * from "./shape";
+export * from "./canvas";
+export * from "./graph";
 export * from "./layout";
+export * from "./shape";
 
 export {MChart} from "./MChart";
 export {Vector} from "./Vector";
-
-export * from "./Graph";
-
 
 export var version = "0.1"
 
