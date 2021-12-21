@@ -13,28 +13,29 @@ function setupHiDefCanvas(canvas) {
 	var devicePixelRatio = window.devicePixelRatio || 1;
 
 	var ctx = canvas.getContext("2d");
-	const backingStoreRatio = ctx.backingStorePixelRatio  || 1;
-
-	const ratio = devicePixelRatio / backingStoreRatio;
-
-	console.log("ratio = " + ratio);
-
 
 	// Get the size of the canvas in CSS pixels.
 	//var rect = canvas.getBoundingClientRect();
-
     const initialWidth = canvas.width;
     const initialHeight = canvas.height;
 
 
 	// On Hi Def like Retina display we double the size of the canvas
-	canvas.width = initialWidth * ratio;
-	canvas.height = initialHeight * ratio;
-    ctx.scale(ratio, ratio);
+	canvas.width = initialWidth * devicePixelRatio;
+	canvas.height = initialHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
 
 	// and we shrink the display size using CSS
 	canvas.style.width = initialWidth + 'px';
     canvas.style.height = initialHeight + 'px';
+
+	console.log(" ─────────────────────────");
+	console.log(" │ setupHiDefCanvas      │");
+	console.log(" ─────────────────────────");
+
+	console.log("devicePixelRatio : " + devicePixelRatio);
+	console.log(" └───────────────────────┘");
+
 	return ctx;
 }
 
@@ -224,52 +225,131 @@ function randomIntBounds(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-const PI_2 = Math.PI * 2;
-
 class Node {
+	constructor(id, data) {
+		this.id = id;
 
+		this.data = data;
+		this.level = 0;
+		this.children = [];
+		this.parent;
+		this.neighbor;
+		this.isCollapsed = false;
 
-    constructor(id) {
-      this.id = id;
-      this.size = 20;
-      this.mass = (PI_2 * this.size) / 1.5;
-      this.radius = this.size;
+		this.size = 20;
+		this.mass = (6 * this.size) / 1.5;
+		this.radius = this.size;
 
-      this.pos = new Vector(0, 0);
-      this.force = new Vector(0, 0);
-      this.velocity = new Vector(0, 0);
-      this.acceleration = new Vector(0, 0);
-    }
-    draw(ctx) {
-      ctx.beginPath();
-//      ctx.fillStyle = "darkGrey";
-      ctx.fillStyle = "rgb(176,225,206)";
+		//this.force = new Vector(0, 0);
 
-      ctx.arc(this.pos.x, this.pos.y, this.radius, 0, PI_2, false);
-      ctx.fill();
-      ctx.closePath();
-      ctx.fillStyle = "black";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(this.id, this.pos.x, this.pos.y);
-    }
+		this.pos = new Vector(0, 0);
+		this.velocity = new Vector(0, 0);
+		this.acceleration = new Vector(0, 0);
+	}
 
-    /**
-     *  applyForce
-     *
-     *  Newton’s second law.
-     *  Receive a force, divide by mass, and add to acceleration.
-    */
-    __applyForce(force) {
-      let f = Vector.div(force, this.mass);
-      this.acceleration.add(f);
-    }
+	toString() {
+		return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
+	}
 
+	addChild(node) {
+		this.children.push(node);
+	}
 
-    toString() {
-      return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
-    }
-  }
+	getAdjacents() {
+		return this.children;
+	}
+
+	isAdjacent(node) {
+		return this.children.indexOf(node) > -1;
+	}
+
+	getChildAt(i) {
+		return this.children[i];
+	}
+
+	getFirstChild() {
+		return this.getChildAt(0);
+	}
+
+	getChildrenCount() {
+		return this.children.length;
+	}
+	isLeaf() {
+		return this.children && this.children.length == 0;
+	}
+	hasChild() {
+		return this.children && this.children.length > 0;
+	}
+	getLastChild() {
+		return this.getChildAt(this.getChildrenCount() - 1);
+	}
+	isAncestorCollapsed() {
+		if (this.parent == null) {
+			return false;
+		}
+		return this.parent.isCollapsed
+			? true
+			: this.parent.id === -1
+			? false
+			: this.parent.isAncestorCollapsed();
+	}
+
+	/**
+	 *  isLeftMost: is this node == to the first child of its parent?
+	 */
+	isLeftMost() {
+		if (!this.parent || this.parent === null) {
+			return true;
+		} else {
+			return this.parent.getFirstChild() === this;
+		}
+	}
+
+	/**
+	 *  isRightMost: is this node == to the last child of its parent?
+	 */
+	isRightMost() {
+		if (!this.parent || this.parent === null) {
+			return true;
+		} else {
+			return this.parent.getLastChild() === this;
+		}
+	}
+
+	getLeftSibling() {
+		if (this.parent === null || this.isLeftMost()) {
+			return null;
+		} else {
+			var index = this.parent.children.indexOf(this);
+			return this.parent.children[index - 1];
+		}
+	}
+
+	getRightSibling() {
+		if (this.parent === null || this.isRightMost()) {
+			return null;
+		} else {
+			var index = this.parent.children.indexOf(this);
+			return this.parent.children[index + 1];
+		}
+	}
+
+	getLeftMostChild() {
+		if (this.getChildrenCount() == 0) return null;
+
+		return this.children[0];
+	}
+
+	getRightMostChild() {
+		if (this.getChildrenCount() == 0) return null;
+
+		return this.children[this.getChildrenCount() - 1];
+	}
+
+	hasLeftSibling() {
+		return !this.isLeftMost();
+	}
+}
 
 class Link {
 	constructor(source, target) {
@@ -302,6 +382,30 @@ class ForceDirected {
 
 		this.graph.nodeList.forEach((node) => {
 			node.pos = new Vector.random(min, max);
+		});
+	}
+
+	/**
+	 *  applyForce
+	 *
+	 *  Newton’s second law.
+	 *  Receive a force, divide by mass, and add to acceleration.
+	 */
+	applyForce(node, force) {
+		let forceOverMass = Vector.div(force, node.mass);
+		node.acceleration.add(forceOverMass);
+	}
+
+	updateNodesVelocity() {
+		this.graph.nodeList.forEach((node) => {
+			let force_copy = node.force.copy();
+			let velocity = force_copy.div(node.mass);
+			node.pos.add(velocity);
+			/*
+					  this.velocity.add(this.acceleration);
+					  this.pos.add(this.velocity);
+					  this.acceleration.mult(0);
+					  */
 		});
 	}
 
@@ -363,19 +467,6 @@ class ForceDirected {
 
 			node1.force.add(neg_force);
 			node2.force.add(pos_force);
-		});
-	}
-
-	updateNodesVelocity() {
-		this.graph.nodeList.forEach((node) => {
-			let force_copy = node.force.copy();
-			let velocity = force_copy.div(node.mass);
-			node.pos.add(velocity);
-			/*
-				  this.velocity.add(this.acceleration);
-				  this.pos.add(this.velocity);
-				  this.acceleration.mult(0);
-				  */
 		});
 	}
 
