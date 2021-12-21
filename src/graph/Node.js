@@ -42,17 +42,6 @@ export default class Node {
       this.acceleration.add(f);
     }
 
-    update() {
-
-      let force_copy = this.force.copy();
-      let velocity = force_copy.div(this.mass);
-      this.pos.add(velocity);
-      /*
-            this.velocity.add(this.acceleration);
-            this.pos.add(this.velocity);
-            this.acceleration.mult(0);
-            */
-    }
 
     toString() {
       return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";

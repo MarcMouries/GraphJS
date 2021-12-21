@@ -261,17 +261,6 @@ class Node {
       this.acceleration.add(f);
     }
 
-    update() {
-
-      let force_copy = this.force.copy();
-      let velocity = force_copy.div(this.mass);
-      this.pos.add(velocity);
-      /*
-            this.velocity.add(this.acceleration);
-            this.pos.add(this.velocity);
-            this.acceleration.mult(0);
-            */
-    }
 
     toString() {
       return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
@@ -373,6 +362,19 @@ class ForceDirected {
 		});
 	}
 
+	updateNodesVelocity() {
+		this.graph.nodeList.forEach((node) => {
+			let force_copy = node.force.copy();
+			let velocity = force_copy.div(node.mass);
+			node.pos.add(velocity);
+			/*
+				  this.velocity.add(this.acceleration);
+				  this.pos.add(this.velocity);
+				  this.acceleration.mult(0);
+				  */
+		});
+	}
+
 	applyForces() {
 		// Force equals mass times acceleration.
 		// Newton’s second law, F→=M×A→ (or force = mass * acceleration).
@@ -382,6 +384,7 @@ class ForceDirected {
 
 		this.applyForcesExertedByConnections();
 
+		this.updateNodesVelocity();
 		// kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
 		//let total_KE = 0.0;
 		/*

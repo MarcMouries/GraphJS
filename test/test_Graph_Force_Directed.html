@@ -1,21 +1,12 @@
 <html>
-
 <head>
   <link rel="stylesheet" href="./style.css">
   <script src="../dist/umd/graphboard.min.js"></script>
-  <style>
-    canvas {
-      border: 1px solid red;
-    }
-  </style>
-
 <body>
   <canvas class="canvas" width="800" height="800"></canvas>
-
 </body>
 <script>
   const canvas = document.querySelector("canvas");
-
   //const ctx = canvas.getContext("2d");
   const ctx = graphboard.setupHiDefCanvas(canvas);
 
@@ -27,11 +18,9 @@
   const MAX_DISTANCE = 500; // not used
   const node_radius = 20;
 
-
   let graph = new graphboard.Graph();
 
   var layout;
-
 
   function setup() {
 
@@ -46,8 +35,6 @@
     node = new graphboard.Node("2_1_4"); graph.nodeList.push(node);
     node = new graphboard.Node("3"); graph.nodeList.push(node);
     node = new graphboard.Node("4"); graph.nodeList.push(node);
-
-
 
     graph.linkList.push(new graphboard.Link(0, 1));
     graph.linkList.push(new graphboard.Link(0, 2));
@@ -95,7 +82,7 @@
 
     graph.nodeList.forEach((node) => {
       node.draw(ctx);
-      node.update();
+      //node.update();
     });
 
 
