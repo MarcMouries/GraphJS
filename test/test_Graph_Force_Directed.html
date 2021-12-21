@@ -38,20 +38,22 @@
     ctx.translate(width / 2, height / 2);
 
     let node;
-    node = new graphboard.Node("1");        graph.nodeList.push(node);
-    node = new graphboard.Node("1_1");      graph.nodeList.push(node);
-    node = new graphboard.Node("1_2");      graph.nodeList.push(node);
-    node = new graphboard.Node("1_3");      graph.nodeList.push(node);
-    node = new graphboard.Node("1_4");      graph.nodeList.push(node);
-    node = new graphboard.Node("2_1_4");    graph.nodeList.push(node);
-    node = new graphboard.Node("3");        graph.nodeList.push(node);
-    node = new graphboard.Node("4");        graph.nodeList.push(node);
+    node = new graphboard.Node("1"); graph.nodeList.push(node);
+    node = new graphboard.Node("1_1"); graph.nodeList.push(node);
+    node = new graphboard.Node("1_2"); graph.nodeList.push(node);
+    node = new graphboard.Node("1_3"); graph.nodeList.push(node);
+    node = new graphboard.Node("1_4"); graph.nodeList.push(node);
+    node = new graphboard.Node("2_1_4"); graph.nodeList.push(node);
+    node = new graphboard.Node("3"); graph.nodeList.push(node);
+    node = new graphboard.Node("4"); graph.nodeList.push(node);
 
-    graph.linkList.push([0, 1, MAX_DISTANCE]);
-    graph.linkList.push([0, 2, MAX_DISTANCE]);
-    graph.linkList.push([0, 3, MAX_DISTANCE]);
-    graph.linkList.push([0, 4, MAX_DISTANCE]);
-    graph.linkList.push([4, 5, MAX_DISTANCE]);
+
+
+    graph.linkList.push(new graphboard.Link(0, 1));
+    graph.linkList.push(new graphboard.Link(0, 2));
+    graph.linkList.push(new graphboard.Link(0, 3));
+    graph.linkList.push(new graphboard.Link(0, 4));
+    graph.linkList.push(new graphboard.Link(4, 5));
 
     layout = new graphboard.ForceDirected(graph);
   }
@@ -71,15 +73,14 @@
     ctx.moveTo(v1.x, v1.y);
     ctx.lineTo(v2.x, v2.y);
     ctx.strokeStyle = "rgba(50, 50, 50, 1)";
-
     ctx.stroke();
     ctx.closePath();
   }
 
   function draw_links() {
-    graph.linkList.forEach((con) => {
-      node1 = graph.nodeList[con[0]];
-      node2 = graph.nodeList[con[1]];
+    graph.linkList.forEach((link) => {
+      node1 = graph.nodeList[link.source];
+      node2 = graph.nodeList[link.target];
       draw_line(node1.pos, node2.pos);
     });
   }

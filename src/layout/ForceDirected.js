@@ -66,9 +66,9 @@ export default class ForceDirected {
 	}
 
 	applyForcesExertedByConnections() {
-		this.graph.linkList.forEach((con) => {
-			let node1 = this.graph.nodeList[con[0]];
-			let node2 = this.graph.nodeList[con[1]];
+		this.graph.linkList.forEach((link) => {
+			let node1 = this.graph.nodeList[link.source];
+			let node2 = this.graph.nodeList[link.target];
 
 			//let maxDis = con[2];
 

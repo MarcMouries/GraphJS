@@ -39,16 +39,17 @@ function setupHiDefCanvas(canvas) {
 // =============================================================
 class Graph {
     constructor() {
-        
+
         this.graph = {};
         this.nodeList = [];
         this.linkList = [];
         this.adjacency = {};
         this.changed = false;
-        this.root;    
+        this.root;
     }
 
     test () {
+        console.log("test");
     }
 }
 
@@ -277,6 +278,19 @@ class Node {
     }
   }
 
+class Link {
+	constructor(source, target) {
+		if (source.id & target.id) {
+			this.id = source.id + "-" + target.id;
+		}
+		else {
+			this.id = source + "-" + target;
+		}
+		this.source = source;
+		this.target = target;
+	}
+}
+
 class ForceDirected {
 	constructor(graph, options) {
 		this.graph = graph;
@@ -343,9 +357,9 @@ class ForceDirected {
 	}
 
 	applyForcesExertedByConnections() {
-		this.graph.linkList.forEach((con) => {
-			let node1 = this.graph.nodeList[con[0]];
-			let node2 = this.graph.nodeList[con[1]];
+		this.graph.linkList.forEach((link) => {
+			let node1 = this.graph.nodeList[link.source];
+			let node2 = this.graph.nodeList[link.target];
 
 			//let maxDis = con[2];
 
@@ -894,5 +908,5 @@ function rectContainsCircle(rectangle, circle) {
 
 var version = "0.1";
 
-export { Arc, Circle, ForceDirected, Graph, MChart, Node, Rectangle, Vector, setupHiDefCanvas, version };
+export { Arc, Circle, ForceDirected, Graph, Link, MChart, Node, Rectangle, Vector, setupHiDefCanvas, version };
 //# sourceMappingURL=index.js.map
