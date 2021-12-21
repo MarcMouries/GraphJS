@@ -9,28 +9,33 @@ export default function setupHiDefCanvas(canvas) {
 	var devicePixelRatio = window.devicePixelRatio || 1;
 
 	var ctx = canvas.getContext("2d");
-	const backingStoreRatio = ctx.backingStorePixelRatio  || 1;
-
-	const ratio = devicePixelRatio / backingStoreRatio;
-
-	console.log("ratio = " + ratio)
-
 
 	// Get the size of the canvas in CSS pixels.
 	//var rect = canvas.getBoundingClientRect();
-
     const initialWidth = canvas.width;
     const initialHeight = canvas.height;
 
 
 	// On Hi Def like Retina display we double the size of the canvas
-	canvas.width = initialWidth * ratio;
-	canvas.height = initialHeight * ratio;
-    ctx.scale(ratio, ratio);
+	canvas.width = initialWidth * devicePixelRatio;
+	canvas.height = initialHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
 
 	// and we shrink the display size using CSS
 	canvas.style.width = initialWidth + 'px';
     canvas.style.height = initialHeight + 'px';
+
+	console.log(" ─────────────────────────")
+	console.log(" │ setupHiDefCanvas      │")
+	console.log(" ─────────────────────────")
+
+	console.log("devicePixelRatio : " + devicePixelRatio)
+	console.log(" └───────────────────────┘")
+
 	return ctx;
 }
+
+
+
+
 
