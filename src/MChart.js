@@ -1,6 +1,6 @@
 import InputDeviceTracker from './InputDeviceTracker'
 import { Rectangle, Circle } from './shape';
-import { Renderer } from './Renderer';
+import { Renderer } from './canvas/Renderer';
 
 export class MChart {
 
