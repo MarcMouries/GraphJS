@@ -1,6 +1,7 @@
 // =============================================================
 //                          TRIGO FUNCTIONS
 // =============================================================
+export const TWO_PI = Math.PI * 2;
 
 /**
  * Concernt mouse (x, y) relative to the center of the circle
