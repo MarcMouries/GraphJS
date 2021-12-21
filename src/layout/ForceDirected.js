@@ -21,6 +21,30 @@ export default class ForceDirected {
 		});
 	}
 
+	/**
+	 *  applyForce
+	 *
+	 *  Newton’s second law.
+	 *  Receive a force, divide by mass, and add to acceleration.
+	 */
+	applyForce(node, force) {
+		let forceOverMass = Vector.div(force, node.mass);
+		node.acceleration.add(forceOverMass);
+	}
+
+	updateNodesVelocity() {
+		this.graph.nodeList.forEach((node) => {
+			let force_copy = node.force.copy();
+			let velocity = force_copy.div(node.mass);
+			node.pos.add(velocity);
+			/*
+					  this.velocity.add(this.acceleration);
+					  this.pos.add(this.velocity);
+					  this.acceleration.mult(0);
+					  */
+		});
+	}
+
 	applyForcesTowardsCenter() {
 		// apply force towards center
 		this.graph.nodeList.forEach((node) => {
@@ -79,31 +103,6 @@ export default class ForceDirected {
 
 			node1.force.add(neg_force);
 			node2.force.add(pos_force);
-		});
-	}
-
-	/**
-     *  applyForce
-     *
-     *  Newton’s second law.
-     *  Receive a force, divide by mass, and add to acceleration.
-    */
-	applyForce(node, force) {
-		let forceOverMass = Vector.div(force, node.mass);
-		node.acceleration.add(forceOverMass);
-	}
-
-
-	updateNodesVelocity() {
-		this.graph.nodeList.forEach((node) => {
-			let force_copy = node.force.copy();
-			let velocity = force_copy.div(node.mass);
-			node.pos.add(velocity);
-			/*
-				  this.velocity.add(this.acceleration);
-				  this.pos.add(this.velocity);
-				  this.acceleration.mult(0);
-				  */
 		});
 	}
 
