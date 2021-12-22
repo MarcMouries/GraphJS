@@ -1,0 +1,21 @@
+var data_json_simple_graph = `{
+    "nodes":
+    [
+        { "id": "1" },
+        { "id": "1_1" },
+        { "id": "1_2" },
+        { "id": "1_3" },
+        { "id": "1_4" },
+        { "id": "1_4_1"},
+        { "id": "2" },
+        { "id": "3" }
+    ],
+    "links":
+    [
+        { "source" : "1", "target": "1_1" },
+        { "source" : "1", "target": "1_2" },
+        { "source" : "1", "target": "1_3" },
+        { "source" : "1", "target": "1_4" },
+        { "source" : "1_4", "target": "1_4_1" }
+    ]
+}`;
