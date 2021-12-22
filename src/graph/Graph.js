@@ -64,6 +64,13 @@ export default class Graph {
 		return node;
 	}
 
+	getLinkCount() {
+		return this.linkList.length;
+	}
+	getNodeCount() {
+		return this.nodeList.length;
+	}
+
 	addLink(sourceNode_id, targetNode_id) {
 		var sourceNode = this.getNode(sourceNode_id);
 		if (sourceNode == undefined) {
