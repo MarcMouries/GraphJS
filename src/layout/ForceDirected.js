@@ -1,3 +1,6 @@
+// =============================================================
+// Force Directed Layout
+// =============================================================
 import Vector from "../Vector";
 
 export default class ForceDirected {
@@ -62,6 +65,9 @@ export default class ForceDirected {
 				if (i != j) {
 					let node1 = this.graph.nodeList[i];
 					let node2 = this.graph.nodeList[j];
+					//console.log("applyRepulsiveForces");
+					//console.log(node1);
+					//console.log(node2);
 
 					// The gravitational force F between two bodies of mass m1 and m2 is
 					// F = G*m1*m2 / r2
@@ -91,8 +97,11 @@ export default class ForceDirected {
 
 	applyForcesExertedByConnections() {
 		this.graph.linkList.forEach((link) => {
-			let node1 = this.graph.nodeList[link.source];
-			let node2 = this.graph.nodeList[link.target];
+			//let node1 = this.graph.nodeList[link.source];
+			//let node2 = this.graph.nodeList[link.target];
+
+			let node1 = link.source;
+			let node2 = link.target;
 
 			//let maxDis = con[2];
 
