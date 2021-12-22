@@ -24,7 +24,7 @@ export default class Node {
 	}
 
 	toString() {
-		return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
+		return "Node " + this.id + "(" + this.pos.x + ", " + this.pos.y + ")";
 	}
 
 	addChild(node) {
