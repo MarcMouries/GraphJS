@@ -13,10 +13,8 @@ export default class Node {
 		this.isCollapsed = false;
 
 		this.size = 20;
-		this.mass = (6 * this.size) / 1.5;
+		this.mass = 13; //(6 * this.size) / 1.5;
 		this.radius = this.size;
-
-		//this.force = new Vector(0, 0);
 
 		this.pos = new Vector(0, 0);
 		this.velocity = new Vector(0, 0);
