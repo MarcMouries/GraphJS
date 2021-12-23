@@ -39,23 +39,16 @@ function setupHiDefCanvas(canvas) {
 	return ctx;
 }
 
-// =============================================================
-//                          Graph
-// =============================================================
-class Graph {
-    constructor() {
-
-        this.graph = {};
-        this.nodeList = [];
-        this.linkList = [];
-        this.adjacency = {};
-        this.changed = false;
-        this.root;
-    }
-
-    test () {
-        console.log("test");
-    }
+class Link {
+	constructor(source, target) {
+		if (source.id && target.id) {
+			this.id = source.id + " → " + target.id;
+		} else {
+			this.id = source + " → " + target;
+		}
+		this.source = source;
+		this.target = target;
+	}
 }
 
 /**
@@ -237,10 +230,8 @@ class Node {
 		this.isCollapsed = false;
 
 		this.size = 20;
-		this.mass = (6 * this.size) / 1.5;
+		this.mass = 13; //(6 * this.size) / 1.5;
 		this.radius = this.size;
-
-		//this.force = new Vector(0, 0);
 
 		this.pos = new Vector(0, 0);
 		this.velocity = new Vector(0, 0);
@@ -248,7 +239,7 @@ class Node {
 	}
 
 	toString() {
-		return "[" + this.id + ", " + this.pos.x + ", " + this.pos.y + "]";
+		return "Node " + this.id + "(" + this.pos.x + ", " + this.pos.y + ")";
 	}
 
 	addChild(node) {
@@ -351,18 +342,161 @@ class Node {
 	}
 }
 
-class Link {
-	constructor(source, target) {
-		if (source.id & target.id) {
-			this.id = source.id + "-" + target.id;
+// =============================================================
+
+class Graph {
+	constructor() {
+		this.graph = {};
+		this.nodeList = [];
+		this.linkList = [];
+		this.adjacency = {};
+		this.changed = false;
+		this.root;
+	}
+
+	/**
+	 * Add a node
+	 * @param {*} node
+	 * @returns
+	 */
+	addNode(node) {
+		if (!(node.id in this.graph)) {
+			this.nodeList.push(node);
+			this.graph[node.id] = node;
+		} else {
+			console.log("Node already exists: " + node.id);
 		}
-		else {
-			this.id = source + "-" + target;
+		return node;
+	}
+	getNode(nodeID) {
+		var node = this.graph[nodeID];
+		return node;
+	}
+
+	nodeAt (index) {
+		var node = this.nodeList[index];
+		return node;
+	}
+
+	/**
+	 *  Add an object. Create a node from the specified object
+	 * @param {*} object
+	 * @returns
+	 */
+	addObject(object) {
+		var node = new Node(object.id, object);
+
+		if (object.parentId) {
+			node.parent = this.getNode(object.parentId);
+			if (!node.parent) {
+				console.error(
+					"Parent node not found for parentId: " + object.parentId
+				);
+			} else {
+				node.level = node.parent.level + 1;
+				node.parent.children.push(node);
+			}
+		} else {
+			this.root = node;
 		}
-		this.source = source;
-		this.target = target;
+		this.addNode(node);
+		this.changed = true;
+		return node;
+	}
+
+	getLinkCount() {
+		return this.linkList.length;
+	}
+	getNodeCount() {
+		return this.nodeList.length;
+	}
+
+	addLink(sourceNode_id, targetNode_id) {
+		var sourceNode = this.getNode(sourceNode_id);
+		if (sourceNode == undefined) {
+			throw new TypeError(
+				"Trying to add a link to the non-existent node with id: " +
+					sourceNode_id
+			);
+		}
+		var targetNode = this.getNode(targetNode_id);
+		if (targetNode == undefined) {
+			throw new TypeError(
+				"Trying to add a link to the non-existent node with id: " +
+					targetNode_id
+			);
+		}
+
+		var link = new Link(sourceNode, targetNode);
+		var exists = false;
+
+		this.linkList.forEach(function (item) {
+			if (link.id === item.id) {
+				exists = true;
+			}
+		});
+
+		if (!exists) {
+			this.linkList.push(link);
+			sourceNode.addChild(targetNode);
+		} else {
+			console.log(
+				"LINK EXIST: " +
+					" source: " +
+					link.source.id +
+					" => " +
+					link.target.id
+			);
+		}
+
+		if (!(link.source.id in this.adjacency)) {
+			this.adjacency[link.source.id] = {};
+		}
+		if (!(link.target.id in this.adjacency[link.source.id])) {
+			this.adjacency[link.source.id][link.target.id] = [];
+		}
+		this.adjacency[link.source.id][link.target.id].push(link);
+	}
+
+	loadJSON(json_string) {
+		var json_object = JSON.parse(json_string);
+		var nodes = json_object["nodes"];
+		for (let index = 0; index < nodes.length; index++) {
+			var node = nodes[index];
+			this.addObject(node);
+		}
+
+		var links = json_object["links"];
+		if (links) {
+			for (let index = 0; index < links.length; index++) {
+				var link = links[index];
+				this.addLink(link.source, link.target);
+			}
+		}
+		console.log("Graph.loadJSON ");
+		console.log(this.graph);
+	}
+	toString() {
+		return this.nodeList.map(printNode);
 	}
 }
+
+function printNode(node) {
+	var adjacentsRepresentation = "";
+	if (node.getAdjacents() == 0) {
+		adjacentsRepresentation = "no children";
+	} else {
+		adjacentsRepresentation = node
+			.getAdjacents()
+			.map(function (item) {
+				return item.id;
+			})
+			.join(", ");
+	}
+	return node.id + " => " + adjacentsRepresentation;
+}
+
+// =============================================================
 
 class ForceDirected {
 	constructor(graph, options) {
@@ -370,8 +504,8 @@ class ForceDirected {
 		this.initNodes();
 
 		const DEFAULTS = {
-			GRAVITY: 2, // 0.9,
-			REPULSION: 500000,
+			GRAVITY: 0.9,//2, // 0.9,
+			REPULSION: 500000
 		};
 		this.options = Object.assign({}, DEFAULTS, options);
 	}
@@ -398,14 +532,14 @@ class ForceDirected {
 
 	updateNodesVelocity() {
 		this.graph.nodeList.forEach((node) => {
-			let force_copy = node.force.copy();
-			let velocity = force_copy.div(node.mass);
-			node.pos.add(velocity);
-			/*
-					  this.velocity.add(this.acceleration);
-					  this.pos.add(this.velocity);
-					  this.acceleration.mult(0);
-					  */
+			let force_copy = node.acceleration.copy();
+			let forceOverMass = force_copy.div(node.mass);
+		//	node.velocity.add( forceOverMass );
+			node.pos.add( forceOverMass );
+
+			//	node.velocity.add(node.acceleration);
+			//	node.pos.add(node.velocity);
+			//	node.acceleration.mult(0);
 		});
 	}
 
@@ -413,7 +547,7 @@ class ForceDirected {
 		// apply force towards center
 		this.graph.nodeList.forEach((node) => {
 			let gravity = node.pos.copy().mult(-1).mult(this.options.GRAVITY);
-			node.force = gravity;
+			node.acceleration = gravity;
 			//node.applyForce(gravity);
 			//console.log(node);
 		});
@@ -426,6 +560,9 @@ class ForceDirected {
 				if (i != j) {
 					let node1 = this.graph.nodeList[i];
 					let node2 = this.graph.nodeList[j];
+					//console.log("applyRepulsiveForces");
+					//console.log(node1);
+					//console.log(node2);
 
 					// The gravitational force F between two bodies of mass m1 and m2 is
 					// F = G*m1*m2 / r2
@@ -438,7 +575,6 @@ class ForceDirected {
 
 					// The strength of the force is inversely proportional to the distance squared.
 					// The farther away an object is, the weaker the force; the closer, the stronger.
-
 					// original  : without the normalize
 					dir.normalize();
 
@@ -446,8 +582,11 @@ class ForceDirected {
 					force1.div(distance * distance);
 
 					let inverseForce = force1.copy().mult(-1);
-					node2.force.add(force1);
-					node1.force.add(inverseForce);
+					node2.acceleration.add(force1);
+					node1.acceleration.add(inverseForce);
+
+					//node2.applyForce(force1);
+					//node1.applyForce(inverseForce);
 				}
 			}
 		}
@@ -455,18 +594,23 @@ class ForceDirected {
 
 	applyForcesExertedByConnections() {
 		this.graph.linkList.forEach((link) => {
-			let node1 = this.graph.nodeList[link.source];
-			let node2 = this.graph.nodeList[link.target];
+
+			let node1 = link.source;
+			let node2 = link.target;
 
 			//let maxDis = con[2];
+			//let connector_length = 100;
 
 			let dir = Vector.sub(node1.pos, node2.pos);
 
 			let neg_force = new Vector(0, 0).sub(dir);
 			let pos_force = new Vector(0, 0).add(dir);
 
-			node1.force.add(neg_force);
-			node2.force.add(pos_force);
+			node1.acceleration.add(neg_force);
+			node2.acceleration.add(pos_force);
+
+			//node1.applyForce(neg_force);
+			//node2.applyForce(pos_force);
 		});
 	}
 
@@ -480,15 +624,19 @@ class ForceDirected {
 		this.applyForcesExertedByConnections();
 
 		this.updateNodesVelocity();
+
 		// kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
-		//let total_KE = 0.0;
 		/*
-    nodes.forEach((node) => {
-      let node_KE = (0.5 * node.mass * node.velocity * node.velocity);
-      total_KE =+  node_KE;
-      });
-      console.log("total_KE=" + total_KE);
-  */
+		let total_KE = 0.0;
+		this.graph.nodeList.forEach((node) => {
+			let velocity = node.velocity.mag();
+
+			let node_KE = 0.5 * node.mass * (velocity * velocity);
+			total_KE = + node_KE;
+
+		});
+		console.warn("total_KE= " + total_KE);
+		*/
 	}
 }
 
