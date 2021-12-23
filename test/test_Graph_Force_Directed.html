@@ -1,7 +1,11 @@
 <html>
+
 <head>
   <link rel="stylesheet" href="./style.css">
   <script src="../dist/umd/graphboard.min.js"></script>
+  <script src="data-json-simple-graph.js"></script>
+  <script src="data_json_criminal_graph.js"></script>
+
 <body>
   <canvas class="canvas" width="800" height="800"></canvas>
 </body>
@@ -26,23 +30,33 @@
 
     ctx.translate(width / 2, height / 2);
 
-    let node;
-    node = new graphboard.Node("1"); graph.nodeList.push(node);
-    node = new graphboard.Node("1_1"); graph.nodeList.push(node);
-    node = new graphboard.Node("1_2"); graph.nodeList.push(node);
-    node = new graphboard.Node("1_3"); graph.nodeList.push(node);
-    node = new graphboard.Node("1_4"); graph.nodeList.push(node);
-    node = new graphboard.Node("2_1_4"); graph.nodeList.push(node);
-    node = new graphboard.Node("3"); graph.nodeList.push(node);
-    node = new graphboard.Node("4"); graph.nodeList.push(node);
+    /*
+        graph.addNode(new graphboard.Node("1"));
+        graph.addNode(new graphboard.Node("1_1"));
+        graph.addNode(new graphboard.Node("1_2"));
+        graph.addNode(new graphboard.Node("1_3"));
+        graph.addNode(new graphboard.Node("1_4"));
+        graph.addNode(new graphboard.Node("1_4_1"));
+        graph.addNode(new graphboard.Node("3"));
+        graph.addNode(new graphboard.Node("4"));
 
-    graph.linkList.push(new graphboard.Link(0, 1));
-    graph.linkList.push(new graphboard.Link(0, 2));
-    graph.linkList.push(new graphboard.Link(0, 3));
-    graph.linkList.push(new graphboard.Link(0, 4));
-    graph.linkList.push(new graphboard.Link(4, 5));
+        graph.addLink("1", "1_1");
+        graph.addLink("1", "1_2");
+        graph.addLink("1", "1_3");
+        graph.addLink("1", "1_4");
+        graph.addLink("1_4", "1_4_1");
+        layout = new graphboard.ForceDirected(graph);
+    */
+
+    //graph.loadJSON(data_json_simple_graph);
+
+    graph.loadJSON(data_json_criminal_graph_string);    
 
     layout = new graphboard.ForceDirected(graph);
+
+    console.log
+
+
   }
 
 
@@ -55,17 +69,17 @@
   };
 
   function draw_node(node) {
-		ctx.beginPath();
-		//ctx.fillStyle = "darkGrey";
-		ctx.fillStyle = "rgb(176,225,206)";
+    ctx.beginPath();
+    //ctx.fillStyle = "darkGrey";
+    ctx.fillStyle = "rgb(176,225,206)";
 
-		ctx.arc(node.pos.x, node.pos.y, node.radius, 0, 2 * Math.PI, false);
-		ctx.fill();
-		ctx.closePath();
-		ctx.fillStyle = "black";
-		ctx.textAlign = "center";
-		ctx.textBaseline = "middle";
-		ctx.fillText(node.id, node.pos.x, node.pos.y);
+    ctx.arc(node.pos.x, node.pos.y, node.radius, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.closePath();
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(node.id, node.pos.x, node.pos.y);
   }
 
   function draw_line(v1, v2) {
@@ -81,8 +95,10 @@
 
   function draw_links() {
     graph.linkList.forEach((link) => {
-      node1 = graph.nodeList[link.source];
-      node2 = graph.nodeList[link.target];
+      // node1 = graph.nodeList[link.source];
+      // node2 = graph.nodeList[link.target];
+      node1 = link.source;
+      node2 = link.target;
       draw_line(node1.pos, node2.pos);
     });
   }
@@ -104,12 +120,21 @@
     if (i < max_iterations) {
       requestAnimationFrame(loop);
       i++;
+     // console.log( i );
+
     }
   };
 
   var i = 0;
-  const max_iterations = 100;
+  const max_iterations = 200;
+  console.log( max_iterations );
   setup();
+  console.log( max_iterations );
+  console.log( graph.getNodeCount() );
+  console.log( graph.getLinkCount() );
+  console.log( graph.getNodeCount() *  graph.getNodeCount()  );
+  console.log( graph.getNodeCount() *  graph.getLinkCount() );
+
   loop();
 
 </script>
