@@ -9,8 +9,8 @@ export default class ForceDirected {
 		this.initNodes();
 
 		const DEFAULTS = {
-			GRAVITY: 2, // 0.9,
-			REPULSION: 500000,
+			GRAVITY: 0.9,
+			REPULSION: 500000
 		};
 		this.options = Object.assign({}, DEFAULTS, options);
 	}
@@ -37,14 +37,14 @@ export default class ForceDirected {
 
 	updateNodesVelocity() {
 		this.graph.nodeList.forEach((node) => {
-			let force_copy = node.force.copy();
-			let velocity = force_copy.div(node.mass);
-			node.pos.add(velocity);
-			/*
-					  this.velocity.add(this.acceleration);
-					  this.pos.add(this.velocity);
-					  this.acceleration.mult(0);
-					  */
+			let force_copy = node.acceleration.copy();
+			let forceOverMass = force_copy.div(node.mass);
+		//	node.velocity.add( forceOverMass );
+			node.pos.add( forceOverMass );
+
+			//	node.velocity.add(node.acceleration);
+			//	node.pos.add(node.velocity);
+			//	node.acceleration.mult(0);
 		});
 	}
 
@@ -52,7 +52,7 @@ export default class ForceDirected {
 		// apply force towards center
 		this.graph.nodeList.forEach((node) => {
 			let gravity = node.pos.copy().mult(-1).mult(this.options.GRAVITY);
-			node.force = gravity;
+			node.acceleration = gravity;
 			//node.applyForce(gravity);
 			//console.log(node);
 		});
@@ -80,7 +80,6 @@ export default class ForceDirected {
 
 					// The strength of the force is inversely proportional to the distance squared.
 					// The farther away an object is, the weaker the force; the closer, the stronger.
-
 					// original  : without the normalize
 					dir.normalize();
 
@@ -88,8 +87,11 @@ export default class ForceDirected {
 					force1.div(distance * distance);
 
 					let inverseForce = force1.copy().mult(-1);
-					node2.force.add(force1);
-					node1.force.add(inverseForce);
+					node2.acceleration.add(force1);
+					node1.acceleration.add(inverseForce);
+
+					//node2.applyForce(force1);
+					//node1.applyForce(inverseForce);
 				}
 			}
 		}
@@ -97,21 +99,23 @@ export default class ForceDirected {
 
 	applyForcesExertedByConnections() {
 		this.graph.linkList.forEach((link) => {
-			//let node1 = this.graph.nodeList[link.source];
-			//let node2 = this.graph.nodeList[link.target];
 
 			let node1 = link.source;
 			let node2 = link.target;
 
 			//let maxDis = con[2];
+			//let connector_length = 100;
 
 			let dir = Vector.sub(node1.pos, node2.pos);
 
 			let neg_force = new Vector(0, 0).sub(dir);
 			let pos_force = new Vector(0, 0).add(dir);
 
-			node1.force.add(neg_force);
-			node2.force.add(pos_force);
+			node1.acceleration.add(neg_force);
+			node2.acceleration.add(pos_force);
+
+			//node1.applyForce(neg_force);
+			//node2.applyForce(pos_force);
 		});
 	}
 
@@ -125,14 +129,18 @@ export default class ForceDirected {
 		this.applyForcesExertedByConnections();
 
 		this.updateNodesVelocity();
+
 		// kinetic energy (KE) is equal to half of an object's mass (1/2*m) multiplied by the velocity squared.
-		//let total_KE = 0.0;
 		/*
-    nodes.forEach((node) => {
-      let node_KE = (0.5 * node.mass * node.velocity * node.velocity);
-      total_KE =+  node_KE;
-      });
-      console.log("total_KE=" + total_KE);
-  */
+		let total_KE = 0.0;
+		this.graph.nodeList.forEach((node) => {
+			let velocity = node.velocity.mag();
+
+			let node_KE = 0.5 * node.mass * (velocity * velocity);
+			total_KE = + node_KE;
+
+		});
+		console.warn("total_KE= " + total_KE);
+		*/
 	}
 }
