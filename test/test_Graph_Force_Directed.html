@@ -43,7 +43,7 @@
     }
 
     .controls legend {
-      margin-bottom: 1rem;
+      margin-bottom: 0rem;
       font-weight: bold;
       letter-spacing: 0.03125em;
     }
@@ -155,7 +155,10 @@
 
   function gravityChange(range) {
     var value = range.value;
-    console.log("gravity: " + value);
+    forceLayoutOptions.GRAVITY = Number.parseFloat(value);
+    layout = new graphboard.ForceDirected(graph, forceLayoutOptions);
+    i = 0;
+      requestAnimationFrame(loop);
   }
 
   function graphSelectionChange(sel) {
