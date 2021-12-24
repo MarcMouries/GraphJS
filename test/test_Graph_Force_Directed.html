@@ -45,7 +45,6 @@
     .controls legend {
       margin-bottom: 1rem;
       font-weight: bold;
-      font-size: small;
       letter-spacing: 0.03125em;
     }
 
@@ -54,6 +53,35 @@
       font-size: x-small;
       letter-spacing: 0.0625em;
     }
+
+
+    .controls select {
+      border: 1px solid #ddd;
+      border-radius: 1em;
+      width: 100%;
+      height: 2em;
+      text-transform: uppercase;
+      font-family: inherit;
+      font-size: x-small;
+      padding: 0.375em;
+      margin: 0.25rem 0 1rem;
+    }
+
+    .__controls input[type="range"] {
+      appearance: none;
+      position: relative;
+      width: 100%;
+      height: 2em;
+      padding: 0.375em;
+      margin: 0.25rem 0 1rem;
+      color: inherit;
+      background-color: currentColor;
+      border-radius: 1em;
+      outline: none;
+    }
+
+
+
   </style>
 
 <body>
@@ -70,6 +98,13 @@
           <option value='criminal_graph'>Criminal Graph</option>
         </select>
       </fieldset>
+
+      <div class="form-element">
+        <label for="Gravity">Gravity</label>
+        <input id="Gravity" type="range" min="0" max="10"
+          step="0.1" value="0.9">
+      </div>
+
 
       <fieldset>
         <legend>Layout</legend>
@@ -103,17 +138,22 @@
 
   var layout;
 
+  var forceLayoutOptions = {
+    GRAVITY: 0.9,
+    REPULSION: 500000
+  };
+
   function selectionChange(sel) {
     var value = sel.options[sel.selectedIndex].value;
     if (value == 'simple_graph') {
-     graph = new graphboard.Graph();
+      graph = new graphboard.Graph();
       graph.loadJSON(data_json_simple_graph);
       layout = new graphboard.ForceDirected(graph);
       i = 0;
       requestAnimationFrame(loop);
     }
     else if (value == 'criminal_graph') {
-     graph = new graphboard.Graph();
+      graph = new graphboard.Graph();
       graph.loadJSON(data_json_criminal_graph);
       layout = new graphboard.ForceDirected(graph);
       i = 0;
@@ -126,31 +166,9 @@
   function setup() {
 
     ctx.translate(width / 2, height / 2);
-
-    /*
-        graph.addNode(new graphboard.Node("1"));
-        graph.addNode(new graphboard.Node("1_1"));
-        graph.addNode(new graphboard.Node("1_2"));
-        graph.addNode(new graphboard.Node("1_3"));
-        graph.addNode(new graphboard.Node("1_4"));
-        graph.addNode(new graphboard.Node("1_4_1"));
-        graph.addNode(new graphboard.Node("3"));
-        graph.addNode(new graphboard.Node("4"));
- 
-        graph.addLink("1", "1_1");
-        graph.addLink("1", "1_2");
-        graph.addLink("1", "1_3");
-        graph.addLink("1", "1_4");
-        graph.addLink("1_4", "1_4_1");
-        layout = new graphboard.ForceDirected(graph);
-    */
-
     graph.loadJSON(data_json_simple_graph);
-
     //graph.loadJSON(data_json_criminal_graph;
-
-    layout = new graphboard.ForceDirected(graph);
-
+    layout = new graphboard.ForceDirected(graph, forceLayoutOptions);
   }
 
 
@@ -219,7 +237,7 @@
   };
 
   var i = 0;
-  const max_iterations = 200;
+  const max_iterations = 2000;
   console.log(max_iterations);
   setup();
   console.log(max_iterations);
