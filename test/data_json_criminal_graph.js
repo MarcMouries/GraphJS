@@ -1,4 +1,4 @@
-var data_json_criminal_graph_string = `{
+var data_json_criminal_graph = `{
     "nodes": [
         { "id": "Joe Smith",  "type": "person", "name": "Joe Smith", "photo": "http://i.imgur.com/gwlPu.jpg" },
 

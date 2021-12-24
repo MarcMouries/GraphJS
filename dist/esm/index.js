@@ -500,7 +500,7 @@ class ForceDirected {
 		this.initNodes();
 
 		const DEFAULTS = {
-			GRAVITY: 0.9,//2, // 0.9,
+			GRAVITY: 0.9,
 			REPULSION: 500000
 		};
 		this.options = Object.assign({}, DEFAULTS, options);
@@ -578,6 +578,7 @@ class ForceDirected {
 					force1.div(distance * distance);
 
 					let inverseForce = force1.copy().mult(-1);
+					
 					node2.acceleration.add(force1);
 					node1.acceleration.add(inverseForce);
 
