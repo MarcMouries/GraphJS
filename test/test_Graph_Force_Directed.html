@@ -5,15 +5,86 @@
   <script src="../dist/umd/graphboard.min.js"></script>
   <script src="data-json-simple-graph.js"></script>
   <script src="data_json_criminal_graph.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: inherit;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      font-family: Montserrat, sans-serif;
+    }
+
+    .graph-container {
+      margin: auto;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    .controls {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      width: 200px;
+      padding: 1.5em;
+      color: #333;
+      text-transform: uppercase;
+      background-color: rgba(220, 220, 220, 0.5);
+    }
+
+    .controls fieldset {
+      border: none;
+      margin: 1rem 0;
+    }
+
+    .controls legend {
+      margin-bottom: 1rem;
+      font-weight: bold;
+      font-size: small;
+      letter-spacing: 0.03125em;
+    }
+
+    .controls label {
+      display: block;
+      font-size: x-small;
+      letter-spacing: 0.0625em;
+    }
+  </style>
 
 <body>
-  <h1> Test Layout</h1>
-  <label> Search </label>
-  <select onChange="selectionChange(this)">
-    <option value='Simple Graph'>Simple Graph</option>
-    <option value='Criminal Graph'>Criminal Graph</option>
-  </select>
-  <canvas class="canvas" width="800" height="800"></canvas>
+  <div class="graph-container">
+    <canvas class="canvas" width="1000" height="1000"></canvas>
+  </div>
+  <div class="controls">
+    <h2 class="title">Controls</h2>
+    <form>
+      <fieldset>
+        <legend>Graph</legend>
+        <select onChange="selectionChange(this)">
+          <option value='simple_graph'>Simple Graph</option>
+          <option value='criminal_graph'>Criminal Graph</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>Layout</legend>
+        <input type="radio" id="kraken" name="monster">
+        <label for="kraken">Tree</label><br />
+
+        <input type="radio" id="sasquatch" name="monster">
+        <label for="sasquatch">Radial</label><br />
+
+        <input type="radio" id="mothman" name="monster">
+        <label for="mothman">Force</label>
+      </fieldset>
+
+    </form>
+  </div>
 </body>
 <script>
   const canvas = document.querySelector("canvas");
@@ -34,120 +105,129 @@
 
   function selectionChange(sel) {
     var value = sel.options[sel.selectedIndex].value;
-    console.log("selected = " + value)
+    if (value == 'simple_graph') {
+     graph = new graphboard.Graph();
+      graph.loadJSON(data_json_simple_graph);
+      layout = new graphboard.ForceDirected(graph);
+      i = 0;
+      requestAnimationFrame(loop);
+    }
+    else if (value == 'criminal_graph') {
+     graph = new graphboard.Graph();
+      graph.loadJSON(data_json_criminal_graph);
+      layout = new graphboard.ForceDirected(graph);
+      i = 0;
+      requestAnimationFrame(loop);
+    }
   }
 
 
 
-    function setup() {
+  function setup() {
 
-      ctx.translate(width / 2, height / 2);
+    ctx.translate(width / 2, height / 2);
 
-      /*
-          graph.addNode(new graphboard.Node("1"));
-          graph.addNode(new graphboard.Node("1_1"));
-          graph.addNode(new graphboard.Node("1_2"));
-          graph.addNode(new graphboard.Node("1_3"));
-          graph.addNode(new graphboard.Node("1_4"));
-          graph.addNode(new graphboard.Node("1_4_1"));
-          graph.addNode(new graphboard.Node("3"));
-          graph.addNode(new graphboard.Node("4"));
-  
-          graph.addLink("1", "1_1");
-          graph.addLink("1", "1_2");
-          graph.addLink("1", "1_3");
-          graph.addLink("1", "1_4");
-          graph.addLink("1_4", "1_4_1");
-          layout = new graphboard.ForceDirected(graph);
-      */
+    /*
+        graph.addNode(new graphboard.Node("1"));
+        graph.addNode(new graphboard.Node("1_1"));
+        graph.addNode(new graphboard.Node("1_2"));
+        graph.addNode(new graphboard.Node("1_3"));
+        graph.addNode(new graphboard.Node("1_4"));
+        graph.addNode(new graphboard.Node("1_4_1"));
+        graph.addNode(new graphboard.Node("3"));
+        graph.addNode(new graphboard.Node("4"));
+ 
+        graph.addLink("1", "1_1");
+        graph.addLink("1", "1_2");
+        graph.addLink("1", "1_3");
+        graph.addLink("1", "1_4");
+        graph.addLink("1_4", "1_4_1");
+        layout = new graphboard.ForceDirected(graph);
+    */
 
-      //graph.loadJSON(data_json_simple_graph);
+    graph.loadJSON(data_json_simple_graph);
 
-      graph.loadJSON(data_json_criminal_graph_string);
+    //graph.loadJSON(data_json_criminal_graph;
 
-      layout = new graphboard.ForceDirected(graph);
+    layout = new graphboard.ForceDirected(graph);
 
-      console.log
+  }
 
+
+  function clear() {
+    //ctx.fillStyle = "rgba(234, 236, 238, 0.9)";
+    ctx.fillStyle = "rgba(235, 245, 240, 1)";
+    ctx.fillStyle = "rgb(248,252,250)"
+
+    //ctx.fillStyle = "rgb(195,226,234)";
+    //ctx.fillStyle = "rgb(176,225,206)";
+    // change origin due to translation
+    ctx.fillRect(-width, -height, 2 * width, 2 * height);
+  };
+
+  function draw_node(node) {
+    ctx.beginPath();
+    //ctx.fillStyle = "darkGrey";
+    ctx.fillStyle = "rgb(176,225,206)";
+
+    ctx.arc(node.pos.x, node.pos.y, node.radius, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.closePath();
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(node.id, node.pos.x, node.pos.y);
+  }
+
+  function draw_line(v1, v2) {
+    ctx.beginPath();
+    ctx.moveTo(v1.x, v1.y);
+    ctx.lineTo(v2.x, v2.y);
+    ctx.strokeStyle = "rgba(50, 50, 50, 1)";
+    ctx.stroke();
+    ctx.closePath();
+  }
+
+  function draw_links() {
+    graph.linkList.forEach((link) => {
+      // node1 = graph.nodeList[link.source];
+      // node2 = graph.nodeList[link.target];
+      node1 = link.source;
+      node2 = link.target;
+      draw_line(node1.pos, node2.pos);
+    });
+  }
+
+  function loop() {
+
+    clear();
+
+    draw_links();
+
+    layout.applyForces();
+
+    graph.nodeList.forEach((node) => {
+      draw_node(node);
+    });
+
+    if (i < max_iterations) {
+      requestAnimationFrame(loop);
+      i++;
+      // console.log( i );
 
     }
+  };
 
+  var i = 0;
+  const max_iterations = 200;
+  console.log(max_iterations);
+  setup();
+  console.log(max_iterations);
+  console.log(graph.getNodeCount());
+  console.log(graph.getLinkCount());
+  console.log(graph.getNodeCount() * graph.getNodeCount());
+  console.log(graph.getNodeCount() * graph.getLinkCount());
 
-    function clear() {
-      ctx.fillStyle = "rgba(234, 236, 238, 0.9)";
-      //ctx.fillStyle = "rgb(195,226,234)";
-      //ctx.fillStyle = "rgb(176,225,206)";
-      // change origin due to translation
-      ctx.fillRect(-width, -height, 2 * width, 2 * height);
-    };
-
-    function draw_node(node) {
-      ctx.beginPath();
-      //ctx.fillStyle = "darkGrey";
-      ctx.fillStyle = "rgb(176,225,206)";
-
-      ctx.arc(node.pos.x, node.pos.y, node.radius, 0, 2 * Math.PI, false);
-      ctx.fill();
-      ctx.closePath();
-      ctx.fillStyle = "black";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(node.id, node.pos.x, node.pos.y);
-    }
-
-    function draw_line(v1, v2) {
-      ctx.beginPath();
-      ctx.moveTo(v1.x, v1.y);
-      ctx.lineTo(v2.x, v2.y);
-      ctx.strokeStyle = "rgba(50, 50, 50, 1)";
-      ctx.stroke();
-      ctx.closePath();
-    }
-
-
-
-    function draw_links() {
-      graph.linkList.forEach((link) => {
-        // node1 = graph.nodeList[link.source];
-        // node2 = graph.nodeList[link.target];
-        node1 = link.source;
-        node2 = link.target;
-        draw_line(node1.pos, node2.pos);
-      });
-    }
-
-    function loop() {
-
-      clear();
-
-      draw_links();
-
-      layout.applyForces();
-
-      graph.nodeList.forEach((node) => {
-        draw_node(node);
-        //node.update();
-      });
-
-
-      if (i < max_iterations) {
-        requestAnimationFrame(loop);
-        i++;
-        // console.log( i );
-
-      }
-    };
-
-    var i = 0;
-    const max_iterations = 200;
-    console.log(max_iterations);
-    setup();
-    console.log(max_iterations);
-    console.log(graph.getNodeCount());
-    console.log(graph.getLinkCount());
-    console.log(graph.getNodeCount() * graph.getNodeCount());
-    console.log(graph.getNodeCount() * graph.getLinkCount());
-
-    loop();
+  loop();
 
 </script>
