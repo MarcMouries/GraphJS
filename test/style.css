@@ -1,10 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:400,600');
+@import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,600');
 
 html,
 body {
   font-family: "Source Code Pro", Consolas, monaco, monospace;
   font-family: 'Libre Baskerville', serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 12px;
   line-height: 160%;
   font-size: 16px;
