@@ -48,12 +48,22 @@
       letter-spacing: 0.03125em;
     }
 
+    .form-element {
+      margin-top: 1rem;
+
+    }
+
     .controls label {
-      display: block;
       font-size: x-small;
+      font-weight: bold;
+
       letter-spacing: 0.0625em;
     }
 
+    .range_output {
+      font-size: x-small;
+      letter-spacing: 0.0625em;
+    }
 
     .controls select {
       border: 1px solid #ddd;
@@ -79,7 +89,6 @@
       border-radius: 1em;
       outline: none;
     }
-
   </style>
 
 <body>
@@ -112,10 +121,16 @@
       </datalist>
 
       <div class="form-element">
-        <label for="Gravity">Gravity</label>
-        <input id="Gravity" type="range" min="0" max="5"  step="0.1" value="0.9" list='Gravity-list' onChange="gravityChange(this)">
+        <label for="gravity">Gravity</label>
+        <output id="gravity_output" class="range_output" for="gravity"></output>
+        <input id="gravity" type="range" min="0" max="5" step="0.1" value="0.9" list='Gravity-list' onChange="gravityChange(this)">
       </div>
 
+      <div class="form-element">
+        <label for="repulsion">Repulsion: </label>
+        <output id="repulsion_output" class="range_output" for="repulsion"></output>
+        <input id="repulsion" type="range" min="10000" max="1000000" step="1000" value="500000">
+      </div>
       <fieldset>
         <legend>Layout</legend>
         <input type="radio" id="kraken" name="monster">
@@ -132,6 +147,62 @@
   </div>
 </body>
 <script>
+
+  /**
+   *  Controls Form
+   */
+
+   function parseAndFormatNumber(number) {
+    let newValue = Number.parseFloat(number);
+    return newValue.toLocaleString();
+   }
+
+  const repulsion_range = document.querySelector('#repulsion');
+  const repulsion_output = document.querySelector('#repulsion_output');
+  repulsion_output.textContent = parseAndFormatNumber(repulsion_range.value);
+
+  repulsion_range.addEventListener('input', function () {
+    console.log(repulsion_range.value.toLocaleString());
+    let newValue = Number.parseFloat(repulsion_range.value);
+    repulsion_output.textContent = newValue.toLocaleString();
+    forceLayoutOptions.REPULSION = newValue;
+    layout = new graphboard.ForceDirected(graph, forceLayoutOptions);
+    i = 0;
+    requestAnimationFrame(loop);
+  });
+
+  const gravity_range = document.querySelector('#gravity');
+const gravity_output = document.querySelector('#gravity_output');
+  gravity_output.textContent = parseAndFormatNumber(gravity_range.value);
+
+  function gravityChange(range) {
+    var value = range.value;
+    forceLayoutOptions.GRAVITY = Number.parseFloat(value);
+    gravity_output.textContent = parseAndFormatNumber(gravity_range.value);
+
+    layout = new graphboard.ForceDirected(graph, forceLayoutOptions);
+    i = 0;
+    requestAnimationFrame(loop);
+  }
+
+  function graphSelectionChange(sel) {
+    var value = sel.options[sel.selectedIndex].value;
+    if (value == 'simple_graph') {
+      graph = new graphboard.Graph();
+      graph.loadJSON(data_json_simple_graph);
+      layout = new graphboard.ForceDirected(graph);
+      i = 0;
+      requestAnimationFrame(loop);
+    }
+    else if (value == 'criminal_graph') {
+      graph = new graphboard.Graph();
+      graph.loadJSON(data_json_criminal_graph);
+      layout = new graphboard.ForceDirected(graph);
+      i = 0;
+      requestAnimationFrame(loop);
+    }
+  }
+
   const canvas = document.querySelector("canvas");
   //const ctx = canvas.getContext("2d");
   const ctx = graphboard.setupHiDefCanvas(canvas);
@@ -153,31 +224,6 @@
     REPULSION: 500000
   };
 
-  function gravityChange(range) {
-    var value = range.value;
-    forceLayoutOptions.GRAVITY = Number.parseFloat(value);
-    layout = new graphboard.ForceDirected(graph, forceLayoutOptions);
-    i = 0;
-      requestAnimationFrame(loop);
-  }
-
-  function graphSelectionChange(sel) {
-    var value = sel.options[sel.selectedIndex].value;
-    if (value == 'simple_graph') {
-      graph = new graphboard.Graph();
-      graph.loadJSON(data_json_simple_graph);
-      layout = new graphboard.ForceDirected(graph);
-      i = 0;
-      requestAnimationFrame(loop);
-    }
-    else if (value == 'criminal_graph') {
-      graph = new graphboard.Graph();
-      graph.loadJSON(data_json_criminal_graph);
-      layout = new graphboard.ForceDirected(graph);
-      i = 0;
-      requestAnimationFrame(loop);
-    }
-  }
 
 
 
@@ -203,7 +249,6 @@
 
   function draw_node(node) {
     ctx.beginPath();
-    //ctx.fillStyle = "darkGrey";
     ctx.fillStyle = "rgb(176,225,206)";
 
     ctx.arc(node.pos.x, node.pos.y, node.radius, 0, 2 * Math.PI, false);
