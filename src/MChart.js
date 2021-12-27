@@ -1,8 +1,6 @@
 import InputDeviceTracker from './InputDeviceTracker'
 import { Rectangle, Circle } from './shape';
 import { Renderer,  setupHiDefCanvas} from './canvas';
-//import { setupHiDefCanvas} from './canvas/setupHiDefCanvas';
-
 
 export class MChart {
 
@@ -18,11 +16,8 @@ export class MChart {
     this.ctx = setupHiDefCanvas(this.canvas);
 
 
-    //let w = canvas.width = canvas2.width = window.innerWidth * 0.9;
-    //let h = canvas.height = canvas2.height = window.innerHeight * 0.9;
-
-    this.cw = this.canvas.width; //= window.innerWidth ;
-    this.ch = this.canvas.height; //= window.innerHeight ;
+    this.cw = this.canvas.width;
+    this.ch = this.canvas.height;
 
     this.renderer = new Renderer(this.ctx);
 
