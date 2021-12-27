@@ -1,6 +1,6 @@
 
 
-export class Renderer {
+export default class Renderer {
 
     constructor(ctx) {
         this.ctx = ctx;
