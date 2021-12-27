@@ -5,7 +5,6 @@ export default class InputDeviceTracker {
 
         this.canvas = canvas;
         this.callback = callback;
-        self = this;
 
         console.log("constructor this");
         console.log(this);
@@ -39,18 +38,18 @@ export default class InputDeviceTracker {
 
     onDown(evt) {
         evt.preventDefault();
-        var coords = self.getCoordinatesFromEvent(evt);
-        self.callback("down", coords.x, coords.y);
+        var coords = this.getCoordinatesFromEvent(evt);
+        this.callback("down", coords.x, coords.y);
     }
 
     onUp(evt) {
         evt.preventDefault();
-        self.callback("up");
+        this.callback("up");
     }
 
     onMove(evt) {
         evt.preventDefault();
-        var coords = self.getCoordinatesFromEvent(evt);
-        self.callback("move", coords.x, coords.y);
+        var coords = this.getCoordinatesFromEvent(evt);
+        this.callback("move", coords.x, coords.y);
     }
 }
