@@ -34,10 +34,7 @@
 
 	var chart_container = document.getElementById("chart_container");
 	var mChart = new graphboard.MChart(chart_container);
-	mChart.init();
-
-	var canvas = document.getElementById("canvas");
-	var ctx = canvas.getContext("2d");
+	//mChart.init();
 
 	var circle = new graphboard.Circle(150, 150, 50); circle.fillStyle = "LightSeaGreen";
 
@@ -57,6 +54,7 @@
 	mChart.addObject(rectangle3);
 	mChart.addObject(rectangle4);
 
+	mChart.render();
 
 	/*
 	var graph_walker = new Graph();
@@ -78,7 +76,7 @@
 		mChart.options.display_grid = control_form.display_grid.checked;
 		console.log("change_option option  draw grid: " + mChart.options.display_grid);
 
-		mChart.draw();
+		//mChart.draw();
 	}
 
 

@@ -862,7 +862,7 @@ class InputDeviceTracker {
 
         this.canvas = canvas;
         this.callback = callback;
-        self = this;
+       // let self = this;
 
         console.log("constructor this");
         console.log(this);
@@ -896,19 +896,19 @@ class InputDeviceTracker {
 
     onDown(evt) {
         evt.preventDefault();
-        var coords = self.getCoordinatesFromEvent(evt);
-        self.callback("down", coords.x, coords.y);
+        var coords = this.getCoordinatesFromEvent(evt);
+        this.callback("down", coords.x, coords.y);
     }
 
     onUp(evt) {
         evt.preventDefault();
-        self.callback("up");
+        this.callback("up");
     }
 
     onMove(evt) {
         evt.preventDefault();
-        var coords = self.getCoordinatesFromEvent(evt);
-        self.callback("move", coords.x, coords.y);
+        var coords = this.getCoordinatesFromEvent(evt);
+        this.callback("move", coords.x, coords.y);
     }
 }
 
@@ -930,6 +930,8 @@ class MChart {
     this.ch = this.canvas.height;
 
     this.renderer = new Renderer(this.ctx);
+    this.inputDeviceTracker = new InputDeviceTracker(this.canvas, this.manageInputEvents.bind(this));
+
 
     const DEFAULTS = {
       display_grid: false,
@@ -963,10 +965,16 @@ class MChart {
 
   addObject(object) {
     this.objects.push(object);
-    this.draw();
+    //this.draw();
   }
 
-  draw() {
+  /**
+   *  Private function to render one frame. It is being called by render()
+   */
+  //renderFrame = () => {
+    renderFrame() {
+
+   // console.log("renderFrame")
     this.ctx.clearRect(0, 0, this.cw, this.ch);
 
     if (this.options.display_grid) {
@@ -994,6 +1002,14 @@ class MChart {
       }
     });
   }
+
+  render() {
+      this.renderFrame();
+
+      window.requestAnimationFrame(this.render.bind(this, this.canvas));
+
+  }
+
 
   manageInputEvents(evtType, x, y) {
     switch (evtType) {
@@ -1096,7 +1112,7 @@ class MChart {
         }
         break;
     }
-    this.draw();
+   // this.draw();
   }
 
   init() {

@@ -20,6 +20,8 @@ export class MChart {
     this.ch = this.canvas.height;
 
     this.renderer = new Renderer(this.ctx);
+    this.inputDeviceTracker = new InputDeviceTracker(this.canvas, this.manageInputEvents.bind(this));
+
 
     const DEFAULTS = {
       display_grid: false,
@@ -53,10 +55,16 @@ export class MChart {
 
   addObject(object) {
     this.objects.push(object);
-    this.draw();
+    //this.draw();
   }
 
-  draw() {
+  /**
+   *  Private function to render one frame. It is being called by render()
+   */
+  //renderFrame = () => {
+    renderFrame() {
+
+   // console.log("renderFrame")
     this.ctx.clearRect(0, 0, this.cw, this.ch);
 
     if (this.options.display_grid) {
@@ -84,6 +92,14 @@ export class MChart {
       }
     })
   }
+
+  render() {
+      this.renderFrame();
+
+      window.requestAnimationFrame(this.render.bind(this, this.canvas));
+
+  }
+
 
   manageInputEvents(evtType, x, y) {
     switch (evtType) {
@@ -186,7 +202,7 @@ export class MChart {
         }
         break;
     }
-    this.draw();
+   // this.draw();
   }
 
   init() {
