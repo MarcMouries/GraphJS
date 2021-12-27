@@ -1,7 +1,7 @@
 // =============================================================
 // Force Directed Layout
 // =============================================================
-import Vector from "../Vector";
+import Vector from "../geometry/Vector";
 
 export default class ForceDirected {
 	constructor(graph, options) {
@@ -10,7 +10,7 @@ export default class ForceDirected {
 
 		const DEFAULTS = {
 			GRAVITY: 0.9,
-			REPULSION: 500000
+			REPULSION: 500000,
 		};
 		this.options = Object.assign({}, DEFAULTS, options);
 	}
@@ -23,6 +23,15 @@ export default class ForceDirected {
 			node.pos = new Vector.random(min, max);
 		});
 	}
+
+	run() {
+		//requestAnimationFrame(this.animate);
+		console.log("run");
+	}
+
+	animate = () => {
+		console.log("animate");
+	};
 
 	/**
 	 *  applyForce
@@ -39,8 +48,8 @@ export default class ForceDirected {
 		this.graph.nodeList.forEach((node) => {
 			let force_copy = node.acceleration.copy();
 			let forceOverMass = force_copy.div(node.mass);
-		//	node.velocity.add( forceOverMass );
-			node.pos.add( forceOverMass );
+			//	node.velocity.add( forceOverMass );
+			node.pos.add(forceOverMass);
 
 			//	node.velocity.add(node.acceleration);
 			//	node.pos.add(node.velocity);
@@ -99,7 +108,6 @@ export default class ForceDirected {
 
 	applyForcesExertedByConnections() {
 		this.graph.linkList.forEach((link) => {
-
 			let node1 = link.source;
 			let node2 = link.target;
 

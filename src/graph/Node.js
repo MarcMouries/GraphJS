@@ -1,4 +1,4 @@
-import Vector from "../Vector";
+import Vector from "../geometry/Vector";
 
 
 export default class Node {

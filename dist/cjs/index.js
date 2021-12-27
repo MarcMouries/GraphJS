@@ -14,8 +14,18 @@ function setupHiDefCanvas(canvas) {
 
 	var ctx = canvas.getContext("2d");
 
+	console.log("─────────────────────────");
+	console.log("│ setupHiDefCanvas      │");
+	console.log("─────────────────────────");
+	console.log("  devicePixelRatio : " + devicePixelRatio);
+	console.log("  canvas.width  : " + canvas.width);
+	console.log("  canvas.height : " + canvas.height);
+
 	// Get the size of the canvas in CSS pixels.
-	//var rect = canvas.getBoundingClientRect();
+	var rect = canvas.getBoundingClientRect();
+	console.log("  rect.width  : " + rect.width);
+	console.log("  rect.height : " + rect.height);
+
     const initialWidth = canvas.width;
     const initialHeight = canvas.height;
 
@@ -29,26 +39,97 @@ function setupHiDefCanvas(canvas) {
 	canvas.style.width = initialWidth + 'px';
     canvas.style.height = initialHeight + 'px';
 
-	console.log(" ─────────────────────────");
-	console.log(" │ setupHiDefCanvas      │");
-	console.log(" ─────────────────────────");
+	console.log("  canvas.style.width  : " + canvas.style.width);
+	console.log("  canvas.style.height  : " + canvas.style.height);
 
-	console.log("devicePixelRatio : " + devicePixelRatio);
+	console.log("  canvas.width  : " + canvas.width);
+	console.log("  canvas.height : " + canvas.height);
+
 	console.log(" └───────────────────────┘");
 
 	return ctx;
 }
 
-class Link {
-	constructor(source, target) {
-		if (source.id && target.id) {
-			this.id = source.id + " → " + target.id;
-		} else {
-			this.id = source + " → " + target;
-		}
-		this.source = source;
-		this.target = target;
-	}
+class Renderer {
+
+    constructor(ctx) {
+        this.ctx = ctx;
+    }
+
+    drawGrid(w, h) {
+
+        this.ctx.save();
+
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillRect(0, 0, w, h);
+        this.ctx.lineWidth = 0.3;
+        this.ctx.strokeStyle = 'lightgray';
+        this.ctx.fillStyle = 'black';
+
+        for (let i = 1; i < w; i++) {
+            this.ctx.beginPath();
+            if (i % 10 === 0) {
+                this.ctx.moveTo(i, 0);
+                this.ctx.lineTo(i, h);
+                this.ctx.moveTo(i, 0);
+            }
+            this.ctx.closePath();
+            this.ctx.stroke();
+        }
+
+        for (let i = 1; i < h; i++) {
+            this.ctx.beginPath();
+            if (i % 10 === 0) {
+                this.ctx.moveTo(0, i);
+                this.ctx.lineTo(w, i);
+                this.ctx.moveTo(0, i);
+            }
+            this.ctx.closePath();
+            this.ctx.stroke();
+        }
+
+
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeStyle = 'gray';
+
+        this.ctx.beginPath();
+        for (let i = 50; i < w; i += 10) {
+            if (i % 50 === 0) {
+                this.ctx.moveTo(i, 0);
+                this.ctx.lineTo(i, 30);
+                this.ctx.fillText(` ${i}`, i, 30);
+            } else {
+                this.ctx.moveTo(i, 0);
+                this.ctx.lineTo(i, 10);
+            }
+
+        }
+        this.ctx.closePath();
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        for (let i = 50; i < h; i += 10) {
+            if (i % 50 === 0) {
+                this.ctx.moveTo(0, i);
+                this.ctx.lineTo(30, i);
+                this.ctx.fillText(` ${i}`, 30, i);
+            } else {
+                this.ctx.moveTo(0, i);
+                this.ctx.lineTo(10, i);
+            }
+
+        }
+        this.ctx.closePath();
+        this.ctx.stroke();
+
+        this.ctx.restore();
+    }
+}
+
+// =============================================================
+
+function to_radians(degrees) {
+  return degrees * (Math.PI / 180);
 }
 
 /**
@@ -216,6 +297,18 @@ class Vector {
 /* Return a random integer between min and max (inclusive) */
 function randomIntBounds(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+class Link {
+	constructor(source, target) {
+		if (source.id && target.id) {
+			this.id = source.id + " → " + target.id;
+		} else {
+			this.id = source + " → " + target;
+		}
+		this.source = source;
+		this.target = target;
+	}
 }
 
 class Node {
@@ -505,7 +598,7 @@ class ForceDirected {
 
 		const DEFAULTS = {
 			GRAVITY: 0.9,
-			REPULSION: 500000
+			REPULSION: 500000,
 		};
 		this.options = Object.assign({}, DEFAULTS, options);
 	}
@@ -518,6 +611,15 @@ class ForceDirected {
 			node.pos = new Vector.random(min, max);
 		});
 	}
+
+	run() {
+		//requestAnimationFrame(this.animate);
+		console.log("run");
+	}
+
+	animate = () => {
+		console.log("animate");
+	};
 
 	/**
 	 *  applyForce
@@ -534,8 +636,8 @@ class ForceDirected {
 		this.graph.nodeList.forEach((node) => {
 			let force_copy = node.acceleration.copy();
 			let forceOverMass = force_copy.div(node.mass);
-		//	node.velocity.add( forceOverMass );
-			node.pos.add( forceOverMass );
+			//	node.velocity.add( forceOverMass );
+			node.pos.add(forceOverMass);
 
 			//	node.velocity.add(node.acceleration);
 			//	node.pos.add(node.velocity);
@@ -582,7 +684,6 @@ class ForceDirected {
 					force1.div(distance * distance);
 
 					let inverseForce = force1.copy().mult(-1);
-					
 					node2.acceleration.add(force1);
 					node1.acceleration.add(inverseForce);
 
@@ -595,7 +696,6 @@ class ForceDirected {
 
 	applyForcesExertedByConnections() {
 		this.graph.linkList.forEach((link) => {
-
 			let node1 = link.source;
 			let node2 = link.target;
 
@@ -816,82 +916,6 @@ class InputDeviceTracker {
     }
 }
 
-class Renderer {
-
-    constructor(ctx) {
-        this.ctx = ctx;
-    }
-
-    drawGrid(w, h) {
-
-        this.ctx.save();
-
-        this.ctx.fillStyle = 'white';
-        this.ctx.fillRect(0, 0, w, h);
-        this.ctx.lineWidth = 0.3;
-        this.ctx.strokeStyle = 'lightgray';
-        this.ctx.fillStyle = 'black';
-
-        for (let i = 1; i < w; i++) {
-            this.ctx.beginPath();
-            if (i % 10 === 0) {
-                this.ctx.moveTo(i, 0);
-                this.ctx.lineTo(i, h);
-                this.ctx.moveTo(i, 0);
-            }
-            this.ctx.closePath();
-            this.ctx.stroke();
-        }
-
-        for (let i = 1; i < h; i++) {
-            this.ctx.beginPath();
-            if (i % 10 === 0) {
-                this.ctx.moveTo(0, i);
-                this.ctx.lineTo(w, i);
-                this.ctx.moveTo(0, i);
-            }
-            this.ctx.closePath();
-            this.ctx.stroke();
-        }
-
-
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeStyle = 'gray';
-
-        this.ctx.beginPath();
-        for (let i = 50; i < w; i += 10) {
-            if (i % 50 === 0) {
-                this.ctx.moveTo(i, 0);
-                this.ctx.lineTo(i, 30);
-                this.ctx.fillText(` ${i}`, i, 30);
-            } else {
-                this.ctx.moveTo(i, 0);
-                this.ctx.lineTo(i, 10);
-            }
-
-        }
-        this.ctx.closePath();
-        this.ctx.stroke();
-
-        this.ctx.beginPath();
-        for (let i = 50; i < h; i += 10) {
-            if (i % 50 === 0) {
-                this.ctx.moveTo(0, i);
-                this.ctx.lineTo(30, i);
-                this.ctx.fillText(` ${i}`, 30, i);
-            } else {
-                this.ctx.moveTo(0, i);
-                this.ctx.lineTo(10, i);
-            }
-
-        }
-        this.ctx.closePath();
-        this.ctx.stroke();
-
-        this.ctx.restore();
-    }
-}
-
 class MChart {
 
   constructor(container, options) {
@@ -902,13 +926,12 @@ class MChart {
     this.lastMoveX = 0, this.lastMoveY = 0;
 
     this.canvas = document.getElementById("canvas");
-    this.ctx = this.canvas.getContext("2d");
+    //this.ctx = this.canvas.getContext("2d");
+    this.ctx = setupHiDefCanvas(this.canvas);
 
-    //let w = canvas.width = canvas2.width = window.innerWidth * 0.9;
-    //let h = canvas.height = canvas2.height = window.innerHeight * 0.9;
 
-    this.w = this.canvas.width = window.innerWidth ;
-    this.h = this.canvas.height = window.innerHeight ;
+    this.cw = this.canvas.width;
+    this.ch = this.canvas.height;
 
     this.renderer = new Renderer(this.ctx);
 
@@ -948,10 +971,10 @@ class MChart {
   }
 
   draw() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.clearRect(0, 0, this.cw, this.ch);
 
     if (this.options.display_grid) {
-      this.renderer.drawGrid(this.w, this.h);
+      this.renderer.drawGrid(this.cw, this.ch);
     }
 
     this.objects.forEach((object) => {
@@ -1163,7 +1186,9 @@ exports.Link = Link;
 exports.MChart = MChart;
 exports.Node = Node;
 exports.Rectangle = Rectangle;
+exports.Renderer = Renderer;
 exports.Vector = Vector;
 exports.setupHiDefCanvas = setupHiDefCanvas;
+exports.to_radians = to_radians;
 exports.version = version;
 //# sourceMappingURL=index.js.map

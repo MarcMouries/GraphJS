@@ -10,8 +10,18 @@ export default function setupHiDefCanvas(canvas) {
 
 	var ctx = canvas.getContext("2d");
 
+	console.log("─────────────────────────")
+	console.log("│ setupHiDefCanvas      │")
+	console.log("─────────────────────────")
+	console.log("  devicePixelRatio : " + devicePixelRatio)
+	console.log("  canvas.width  : " + canvas.width)
+	console.log("  canvas.height : " + canvas.height)
+
 	// Get the size of the canvas in CSS pixels.
-	//var rect = canvas.getBoundingClientRect();
+	var rect = canvas.getBoundingClientRect();
+	console.log("  rect.width  : " + rect.width)
+	console.log("  rect.height : " + rect.height)
+
     const initialWidth = canvas.width;
     const initialHeight = canvas.height;
 
@@ -25,17 +35,13 @@ export default function setupHiDefCanvas(canvas) {
 	canvas.style.width = initialWidth + 'px';
     canvas.style.height = initialHeight + 'px';
 
-	console.log(" ─────────────────────────")
-	console.log(" │ setupHiDefCanvas      │")
-	console.log(" ─────────────────────────")
+	console.log("  canvas.style.width  : " + canvas.style.width)
+	console.log("  canvas.style.height  : " + canvas.style.height)
 
-	console.log("devicePixelRatio : " + devicePixelRatio)
+	console.log("  canvas.width  : " + canvas.width)
+	console.log("  canvas.height : " + canvas.height)
+
 	console.log(" └───────────────────────┘")
 
 	return ctx;
 }
-
-
-
-
-
