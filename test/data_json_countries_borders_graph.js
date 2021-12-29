@@ -17,10 +17,14 @@ var data_json_countries_borders_graph = `{
     ],
     "links":
     [
-        { "source" : "Canada", "target": "United States" },
-        { "source" : "United States", "target": "Mexico" },
-        { "source" : "Mexico", "target": "Guatemala" },
-        { "source" : "Mexico", "target": "Belize" },
-        { "source" : "Mexico", "target": "United States" }
+        { "source" : "Belize",         "target": "Guatemala" },
+        { "source" : "Canada",         "target": "United States" },
+        { "source" : "United States",  "target": "Mexico" },
+        { "source" : "Mexico",         "target": "Guatemala" },
+        { "source" : "Mexico",         "target": "Belize" },
+        { "source" : "Mexico",         "target": "United States" },
+        { "source" : "Guyana",         "target": "Brazil" },
+        { "source" : "Guyana",         "target": "Venezuela" },
+        { "source" : "Guyana",         "target": "Suriname" }
     ]
 }`;
