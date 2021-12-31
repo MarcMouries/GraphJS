@@ -14,6 +14,7 @@ graph.loadJSON(json_graph);
 
 // Display the graph
 let chart = new graphJS.Chart( graph );
+let layout = new graphJS.ForceDirected( graph );
 chart.display();
 
 ```
