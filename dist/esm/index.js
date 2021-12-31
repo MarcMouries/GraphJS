@@ -862,7 +862,6 @@ class InputDeviceTracker {
 
         this.canvas = canvas;
         this.callback = callback;
-       // let self = this;
 
         console.log("constructor this");
         console.log(this);
@@ -937,7 +936,7 @@ class MChart {
       display_grid: false,
       selection: {
         strokeStyle: '#CC0000', //  'rgba(255,51,0,1)', //'rgba(0,128,255,1)';
-        lineWidth: 0.5,
+        lineWidth: 5.5,
         fillStyle: 'rgba(255,51,0,0.05)'  //'rgba(0,128,255, 0.2)';
       }
     };
@@ -995,6 +994,8 @@ class MChart {
         selection.strokeStyle = this.options.selection.strokeStyle;
         selection.lineWidth = this.options.selection.lineWidth;
         selection.render(this.ctx);
+        console.log("selection rectangle");
+        console.log(selection);
       }
 
       if (this.isSelecting == true) {
