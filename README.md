@@ -29,22 +29,16 @@ chart.display();
     </tr>
   </thead>
   <tbody>
-    <tr><td>Name</td><td>John Doe </td></tr><tr><td>Location</td><td>The Fox Hollow </td></tr>
-    <tr><td>Priority</td><td>Urgent </td></tr><tr><td>Phonenumber</td><td>123-456-7890 </td></tr>
-    <tr><td>Address</td><td>7725 Jericho Turnpike </td></tr>
+    <tr>
+	        <td>
+			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/SocialNetworkAnalysis.png/500px-SocialNetworkAnalysis.png">
+		</td>	
+	    <td>
+			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Departments_in_advertising_agencies.jpg/440px-Departments_in_advertising_agencies.jpg">
+		</td>	    
+	    <td>
+			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Radial-graph-schematic.svg/400px-Radial-graph-schematic.svg.png">
+		</td>
+	  </tr>
   </tbody>
-</table>
-
-<table>
-	<tr>
-		<td>
-			<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/6n-graf.svg/250px-6n-graf.svg.png">
-			<p>This is a graph</p>
-		</td>
-		<td>
-			<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Multigraph.svg/125px-Multigraph.svg.png">
-			<p>This is a Multigraph</p>
-		</td>
-	</tr>
-
 </table>
