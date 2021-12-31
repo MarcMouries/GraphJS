@@ -1,4 +1,4 @@
-# Graph Board
+# GraphJS
 
 GraphJS is a framework for representing and displaying graphs in JavaScript. 
 
