@@ -23,22 +23,16 @@ chart.display();
   <caption></caption>
   <thead>
     <tr>
-      <th>Org Chart</th>
-      <th>Forced Layout</th>
-      <th>Radial Layout</th>
+      	<th>Org Chart</th>
+	<th>Forced Layout</th>
+	<th>Radial Layout</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-	        <td>
-			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/SocialNetworkAnalysis.png/500px-SocialNetworkAnalysis.png">
-		</td>	
-	    <td>
-			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Departments_in_advertising_agencies.jpg/440px-Departments_in_advertising_agencies.jpg">
-		</td>	    
-	    <td>
-			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Radial-graph-schematic.svg/400px-Radial-graph-schematic.svg.png">
-		</td>
-	  </tr>
+	<td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Departments_in_advertising_agencies.jpg/440px-Departments_in_advertising_agencies.jpg"></td>
+	<td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/SocialNetworkAnalysis.png/500px-SocialNetworkAnalysis.png"></td>	
+	<td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Radial-graph-schematic.svg/400px-Radial-graph-schematic.svg.png"></td>
+    </tr>
   </tbody>
 </table>
