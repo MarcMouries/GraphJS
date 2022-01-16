@@ -1,7 +1,7 @@
 {
-  "name": "graphboard",
+  "name": "graphJS",
   "version": "1.0.0",
-  "description": "Graph board",
+  "description": "GraphJS",
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
