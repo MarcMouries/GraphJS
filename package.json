@@ -1,6 +1,6 @@
 {
   "name": "graphjs",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "GraphJS",
   "main": "index.js",
   "scripts": {
