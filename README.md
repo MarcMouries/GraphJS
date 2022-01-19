@@ -1,6 +1,6 @@
 # GraphJS
 
-GraphJS is a framework for representing and displaying graphs in JavaScript. 
+GraphJS is a framework for easily representing and displaying graphs in JavaScript. 
 
 ## Objective
 
