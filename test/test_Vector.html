@@ -3,7 +3,7 @@
 <head>
 
 	<link rel="stylesheet" href="./style.css">
-	<script src="../dist/umd/graphboard.min.js"></script>
+	<script src="../dist/umd/graphjs.min.js"></script>
 
 <body>
 	<h1>Test Vector</h1>
@@ -25,14 +25,14 @@
 <script>
 
 	console.log("new Vector 0-0 = ");
-	let zero = new graphboard.Vector(0, 0);
+	let zero = new graphjs.Vector(0, 0);
 	console.log(zero);
 	zero.add(10);
 	console.log("Add 10");
 	console.log(zero);
 
 
-	let threefour = new graphboard.Vector(3, 4);
+	let threefour = new graphjs.Vector(3, 4);
 	console.log("new Vector 3-4 = ");
 	console.log(threefour);
 
@@ -63,49 +63,49 @@
 
 
 	// console.log("force 2");
-	// let force2 = new graphboard.Vector(0, 0);
+	// let force2 = new graphjs.Vector(0, 0);
 	// console.log(force);
 
 	// LERP
-	let v1 = new graphboard.Vector(0, 0, 0);
-	let v2 = new graphboard.Vector(100, 100, 0);
+	let v1 = new graphjs.Vector(0, 0, 0);
+	let v2 = new graphjs.Vector(100, 100, 0);
 
-	let v3 = graphboard.Vector.lerp(v1, v2, 0.5);
+	let v3 = graphjs.Vector.lerp(v1, v2, 0.5);
 	// v3 has components [50,50,0]
 	console.log("LERP ");
 	console.log(v3);
 
 
 	console.log("Random 1");
-	let vRandom = graphboard.Vector.random(-100, 100);
+	let vRandom = graphjs.Vector.random(-100, 100);
 	console.log(vRandom);
 	console.log("Random 2");
 
-	vRandom = graphboard.Vector.random(-100, 100);
+	vRandom = graphjs.Vector.random(-100, 100);
 	console.log("" + vRandom);
 
 
 	// DIV
 	console.log("DIVISION");
-	vDiv1 = new graphboard.Vector(6, 4);
+	vDiv1 = new graphjs.Vector(6, 4);
 	console.log(vDiv1 + " divided by 2 = " + vDiv1.div(2));
 	console.log("=> vDiv1 is changed to: " + vDiv1);
 
 
-	vDiv1 = new graphboard.Vector(6, 4);
-	console.log(vDiv1 + " divided by 2 = " + graphboard.Vector.div(vDiv1, 2));
+	vDiv1 = new graphjs.Vector(6, 4);
+	console.log(vDiv1 + " divided by 2 = " + graphjs.Vector.div(vDiv1, 2));
 	console.log("=> vDiv1 is unchanged: " + vDiv1);
 
 	console.log("div");
 	let mass = 1;
-	let force1 = new graphboard.Vector(50, 50);
-	let force2 = new graphboard.Vector(50, 50);
+	let force1 = new graphjs.Vector(50, 50);
+	let force2 = new graphjs.Vector(50, 50);
 	let dist = 20;
 	let force1_expected = force1.copy().sub(dist);
 	let force2_expected = force2.copy().add(dist);
 
-	let new_force1 = new graphboard.Vector(-dist, -dist);
-	let new_force2 = new graphboard.Vector(dist, dist);
+	let new_force1 = new graphjs.Vector(-dist, -dist);
+	let new_force2 = new graphjs.Vector(dist, dist);
 
 	let force1_actual = force1.add(new_force1);
 	let force2_actual = force2.add(new_force2);
@@ -121,14 +121,14 @@
 	console.log("The strength of the force is inversely proportional to the distance squared")
 	console.log("F = ");
 
-	let point1 = new graphboard.Vector(0, 0);
+	let point1 = new graphjs.Vector(0, 0);
 	console.log("point1            = " + point1);
 
-	let point2 = new graphboard.Vector(3, 4);
+	let point2 = new graphjs.Vector(3, 4);
 	console.log("point2            = " + point2);
 
 	// the vector that points from one object to the other
-	dir = graphboard.Vector.sub(point2, point1);
+	dir = graphjs.Vector.sub(point2, point1);
 	console.log("direction         = " + dir);
 	// the length (magnitude) of that vector is the distance between the two objects.
 	let distance = dir.mag();

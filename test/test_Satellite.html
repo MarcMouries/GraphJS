@@ -2,7 +2,7 @@
 
 <head>
     <link rel="stylesheet" href="./style.css">
-    <script src="../dist/umd/graphboard.min.js"></script>
+    <script src="../dist/umd/graphjs.min.js"></script>
     <style>
         canvas {
             border: 1px solid red;
@@ -37,8 +37,8 @@
             this.id = id;
             this.mass = mass;
             this.pos = pos;
-            this.velocity = new graphboard.Vector(1, 0);
-            this.acceleration = new graphboard.Vector(0, 0);
+            this.velocity = new graphjs.Vector(1, 0);
+            this.acceleration = new graphjs.Vector(0, 0);
         }
         draw(ctx) {
             ctx.beginPath();
@@ -53,7 +53,7 @@
         }
         applyForce(force) {
             //Receive a force, divide by mass, and add to acceleration.
-            let f = graphboard.Vector.div(force, this.mass);
+            let f = graphjs.Vector.div(force, this.mass);
             this.acceleration.add(f);
         }
         update() {
@@ -104,7 +104,7 @@
         attract(object) {
 
             // Calculate direction of force
-            let force = new graphboard.Vector.sub(this.pos, object.pos);
+            let force = new graphjs.Vector.sub(this.pos, object.pos);
             // Distance between objects
             let distance = force.mag();
             // Limiting the distance to eliminate "extreme" results for very close or very far objects
@@ -143,7 +143,7 @@
     };
 
     function setup() {
-        let center = new graphboard.Vector(width / 2, height / 2);
+        let center = new graphjs.Vector(width / 2, height / 2);
 
         attractor = new Attractor("Attractor", center);
         let m_loc = center.copy().add(40);
@@ -152,7 +152,7 @@
         /*
         for (var i = 0; i < num_movers; i++) {
             let size = 15;
-            let loc = new graphboard.Vector.random(min, max);
+            let loc = new graphjs.Vector.random(min, max);
             movers_list.push(new Mover("", loc, Math.random() * 25));
         }
         */
@@ -162,8 +162,8 @@
 
         attractor.draw(ctx);
 
-        let wind = new graphboard.Vector(0.05, 0.0);
-        let gravity = new graphboard.Vector(0, 0.0001);
+        let wind = new graphjs.Vector(0.05, 0.0);
+        let gravity = new graphjs.Vector(0, 0.0001);
 
 
         // for (var i = 0; i < movers_list.length; i++) {

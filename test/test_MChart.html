@@ -3,7 +3,7 @@
 <head>
 
 	<link rel="stylesheet" href="./style.css">
-	<script src="../dist/umd/graphboard.min.js"></script>
+	<script src="../dist/umd/graphjs.min.js"></script>
 
 <body>
 	<h1>Org Chart</h1>
@@ -33,18 +33,18 @@
 <script>
 
 	var chart_container = document.getElementById("chart_container");
-	var mChart = new graphboard.MChart(chart_container);
+	var mChart = new graphjs.MChart(chart_container);
 	//mChart.init();
 
-	var circle = new graphboard.Circle(150, 150, 50); circle.fillStyle = "LightSeaGreen";
+	var circle = new graphjs.Circle(150, 150, 50); circle.fillStyle = "LightSeaGreen";
 
-	var rectangle1 = new graphboard.Rectangle(100, 100, 200, 100); rectangle1.fillStyle = "CadetBlue";
+	var rectangle1 = new graphjs.Rectangle(100, 100, 200, 100); rectangle1.fillStyle = "CadetBlue";
 
-	var rectangle2 = new graphboard.Rectangle(200, 100, 100, 100); rectangle2.fillStyle = "MidnightBlue";
+	var rectangle2 = new graphjs.Rectangle(200, 100, 100, 100); rectangle2.fillStyle = "MidnightBlue";
 
-	var rectangle3 = new graphboard.Rectangle(100, 200, 100, 100); rectangle3.fillStyle = "PeachPuff";
+	var rectangle3 = new graphjs.Rectangle(100, 200, 100, 100); rectangle3.fillStyle = "PeachPuff";
 
-	var rectangle4 = new graphboard.Rectangle(200, 200, 100, 100); rectangle4.fillStyle = "Salmon";
+	var rectangle4 = new graphjs.Rectangle(200, 200, 100, 100); rectangle4.fillStyle = "Salmon";
 
 
 	mChart.addObject(circle);

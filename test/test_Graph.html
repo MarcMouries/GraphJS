@@ -1,19 +1,19 @@
 <html>
 
 <head>
-    <script src="../dist/umd/graphboard.min.js"></script>
+    <script src="../dist/umd/graphjs.min.js"></script>
     <script src="data-json-simple-graph.js"></script>
 </head>
 <body>
 </body>
 <script>
-    let graph_walker = new graphboard.Graph();
+    let graph_walker = new graphjs.Graph();
     graph_walker.addObject({ id: "O", parentId: null, name: "Test GP O" });
     graph_walker.addObject({ id: "E", parentId: "O", name: "Test Node E" });
 
     console.log(graph_walker);
 
-    let graph_simple = new graphboard.Graph();
+    let graph_simple = new graphjs.Graph();
     graph_simple.loadJSON(data_json_simple_graph);
     console.log(graph_simple);
 </script>

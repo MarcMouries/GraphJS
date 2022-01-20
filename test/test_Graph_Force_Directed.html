@@ -2,7 +2,7 @@
 
 <head>
   <link rel="stylesheet" href="./style.css">
-  <script src="../dist/umd/graphboard.min.js"></script>
+  <script src="../dist/umd/graphjs.min.js"></script>
   <script src="data-json-simple-graph.js"></script>
   <script src="data_json_criminal_graph.js"></script>
   <script src="data_json_countries_borders_graph.js"></script>
@@ -167,7 +167,7 @@
     let newValue = Number.parseFloat(repulsion_range.value);
     repulsion_output.textContent = newValue.toLocaleString();
     forceLayoutOptions.REPULSION = newValue;
-    layout = new graphboard.ForceDirected(graph, forceLayoutOptions);
+    layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
     i = 0;
     requestAnimationFrame(loop);
   });
@@ -181,7 +181,7 @@ const gravity_output = document.querySelector('#gravity_output');
     forceLayoutOptions.GRAVITY = Number.parseFloat(value);
     gravity_output.textContent = parseAndFormatNumber(gravity_range.value);
 
-    layout = new graphboard.ForceDirected(graph, forceLayoutOptions);
+    layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
     i = 0;
     requestAnimationFrame(loop);
   }
@@ -189,16 +189,16 @@ const gravity_output = document.querySelector('#gravity_output');
   function graphSelectionChange(sel) {
     var value = sel.options[sel.selectedIndex].value;
     if (value == 'simple_graph') {
-      graph = new graphboard.Graph();
+      graph = new graphjs.Graph();
       graph.loadJSON(data_json_simple_graph);
-      layout = new graphboard.ForceDirected(graph);
+      layout = new graphjs.ForceDirected(graph);
       i = 0;
       requestAnimationFrame(loop);
     }
     else if (value == 'criminal_graph') {
-      graph = new graphboard.Graph();
+      graph = new graphjs.Graph();
       graph.loadJSON(data_json_criminal_graph);
-      layout = new graphboard.ForceDirected(graph);
+      layout = new graphjs.ForceDirected(graph);
       i = 0;
       requestAnimationFrame(loop);
     }
@@ -206,7 +206,7 @@ const gravity_output = document.querySelector('#gravity_output');
 
   const canvas = document.querySelector("canvas");
   //const ctx = canvas.getContext("2d");
-  const ctx = graphboard.setupHiDefCanvas(canvas);
+  const ctx = graphjs.setupHiDefCanvas(canvas);
 
   var rect = canvas.getBoundingClientRect();
   var width = rect.width;
@@ -216,7 +216,7 @@ const gravity_output = document.querySelector('#gravity_output');
   const MAX_DISTANCE = 500; // not used
   const node_radius = 20;
 
-  let graph = new graphboard.Graph();
+  let graph = new graphjs.Graph();
 
   var layout;
 
@@ -233,7 +233,7 @@ const gravity_output = document.querySelector('#gravity_output');
     ctx.translate(width / 2, height / 2);
     graph.loadJSON(data_json_simple_graph);
     //graph.loadJSON(data_json_criminal_graph;
-    layout = new graphboard.ForceDirected(graph, forceLayoutOptions);
+    layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
   }
 
 
