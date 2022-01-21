@@ -4,42 +4,42 @@ import babel from "@rollup/plugin-babel";
 import pkg from "./package.json";
 const input = ["src/index.js"];
 export default [
-  {
-    // browser-friendly UMD build
-    input,
-    plugins: [
-      nodeResolve(),
-      babel({
-        babelHelpers: "bundled",
-      }),
-      //terser(),
-    ],
-    output: {
-      file: `dist/umd/${pkg.name}.min.js`,
-      format: "umd",
-      name: pkg.name,
-      esModule: false,
-      exports: "named",
-      sourcemap: true,
-    },
-  },
-  // ESM and CJS
-  {
-    input,
-    plugins: [nodeResolve()],
-    output: [
-      {
-        dir: "dist/esm",
-        format: "esm",
-        exports: "named",
-        sourcemap: true,
-      },
-      {
-        dir: "dist/cjs",
-        format: "cjs",
-        exports: "named",
-        sourcemap: true,
-      },
-    ],
-  },
+	{
+		// browser-friendly UMD build
+		input,
+		plugins: [
+			nodeResolve(),
+			babel({
+				babelHelpers: "bundled",
+			}),
+			terser(),
+		],
+		output: {
+			file: `dist/umd/${pkg.name}.min.js`,
+			format: "umd",
+			name: pkg.name,
+			esModule: false,
+			exports: "named",
+			sourcemap: true,
+		},
+	},
+	// ESM and CJS
+	{
+		input,
+		plugins: [nodeResolve()],
+		output: [
+			{
+				dir: "dist/esm",
+				format: "esm",
+				exports: "named",
+				sourcemap: true,
+			},
+			{
+				dir: "dist/cjs",
+				format: "cjs",
+				exports: "named",
+				sourcemap: true,
+			},
+		],
+	},
 ];
