@@ -1,4 +1,5 @@
 # GraphJS
+[![npm](https://img.shields.io/npm/v/graphjs.svg)](https://www.npmjs.com/package/graphjs)
 
 GraphJS is a framework for easily representing and displaying graphs in JavaScript. 
 
