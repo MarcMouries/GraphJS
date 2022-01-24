@@ -4,6 +4,7 @@ import Arc from './Arc.js';
 export default class Circle extends Arc {
     constructor(x, y, radius) {
       super(x, y, radius, Math.PI *2);
+      this.type = "Circle";
     }
     isHit(x, y) {
       var dx = this.x - x;

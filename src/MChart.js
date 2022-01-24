@@ -1,6 +1,7 @@
 import InputDeviceTracker from "./InputDeviceTracker";
 import { Rectangle, Circle } from "./shape";
 import { Renderer, setupHiDefCanvas } from "./canvas";
+import { rectContainsShape } from "./geometry";
 
 export class MChart {
 	constructor(container, options) {
@@ -260,54 +261,4 @@ function moveObjectToLastPosition(object_list, object_to_move) {
 			return;
 		}
 	});
-}
-
-function rectContainsShape(rectangle, shape) {
-	if (shape.constructor.name == "Circle") {
-		return rectContainsCircle(rectangle, shape);
-	} else if (shape.constructor.name == "Rectangle") {
-		return rectContainsRect(rectangle, shape);
-	} else {
-		console.error("rectContainsShape: shape is unknown: " + shape);
-	}
-}
-
-function rectContainsRect(rect1, rect2) {
-	var result_X =
-		rect1.x < rect2.x && rect1.x + rect1.width > rect2.x + rect2.width;
-
-	var result_Y =
-		rect1.y < rect2.y && rect1.y + rect1.height > rect2.y + rect2.height;
-
-	return result_X & result_Y;
-}
-
-function rectContainsCircle(rectangle, circle) {
-	// LEFT
-	var left_include = rectangle.x < circle.x - circle.radius;
-	if (!left_include) {
-		//circle is outside of the rectangle on the left side
-		return false;
-	}
-	// RIGHT
-	var right_include =
-		rectangle.x + rectangle.width > circle.x + circle.radius;
-	if (!right_include) {
-		//circle is outside of the rectangle on the right side
-		return false;
-	}
-	// BOTTOM
-	var bottom_include =
-		rectangle.y + rectangle.height > circle.y + circle.radius;
-	if (!bottom_include) {
-		//circle is outside of the rectangle on the bottom side
-		return false;
-	}
-	// TOP:
-	var top_include = rectangle.y < circle.y - circle.radius;
-	if (!top_include) {
-		//circle is outside of the rectangle on the top side
-		return false;
-	}
-	return true;
 }

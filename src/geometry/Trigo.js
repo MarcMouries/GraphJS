@@ -96,39 +96,3 @@ export function __getBearing(point) {
 //  log(bearingTT + " " + compass_lookup + " - " + bearing);
   return compass_points[compass_lookup];
 }
-
-
-
-/**
- *
- *
- *    x,y
- *    ┌────────────────────────┐ width
- *    │  x,y             width │
- *    │  ┌──────────────────┐  │
- *    │  │                  │  │
- *    │  │                  │  │
- *    │  │                  │  │
- *    │  └──────────────────┘  │
- *    │                  heigth│
- *    └────────────────────────┘ heigth
-
- * @param {*} rect1 
- * @param {*} rect2 
- * @returns 
- */
-export function rectContainsRect(rect1, rect2) {
-  console.log("rectContainsRect");
-  // console.log(rect1.toStringCoordinates());
-  // console.log(rect2.toStringCoordinates());
-
-  var result_X = (rect1.getX()) < (rect2.getX()) &&
-    (rect1.getX() + rect1.getWidth()) < (rect2.getX() + rect2.getWidth());
-
-  var result_Y = (rect1.getY()) > (rect2.getY()) &&
-    (rect1.getY() + rect1.getHeight()) <= (rect2.getY() + rect2.getHeight());
-
-
-  return result_X & result_Y;
-}
-

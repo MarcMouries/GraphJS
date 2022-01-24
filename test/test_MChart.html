@@ -37,8 +37,29 @@
 	//mChart.init();
 
 	var circle = new graphjs.Circle(150, 150, 50); circle.fillStyle = "LightSeaGreen";
+	console.log("circle")
+	console.log(circle)
+	console.log("circle.constructor.name =" + circle.constructor.name)
+
+	class XYZ {
+
+	}
+	
+	var xyz = new XYZ ();
+	console.log("xyz.constructor.name =" + xyz.constructor.name)
+	 class ABC extends XYZ {
+		constructor() {
+        super();
+        
+    }
+	 }
+	var abc = new ABC ();
+	console.log("abc.constructor.name =" + abc.constructor.name)
+
+
 
 	var rectangle1 = new graphjs.Rectangle(100, 100, 200, 100); rectangle1.fillStyle = "CadetBlue";
+	console.log("rectangle1.constructor.name =" + rectangle1.constructor.name)
 
 	var rectangle2 = new graphjs.Rectangle(200, 100, 100, 100); rectangle2.fillStyle = "MidnightBlue";
 

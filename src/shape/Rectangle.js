@@ -4,7 +4,7 @@ import { NONE } from './Constants.js';
 
 export default class Rectangle extends Shape {
     constructor(x, y, width, height) {
-        super(x, y);
+        super(x, y, "Rectangle");
         this.width = width;
         this.height = height;
     }

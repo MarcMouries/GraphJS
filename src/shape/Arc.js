@@ -3,7 +3,7 @@ import { NONE } from './Constants.js';
 
 export default class Arc extends Shape {
   constructor(x, y, radius, radians) {
-    super(x, y);
+    super(x, y, "Arc");
     this.radius = radius;
     this.radians = radians;
   }
