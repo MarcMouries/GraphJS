@@ -2,7 +2,7 @@
  *  A vector is an entity that has both magnitude and direction.
  *  2D vector implementation based on the vector functions in P5.js
  */
-export class Vector {
+ export class Vector {
 	constructor(x, y) {
 		this.x = x || 0;
 		this.y = y || 0;
@@ -10,14 +10,6 @@ export class Vector {
 		if (isNaN(x) || isNaN(y)) {
 			console.warn(`Vector(): parameters are not number: (${x}), ${y} `);
 		}
-		/*
-		console.log("in Vector()");
-		console.log("this.x  = " + this.x);
-		console.log("this.y  = " + this.y);
-
-		console.log("typeof x  = " + typeof y);
-		console.log("typeof y  = " + typeof y);
-		*/
 	}
 
 	static add(v1, v2) {
@@ -76,14 +68,16 @@ export class Vector {
 	}
 
 	/**
-	 *  Return a new vector
+	 * Return a copy of this Vector
 	 * @returns
 	 */
 	copy() {
 		return new Vector(this.x, this.y);
 	}
 
-	/* divide vector length (ie magnitude) by a constant*/
+	/**
+	 * Divide vector length (ie magnitude) by a constant  
+	 */ 
 	div(n) {
 		if (n === 0) {
 			//console.warn("Vector.div:", "divide by 0");
@@ -94,12 +88,18 @@ export class Vector {
 		return this;
 	}
 
+	/**
+	 * Linear Interpolation
+	 */ 
 	lerp(v1, amount) {
 		this.x += (v1.x - this.x) * amount || 0;
 		this.y += (v1.y - this.y) * amount || 0;
 		return this;
 	}
-
+	/**
+	 * Returns the direction of the Vector
+	 * @returns 
+	 */
 	heading() {
 		const h = Math.atan2(this.y, this.x);
 		return h;
@@ -123,6 +123,9 @@ export class Vector {
 	Multiply vector length (ie magnitude) by a constant
 	*/
 	mult(n) {
+		if (isNaN(n)) {
+			console.error(`Vector.mult: parameter is not a number: (${n})`);
+		}
 		this.x *= n;
 		this.y *= n;
 		return this;
@@ -137,7 +140,7 @@ export class Vector {
 
 
 	/**
-	 * 
+	 * Substracts either a Vector or a scalar
 	 * @param {*} n 
 	 * @returns 
 	 */
