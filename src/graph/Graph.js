@@ -33,7 +33,7 @@ export default class Graph {
 		return node;
 	}
 
-	nodeAt (index) {
+	nodeAt(index) {
 		var node = this.nodeList[index];
 		return node;
 	}
@@ -76,14 +76,14 @@ export default class Graph {
 		if (sourceNode == undefined) {
 			throw new TypeError(
 				"Trying to add a link to the non-existent node with id: " +
-					sourceNode_id
+				sourceNode_id
 			);
 		}
 		var targetNode = this.getNode(targetNode_id);
 		if (targetNode == undefined) {
 			throw new TypeError(
 				"Trying to add a link to the non-existent node with id: " +
-					targetNode_id
+				targetNode_id
 			);
 		}
 
@@ -102,10 +102,10 @@ export default class Graph {
 		} else {
 			console.log(
 				"LINK EXIST: " +
-					" source: " +
-					link.source.id +
-					" => " +
-					link.target.id
+				" source: " +
+				link.source.id +
+				" => " +
+				link.target.id
 			);
 		}
 
@@ -118,8 +118,24 @@ export default class Graph {
 		this.adjacency[link.source.id][link.target.id].push(link);
 	}
 
+	/**
+	 *  JSON input can be either a JSON String or a JSON object
+	 * @param {*} json_input
+	 */
 	loadJSON(json_string) {
-		var json_object = JSON.parse(json_string);
+		console.log("Graph.loadJSON: json_string: ");
+		console.log(json_string);
+		var json_object ;
+		if (typeof json_string === "string") {
+			console.log("Graph.loadJSON: input is of type string: ");
+			json_object = JSON.parse(json_string);
+
+		}
+		else if (typeof json_string === "object") {
+			console.log("Graph.loadJSON: input is of type object: ");
+			json_object = json_string;
+		}
+
 		var nodes = json_object["nodes"];
 		for (let index = 0; index < nodes.length; index++) {
 			var node = nodes[index];
