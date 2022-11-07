@@ -1,317 +1,323 @@
 <html>
+  <head>
+    <script src="../dist/umd/graphjs.min.js"></script>
+    <link rel="stylesheet" href="./style.css" />
 
-<head>
-  <link rel="stylesheet" href="./style.css">
-  <script src="../dist/umd/graphjs.min.js"></script>
-  <script src="data-json-simple-graph.js"></script>
-  <script src="data_json_criminal_graph.js"></script>
-  <script src="data_json_countries_borders_graph.js"></script>
-  <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: inherit;
-      padding: 0;
-      margin: 0;
-    }
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+        padding: 0;
+        margin: 0;
+      }
 
-    body {
-      display: flex;
-      height: 100vh;
-      font-family: Montserrat, sans-serif;
-    }
+      body {
+        display: flex;
+        height: 100vh;
+        font-family: Montserrat, sans-serif;
+      }
 
-    .graph-container {
-      margin: auto;
-      height: 100vh;
-      width: 100vw;
-    }
+      .graph-container {
+        margin: auto;
+        height: 100vh;
+        width: 100vw;
+      }
 
-    .controls {
-      position: relative;
-      z-index: 1;
-      height: 100vh;
-      width: 200px;
-      padding: 1.5em;
-      color: #333;
-      text-transform: uppercase;
-      background-color: rgba(220, 220, 220, 0.5);
-    }
+      .controls {
+        position: relative;
+        z-index: 1;
+        height: 100vh;
+        width: 200px;
+        padding: 1.5em;
+        color: #333;
+        text-transform: uppercase;
+        background-color: rgba(220, 220, 220, 0.5);
+      }
 
-    .controls fieldset {
-      border: none;
-      margin: 1rem 0;
-    }
+      .controls fieldset {
+        border: none;
+        margin: 1rem 0;
+      }
 
-    .controls legend {
-      margin-bottom: 0rem;
-      font-weight: bold;
-      letter-spacing: 0.03125em;
-    }
+      .controls legend {
+        margin-bottom: 0rem;
+        font-weight: bold;
+        letter-spacing: 0.03125em;
+      }
 
-    .form-element {
-      margin-top: 1rem;
+      .form-element {
+        margin-top: 1rem;
+      }
 
-    }
+      .controls label {
+        font-size: x-small;
+        font-weight: bold;
 
-    .controls label {
-      font-size: x-small;
-      font-weight: bold;
+        letter-spacing: 0.0625em;
+      }
 
-      letter-spacing: 0.0625em;
-    }
+      .range_output {
+        font-size: x-small;
+        letter-spacing: 0.0625em;
+      }
 
-    .range_output {
-      font-size: x-small;
-      letter-spacing: 0.0625em;
-    }
+      .controls select {
+        border: 1px solid #ddd;
+        border-radius: 1em;
+        width: 100%;
+        height: 2em;
+        text-transform: uppercase;
+        font-family: inherit;
+        font-size: x-small;
+        padding: 0.375em;
+        margin: 0.25rem 0 1rem;
+      }
 
-    .controls select {
-      border: 1px solid #ddd;
-      border-radius: 1em;
-      width: 100%;
-      height: 2em;
-      text-transform: uppercase;
-      font-family: inherit;
-      font-size: x-small;
-      padding: 0.375em;
-      margin: 0.25rem 0 1rem;
-    }
+      .__controls input[type="range"] {
+        appearance: none;
+        position: relative;
+        width: 100%;
+        height: 2em;
+        padding: 0.375em;
+        margin: 0.25rem 0 1rem;
+        color: inherit;
+        background-color: currentColor;
+        border-radius: 1em;
+        outline: none;
+      }
+    </style>
 
-    .__controls input[type="range"] {
-      appearance: none;
-      position: relative;
-      width: 100%;
-      height: 2em;
-      padding: 0.375em;
-      margin: 0.25rem 0 1rem;
-      color: inherit;
-      background-color: currentColor;
-      border-radius: 1em;
-      outline: none;
-    }
-  </style>
-
-<body>
-  <div class="graph-container">
-    <canvas class="canvas" width="1000" height="1000"></canvas>
-  </div>
-  <div class="controls">
-    <h2 class="title">Controls</h2>
-    <form>
-      <fieldset>
-        <legend>Data</legend>
-        <select onChange="graphSelectionChange(this)">
-          <option value='simple_graph'>Simple Graph</option>
-          <option value='criminal_graph'>Criminal Graph</option>
-        </select>
-      </fieldset>
-
-      <datalist id="Gravity-list">
-        <option value="0.0"></option>
-        <option value="0.5"></option>
-        <option value="1.0"></option>
-        <option value="1.5"></option>
-        <option value="2.0"></option>
-        <option value="2.5"></option>
-        <option value="3.0"></option>
-        <option value="3.5"></option>
-        <option value="4.0"></option>
-        <option value="4.5"></option>
-        <option value="5.0"></option>
-      </datalist>
-
-      <div class="form-element">
-        <label for="gravity">Gravity</label>
-        <output id="gravity_output" class="range_output" for="gravity"></output>
-        <input id="gravity" type="range" min="0" max="5" step="0.1" value="0.9" list='Gravity-list' onChange="gravityChange(this)">
+    <body>
+      <div class="graph-container">
+        <canvas class="canvas" width="1000" height="1000"></canvas>
       </div>
+      <div class="controls">
+        <h2 class="title">Controls</h2>
+        <form>
+          <fieldset>
+            <legend>Data</legend>
+            <select onChange="graphSelectionChange(this)">
+              <option value="simple-graph.json">Simple Graph</option>
+              <option value="criminal_graph.json">Criminal Graph</option>
+              <option value="countries_borders_graph.json">Countries Borders Graph</option>
+            </select>
+          </fieldset>
 
-      <div class="form-element">
-        <label for="repulsion">Repulsion: </label>
-        <output id="repulsion_output" class="range_output" for="repulsion"></output>
-        <input id="repulsion" type="range" min="10000" max="1000000" step="1000" value="500000">
+          <fieldset>
+            <legend>Layout</legend>
+            <input type="radio" id="kraken" name="monster" />
+            <label for="kraken">Tree</label><br />
+
+            <input type="radio" id="sasquatch" name="monster" />
+            <label for="sasquatch">Radial</label><br />
+
+            <input type="radio" id="mothman" name="monster" />
+            <label for="mothman">Force</label>
+          </fieldset>
+
+          <datalist id="Gravity-list">
+            <option value="0.0"></option>
+            <option value="0.5"></option>
+            <option value="1.0"></option>
+            <option value="1.5"></option>
+            <option value="2.0"></option>
+            <option value="2.5"></option>
+            <option value="3.0"></option>
+            <option value="3.5"></option>
+            <option value="4.0"></option>
+            <option value="4.5"></option>
+            <option value="5.0"></option>
+          </datalist>
+
+          <div class="form-element">
+            <label for="gravity">Gravity</label>
+            <output id="gravity_output" class="range_output" for="gravity"></output>
+            <input id="gravity" type="range" min="0" max="5" step="0.1" value="0.9" list="Gravity-list" onChange="gravityChange(this)" />
+          </div>
+
+          <div class="form-element">
+            <label for="repulsion">Repulsion: </label>
+            <output id="repulsion_output" class="range_output" for="repulsion"></output>
+            <input id="repulsion" type="range" min="10000" max="1000000" step="1000" value="500000" />
+          </div>
+        </form>
       </div>
-      <fieldset>
-        <legend>Layout</legend>
-        <input type="radio" id="kraken" name="monster">
-        <label for="kraken">Tree</label><br />
+    </body>
+    <script>
+      const LOG_STYLE = "background-color: darkblue; color: white; font-size: 1em;";
 
-        <input type="radio" id="sasquatch" name="monster">
-        <label for="sasquatch">Radial</label><br />
+      /**
+       *  Controls Form
+       */
 
-        <input type="radio" id="mothman" name="monster">
-        <label for="mothman">Force</label>
-      </fieldset>
+      function parseAndFormatNumber(number) {
+        let newValue = Number.parseFloat(number);
+        return newValue.toLocaleString();
+      }
 
-    </form>
-  </div>
-</body>
-<script>
+      const repulsion_range = document.querySelector("#repulsion");
+      const repulsion_output = document.querySelector("#repulsion_output");
+      repulsion_output.textContent = parseAndFormatNumber(repulsion_range.value);
 
-  /**
-   *  Controls Form
-   */
+      repulsion_range.addEventListener("input", function () {
+        console.log(repulsion_range.value.toLocaleString());
+        let newValue = Number.parseFloat(repulsion_range.value);
+        repulsion_output.textContent = newValue.toLocaleString();
+        forceLayoutOptions.REPULSION = newValue;
+        layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
+        i = 0;
+        requestAnimationFrame(loop);
+      });
 
-   function parseAndFormatNumber(number) {
-    let newValue = Number.parseFloat(number);
-    return newValue.toLocaleString();
-   }
+      const gravity_range = document.querySelector("#gravity");
+      const gravity_output = document.querySelector("#gravity_output");
+      gravity_output.textContent = parseAndFormatNumber(gravity_range.value);
 
-  const repulsion_range = document.querySelector('#repulsion');
-  const repulsion_output = document.querySelector('#repulsion_output');
-  repulsion_output.textContent = parseAndFormatNumber(repulsion_range.value);
+      function gravityChange(range) {
+        var value = range.value;
+        forceLayoutOptions.GRAVITY = Number.parseFloat(value);
+        gravity_output.textContent = parseAndFormatNumber(gravity_range.value);
 
-  repulsion_range.addEventListener('input', function () {
-    console.log(repulsion_range.value.toLocaleString());
-    let newValue = Number.parseFloat(repulsion_range.value);
-    repulsion_output.textContent = newValue.toLocaleString();
-    forceLayoutOptions.REPULSION = newValue;
-    layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
-    i = 0;
-    requestAnimationFrame(loop);
-  });
+        layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
+        i = 0;
+        requestAnimationFrame(loop);
+      }
 
-  const gravity_range = document.querySelector('#gravity');
-const gravity_output = document.querySelector('#gravity_output');
-  gravity_output.textContent = parseAndFormatNumber(gravity_range.value);
+      function graphSelectionChange(sel) {
+        var fileName = sel.options[sel.selectedIndex].value;
+         loadDataFile(fileName).then(function (data) {
+          var jsonGraphData = data;
+          console.log("jsonGraphData = ");
+          console.log(jsonGraphData);
+          graph = new graphjs.Graph();
+          graph.loadJSON(jsonGraphData);
+          layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
+          requestAnimationFrame(loop);
+//       i = 0;
+//          loop();
+        });
+      }
 
-  function gravityChange(range) {
-    var value = range.value;
-    forceLayoutOptions.GRAVITY = Number.parseFloat(value);
-    gravity_output.textContent = parseAndFormatNumber(gravity_range.value);
+      const canvas = document.querySelector("canvas");
+      //const ctx = canvas.getContext("2d");
+      const ctx = graphjs.setupHiDefCanvas(canvas);
 
-    layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
-    i = 0;
-    requestAnimationFrame(loop);
-  }
+      var rect = canvas.getBoundingClientRect();
+      var width = rect.width;
+      var height = rect.height;
+      const CENTER = { x: width / 2, y: height / 2 };
 
-  function graphSelectionChange(sel) {
-    var value = sel.options[sel.selectedIndex].value;
-    if (value == 'simple_graph') {
-      graph = new graphjs.Graph();
-      graph.loadJSON(data_json_simple_graph);
-      layout = new graphjs.ForceDirected(graph);
-      i = 0;
-      requestAnimationFrame(loop);
-    }
-    else if (value == 'criminal_graph') {
-      graph = new graphjs.Graph();
-      graph.loadJSON(data_json_criminal_graph);
-      layout = new graphjs.ForceDirected(graph);
-      i = 0;
-      requestAnimationFrame(loop);
-    }
-  }
+      const MAX_DISTANCE = 500; // not used
+      const node_radius = 20;
 
-  const canvas = document.querySelector("canvas");
-  //const ctx = canvas.getContext("2d");
-  const ctx = graphjs.setupHiDefCanvas(canvas);
+      let graph = new graphjs.Graph();
 
-  var rect = canvas.getBoundingClientRect();
-  var width = rect.width;
-  var height = rect.height;
-  const CENTER = { x: width / 2, y: height / 2 };
+      var layout;
 
-  const MAX_DISTANCE = 500; // not used
-  const node_radius = 20;
+      var forceLayoutOptions = {
+        GRAVITY: 0.9,
+        REPULSION: 500000,
+      };
 
-  let graph = new graphjs.Graph();
+      async function loadDataFile(fileName) {
+        console.log("%cLOADING FILE %s", LOG_STYLE, fileName);
+        const result = await fetch(fileName).then((response) => {
+          if (!response.ok) {
+            throw Error(response.statusText);
+          }
+          return response.text();
+        });
+        console.log("%cLOADED FILE %s", LOG_STYLE, fileName);
+        return result;
+      }
 
-  var layout;
+      function setup() {
+        ctx.translate(width / 2, height / 2);
 
-  var forceLayoutOptions = {
-    GRAVITY: 0.9,
-    REPULSION: 500000
-  };
+        loadDataFile("simple-graph.json").then(function (data) {
+          var jsonGraphData = data;
+          console.log("jsonGraphData = ");
+          console.log(jsonGraphData);
+          graph = new graphjs.Graph();
+          graph.loadJSON(jsonGraphData);
+          layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
+          loop();
+        });
+      }
 
+      function clear() {
+        //ctx.fillStyle = "rgba(234, 236, 238, 0.9)";
+        ctx.fillStyle = "rgba(235, 245, 240, 1)";
+        ctx.fillStyle = "rgb(248,252,250)";
 
+        //ctx.fillStyle = "rgb(195,226,234)";
+        //ctx.fillStyle = "rgb(176,225,206)";
+        // change origin due to translation
+        ctx.fillRect(-width, -height, 2 * width, 2 * height);
+      }
 
+      function draw_node(node) {
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(176,225,206)";
 
-  function setup() {
+        ctx.arc(node.pos.x, node.pos.y, node.radius, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.closePath();
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(node.id, node.pos.x, node.pos.y);
+      }
 
-    ctx.translate(width / 2, height / 2);
-    graph.loadJSON(data_json_simple_graph);
-    //graph.loadJSON(data_json_criminal_graph;
-    layout = new graphjs.ForceDirected(graph, forceLayoutOptions);
-  }
+      function draw_line(v1, v2) {
+        ctx.beginPath();
+        ctx.moveTo(v1.x, v1.y);
+        ctx.lineTo(v2.x, v2.y);
+        ctx.strokeStyle = "rgba(50, 50, 50, 1)";
+        ctx.stroke();
+        ctx.closePath();
+      }
 
+      function draw_links() {
+        graph.linkList.forEach((link) => {
+          // node1 = graph.nodeList[link.source];
+          // node2 = graph.nodeList[link.target];
+          node1 = link.source;
+          node2 = link.target;
+          draw_line(node1.pos, node2.pos);
+        });
+      }
 
-  function clear() {
-    //ctx.fillStyle = "rgba(234, 236, 238, 0.9)";
-    ctx.fillStyle = "rgba(235, 245, 240, 1)";
-    ctx.fillStyle = "rgb(248,252,250)"
+      function loop() {
+        clear();
 
-    //ctx.fillStyle = "rgb(195,226,234)";
-    //ctx.fillStyle = "rgb(176,225,206)";
-    // change origin due to translation
-    ctx.fillRect(-width, -height, 2 * width, 2 * height);
-  };
+        draw_links();
 
-  function draw_node(node) {
-    ctx.beginPath();
-    ctx.fillStyle = "rgb(176,225,206)";
+        layout.applyForces();
 
-    ctx.arc(node.pos.x, node.pos.y, node.radius, 0, 2 * Math.PI, false);
-    ctx.fill();
-    ctx.closePath();
-    ctx.fillStyle = "black";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(node.id, node.pos.x, node.pos.y);
-  }
+        graph.nodeList.forEach((node) => {
+          draw_node(node);
+        });
 
-  function draw_line(v1, v2) {
-    ctx.beginPath();
-    ctx.moveTo(v1.x, v1.y);
-    ctx.lineTo(v2.x, v2.y);
-    ctx.strokeStyle = "rgba(50, 50, 50, 1)";
-    ctx.stroke();
-    ctx.closePath();
-  }
+        if (i < max_iterations) {
+          requestAnimationFrame(loop);
+          i++;
+       //    console.log( i );
+        }
+      }
 
-  function draw_links() {
-    graph.linkList.forEach((link) => {
-      // node1 = graph.nodeList[link.source];
-      // node2 = graph.nodeList[link.target];
-      node1 = link.source;
-      node2 = link.target;
-      draw_line(node1.pos, node2.pos);
-    });
-  }
+      var i = 0;
+      const max_iterations = 2000;
+      console.log(max_iterations);
+      console.log("before setup");
 
-  function loop() {
-
-    clear();
-
-    draw_links();
-
-    layout.applyForces();
-
-    graph.nodeList.forEach((node) => {
-      draw_node(node);
-    });
-
-    if (i < max_iterations) {
-      requestAnimationFrame(loop);
-      i++;
-      // console.log( i );
-
-    }
-  };
-
-  var i = 0;
-  const max_iterations = 2000;
-  console.log(max_iterations);
-  setup();
-  console.log(max_iterations);
-  console.log(graph.getNodeCount());
-  console.log(graph.getLinkCount());
-  console.log(graph.getNodeCount() * graph.getNodeCount());
-  console.log(graph.getNodeCount() * graph.getLinkCount());
-
-  loop();
-
-  layout.run();
-
-</script>
+      setup();
+      console.log("after setup");
+      console.log(graph.getNodeCount());
+      console.log(graph.getLinkCount());
+      console.log(graph.getNodeCount() * graph.getNodeCount());
+      console.log(graph.getNodeCount() * graph.getLinkCount());
+    </script>
+  </head>
+</html>
