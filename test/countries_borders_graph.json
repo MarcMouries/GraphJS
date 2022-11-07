@@ -1,0 +1,102 @@
+{
+    "nodes":
+    [
+        { "id": "Argentina" },
+        { "id": "Belize" },
+        { "id": "Bolivia" },
+        { "id": "Brazil" },
+        { "id": "Chile" },
+        { "id": "Canada"},
+        { "id": "Colombia"},
+        { "id": "Costa Rica"},
+        { "id": "Ecuador" },
+        { "id": "El Salvador" },
+
+        { "id": "French Guiana" },
+        { "id": "Guatemala" },
+        { "id": "Guyana" },
+        { "id": "Honduras" },
+        { "id": "Mexico" },
+        { "id": "Nicaragua" },
+        { "id": "Panama" },
+        { "id": "Paraguay" },
+        { "id": "Peru" },
+        { "id": "Suriname" },
+        { "id": "United States" },
+        { "id": "Uruguay" },
+        { "id": "Venezuela" }
+
+
+    ],
+    "links":
+    [
+        { "source" : "Argentina",         "target": "Bolivia" },
+        { "source" : "Argentina",         "target": "Brazil" },
+        { "source" : "Argentina",         "target": "Chile" },
+        { "source" : "Argentina",         "target": "Paraguay" },
+        { "source" : "Argentina",         "target": "Uruguay" },
+
+        { "source" : "Belize",         "target": "Guatemala" },
+
+        { "source" : "Colombia",         "target": "Panama" },
+        { "source" : "Colombia",         "target": "Venezuela" },
+        { "source" : "Colombia",         "target": "Brazil" },
+        { "source" : "Colombia",         "target": "Peru" },
+        { "source" : "Colombia",         "target": "Ecuador" },
+
+        { "source" : "Costa Rica",         "target": "Nicaragua" },
+        { "source" : "Costa Rica",         "target": "Panama" },
+
+        { "source" : "Nicaragua",         "target": "Costa Rica" },
+        { "source" : "Nicaragua",         "target": "Honduras" },
+
+        { "source" : "El Salvador",         "target": "Guatemala" },
+        { "source" : "El Salvador",         "target": "Honduras" },
+
+        { "source" : "French Guiana",         "target": "Brazil" },
+        { "source" : "French Guiana",         "target": "Suriname" },
+
+
+        { "source" : "Guatemala",         "target": "Belize" },
+        { "source" : "Guatemala",         "target": "Mexico" },
+        { "source" : "Guatemala",         "target": "Honduras" },
+        { "source" : "Guatemala",         "target": "El Salvador" },
+
+        { "source" : "Honduras",         "target": "El Salvador" },
+        { "source" : "Honduras",         "target": "Guatemala" },
+        { "source" : "Honduras",         "target": "Nicaragua" },
+
+        { "source" : "Canada",         "target": "United States" },
+
+        { "source" : "United States",  "target": "Mexico" },
+        { "source" : "Mexico",         "target": "Belize" },
+        { "source" : "Mexico",         "target": "Guatemala" },
+        { "source" : "Mexico",         "target": "United States" },
+        { "source" : "Guyana",         "target": "Brazil" },
+        { "source" : "Guyana",         "target": "Venezuela" },
+        { "source" : "Guyana",         "target": "Suriname" },
+
+        { "source" : "Peru",         "target": "Bolivia" },
+        { "source" : "Peru",         "target": "Chile" },
+        { "source" : "Peru",         "target": "Colombia" },
+        { "source" : "Peru",         "target": "Ecuador" },
+        { "source" : "Peru",         "target": "Brazil" },
+
+         { "source" : "Paraguay",         "target": "Argentina" },
+         { "source" : "Paraguay",         "target": "Bolivia" },
+         { "source" : "Paraguay",         "target": "Brazil" },
+
+
+          { "source" : "Suriname",         "target": "Brazil" },
+          { "source" : "Suriname",         "target": "Guyana" },
+          { "source" : "Suriname",         "target": "Brazil" },
+
+        { "source" : "Uruguay",         "target": "Argentina" },
+        { "source" : "Uruguay",         "target": "Brazil" },
+
+        { "source" : "Venezuela",         "target": "Guyana" },
+        { "source" : "Venezuela",         "target": "Brazil" },
+        { "source" : "Venezuela",         "target": "Colombia" }
+
+    ]
+}

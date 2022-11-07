@@ -1,4 +1,4 @@
-var data_json_criminal_graph = `{
+{
     "nodes": [
         { "id": "Joe Smith",  "type": "person", "name": "Joe Smith", "photo": "http://i.imgur.com/gwlPu.jpg" },
 
@@ -48,4 +48,4 @@ var data_json_criminal_graph = `{
         { "source" : "Billy Bob",         "target":"case2"},
         { "source" : "Billy Bob",         "target":"work2"}
     ]
-}`;
+}
