@@ -2,7 +2,6 @@
 
 <head>
     <script src="../dist/umd/graphjs.min.js"></script>
-    <script src="data-json-simple-graph.js"></script>
 </head>
 <body>
 </body>
@@ -11,9 +10,13 @@
     graph_walker.addObject({ id: "O", parentId: null, name: "Test GP O" });
     graph_walker.addObject({ id: "E", parentId: "O", name: "Test Node E" });
 
+
     console.log(graph_walker);
 
-    let graph_simple = new graphjs.Graph();
-    graph_simple.loadJSON(data_json_simple_graph);
-    console.log(graph_simple);
+
+    //     <script src="simple-graph.json">
+
+    //let graph_simple = new graphjs.Graph();
+    //graph_simple.loadJSON(data_json_simple_graph);
+    //console.log(graph_simple);
 </script>

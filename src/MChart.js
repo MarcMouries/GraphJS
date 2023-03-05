@@ -28,7 +28,7 @@ export class MChart {
 			display_grid: false,
 			selection: {
 				strokeStyle: "#CC0000", //  'rgba(255,51,0,1)', //'rgba(0,128,255,1)';
-				lineWidth: 5.5,
+				lineWidth: 1,
 				fillStyle: "rgba(255,51,0,0.05)", //'rgba(0,128,255, 0.2)';
 			},
 		};
@@ -79,8 +79,6 @@ export class MChart {
 	 *  Private function to render one frame. It is being called by render()
 	 */
 	renderFrame = () => {
-		//  renderFrame() {
-
 		// console.log("renderFrame")
 		this.ctx.clearRect(0, 0, this.cw, this.ch);
 
@@ -111,8 +109,7 @@ export class MChart {
 				selection.strokeStyle = this.options.selection.strokeStyle;
 				selection.lineWidth = this.options.selection.lineWidth;
 				selection.render(this.ctx);
-				console.log("selection rectangle");
-				console.log(selection);
+
 			}
 
 			if (this.isSelecting == true) {
@@ -123,7 +120,6 @@ export class MChart {
 
 	render() {
 		this.renderFrame();
-
 		window.requestAnimationFrame(this.render.bind(this, this.canvas));
 	}
 
@@ -239,7 +235,6 @@ export class MChart {
 				}
 				break;
 		}
-		// this.draw();
 	}
 
 	init() {

@@ -560,7 +560,7 @@ class Graph {
 		return node;
 	}
 
-	nodeAt (index) {
+	nodeAt(index) {
 		var node = this.nodeList[index];
 		return node;
 	}
@@ -603,14 +603,14 @@ class Graph {
 		if (sourceNode == undefined) {
 			throw new TypeError(
 				"Trying to add a link to the non-existent node with id: " +
-					sourceNode_id
+				sourceNode_id
 			);
 		}
 		var targetNode = this.getNode(targetNode_id);
 		if (targetNode == undefined) {
 			throw new TypeError(
 				"Trying to add a link to the non-existent node with id: " +
-					targetNode_id
+				targetNode_id
 			);
 		}
 
@@ -629,10 +629,10 @@ class Graph {
 		} else {
 			console.log(
 				"LINK EXIST: " +
-					" source: " +
-					link.source.id +
-					" => " +
-					link.target.id
+				" source: " +
+				link.source.id +
+				" => " +
+				link.target.id
 			);
 		}
 
@@ -646,7 +646,19 @@ class Graph {
 	}
 
 	loadJSON(json_string) {
-		var json_object = JSON.parse(json_string);
+		console.log("Graph.loadJSON: json_string: ");
+		console.log(json_string);
+		var json_object ;
+		if (typeof json_string === "string") {
+			console.log("Graph.loadJSON: input is of type string: ");
+			json_object = JSON.parse(json_string);
+
+		}
+		else if (typeof json_string === "object") {
+			console.log("Graph.loadJSON: input is of type object: ");
+			json_object = json_string;
+		}
+
 		var nodes = json_object["nodes"];
 		for (let index = 0; index < nodes.length; index++) {
 			var node = nodes[index];
@@ -955,59 +967,82 @@ class Rectangle extends Shape {
 }
 
 class InputDeviceTracker {
+	constructor(canvas, callback) {
+		console.log("InputDeviceTracker ()");
 
-    constructor(canvas, callback) {
-        console.log("InputDeviceTracker ()");
+		this.canvas = canvas;
+		this.callback = callback;
 
-        this.canvas = canvas;
-        this.callback = callback;
+		/**
+		 *  Stores the panning offset between the initial location and the canvas location after is has been panned
+		 */
+		this.translatedPos = { x: 0, y: 0 };
 
-        console.log("constructor this");
-        console.log(this);
+		/**
+		 *  the accumulated horizontal(X) & vertical(Y) panning the user has done in total
+		 */
+		(this.netPanningX = 0), (this.netPanningY = 0);
 
-        this.canvas.addEventListener('mousedown', this.onDown.bind(this));
-        this.canvas.addEventListener('mousemove', this.onMove.bind(this));
-        this.canvas.addEventListener('mouseup', this.onUp.bind(this));
+		/**
+		 *  coordinates of the last move
+		 */
+		(this.lastMoveX = 0), (this.lastMoveY = 0);
 
-        this.canvas.addEventListener('touchstart', this.onDown.bind(this));
-        this.canvas.addEventListener('touchmove', this.onMove.bind(this));
-        this.canvas.addEventListener('touchend', this.onUp.bind(this));
-    }
+		this.startDragOffset = { x: 0, y: 0 };
 
-    getCoordinatesFromEvent(evt) {
-        var rect = self.canvas.getBoundingClientRect();
-        var offsetTop = rect.top;
-        var offsetLeft = rect.left;
+		this.canvas.addEventListener("mousedown", this.onDown.bind(this));
+		this.canvas.addEventListener("mousemove", this.onMove.bind(this));
+		this.canvas.addEventListener("mouseup", this.onUp.bind(this));
 
-        if (evt.touches) {
-            return {
-                x: evt.touches[0].clientX - offsetLeft,
-                y: evt.touches[0].clientY - offsetTop
-            };
-        } else {
-            return {
-                x: evt.clientX - offsetLeft,
-                y: evt.clientY - offsetTop
-            };
-        }
-    }
+		this.canvas.addEventListener("touchstart", this.onDown.bind(this));
+		this.canvas.addEventListener("touchmove", this.onMove.bind(this));
+		this.canvas.addEventListener("touchend", this.onUp.bind(this));
+	}
 
-    onDown(evt) {
-        evt.preventDefault();
-        var coords = this.getCoordinatesFromEvent(evt);
-        this.callback("down", coords.x, coords.y);
-    }
+	getCoordinatesFromEvent(evt) {
+		var rect = self.canvas.getBoundingClientRect();
+		var offsetTop = rect.top;
+		var offsetLeft = rect.left;
 
-    onUp(evt) {
-        evt.preventDefault();
-        this.callback("up");
-    }
+		if (evt.touches) {
+			return {
+				x: evt.touches[0].clientX - offsetLeft,
+				y: evt.touches[0].clientY - offsetTop,
+			};
+		} else {
+			return {
+				x: evt.clientX - offsetLeft,
+				y: evt.clientY - offsetTop,
+			};
+		}
+	}
 
-    onMove(evt) {
-        evt.preventDefault();
-        var coords = this.getCoordinatesFromEvent(evt);
-        this.callback("move", coords.x, coords.y);
-    }
+	onDown(event) {
+		// tell the browser we're handling this event
+		event.preventDefault();
+		event.stopPropagation();
+		var mouseCoords = this.getCoordinatesFromEvent(event);
+
+		// initial mouse click signaling the start of the dragging motion: we save the location of the user's mouse.
+		// dragging offest = current mouse - panning
+		this.startDragOffset.x = mouseCoords.x - this.translatedPos.x;
+		this.startDragOffset.y = mouseCoords.y - this.translatedPos.y;
+
+		this.callback("down", mouseCoords.x, mouseCoords.y);
+	}
+
+	onUp(event) {
+		event.preventDefault();
+		this.callback("up");
+	}
+
+	onMove(event) {
+		// tell the browser we're handling this event
+		event.preventDefault();
+		event.stopPropagation();
+		var mouseCoords = this.getCoordinatesFromEvent(event);
+		this.callback("move", mouseCoords.x, mouseCoords.y);
+	}
 }
 
 class MChart {
@@ -1035,7 +1070,7 @@ class MChart {
 			display_grid: false,
 			selection: {
 				strokeStyle: "#CC0000", //  'rgba(255,51,0,1)', //'rgba(0,128,255,1)';
-				lineWidth: 5.5,
+				lineWidth: 1,
 				fillStyle: "rgba(255,51,0,0.05)", //'rgba(0,128,255, 0.2)';
 			},
 		};
@@ -1086,8 +1121,6 @@ class MChart {
 	 *  Private function to render one frame. It is being called by render()
 	 */
 	renderFrame = () => {
-		//  renderFrame() {
-
 		// console.log("renderFrame")
 		this.ctx.clearRect(0, 0, this.cw, this.ch);
 
@@ -1118,8 +1151,7 @@ class MChart {
 				selection.strokeStyle = this.options.selection.strokeStyle;
 				selection.lineWidth = this.options.selection.lineWidth;
 				selection.render(this.ctx);
-				console.log("selection rectangle");
-				console.log(selection);
+
 			}
 
 			if (this.isSelecting == true) {
@@ -1130,7 +1162,6 @@ class MChart {
 
 	render() {
 		this.renderFrame();
-
 		window.requestAnimationFrame(this.render.bind(this, this.canvas));
 	}
 
@@ -1246,7 +1277,6 @@ class MChart {
 				}
 				break;
 		}
-		// this.draw();
 	}
 
 	init() {
