@@ -645,18 +645,22 @@ class Graph {
 		this.adjacency[link.source.id][link.target.id].push(link);
 	}
 
-	loadJSON(json_string) {
+	/**
+	 *  JSON input can be either a JSON String or a JSON object
+	 * @param {*} json_input
+	 */
+	loadJSON(json_input) {
 		console.log("Graph.loadJSON: json_string: ");
-		console.log(json_string);
+		console.log(json_input);
 		var json_object ;
 		if (typeof json_string === "string") {
 			console.log("Graph.loadJSON: input is of type string: ");
-			json_object = JSON.parse(json_string);
+			json_object = JSON.parse(json_input);
 
 		}
 		else if (typeof json_string === "object") {
 			console.log("Graph.loadJSON: input is of type object: ");
-			json_object = json_string;
+			json_object = json_input;
 		}
 
 		var nodes = json_object["nodes"];
@@ -672,9 +676,11 @@ class Graph {
 				this.addLink(link.source, link.target);
 			}
 		}
-		console.log("Graph.loadJSON ");
+		console.log("Graph.loadJSON:  loaded Graph=");
 		console.log(this.graph);
 	}
+
+
 	toString() {
 		return this.nodeList.map(printNode);
 	}
@@ -697,7 +703,7 @@ function printNode(node) {
 
 // =============================================================
 
-class ForceDirected {
+class ForceDirected extends GraphLayout {
 	constructor(graph, options) {
 		this.graph = graph;
 		this.initNodes();
