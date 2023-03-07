@@ -6,6 +6,7 @@ import Vector from "../geometry/Vector";
 
 export default class ForceDirected extends GraphLayout {
 	constructor(graph, options) {
+
 		super();
 		this.graph = graph;
 		this.initNodes();
@@ -71,11 +72,13 @@ export default class ForceDirected extends GraphLayout {
 
 	applyRepulsiveForces() {
 		// apply repulsive force between nodes
-		for (let i = 0; i < this.graph.nodeList.length; i++) {
-			for (let j = i + 1; j < this.graph.nodeList.length; j++) {
+		let nodeValues = Array.from(this.graph.nodeList.values());
+
+		for (let i = 0; i < nodeValues.length - 1; i++) {
+			for (let j = i + 1; j < nodeValues.length; j++) {
 				if (i != j) {
-					let node1 = this.graph.nodeList[i];
-					let node2 = this.graph.nodeList[j];
+					let node1 = nodeValues[i];
+					let node2 = nodeValues[j];
 					//console.log("applyRepulsiveForces");
 					//console.log(node1);
 					//console.log(node2);
