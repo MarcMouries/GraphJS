@@ -1,15 +1,9 @@
 {
     "nodes":
     [
-        { "id": "O" },
-        { "id": "E" },
-        { "id": "F" },
-        { "id": "N" }
-    ],
-    "links":
-    [
-        { "source" : "E", "target": "O" },
-        { "source" : "F", "target": "O" },
-        { "source" : "N", "target": "O" }
+        { "id": "O", "name": "O Payne ",  "title": "CEO", "picture": "1.jpg" },
+        { "id": "E", "name": "E Warm",    "title": "VP Marketing", "pic": "2.jpg", "parentId": "O" },
+        { "id": "F", "name": "F Hoffa",   "title": "VP Sales", "pic": "3.jpg", "parentId": "O" },
+        { "id": "N", "name": "N Flaming", "title": "VP Engineering", "pic": "4.jpg", "parentId": "O" }
     ]
 }
