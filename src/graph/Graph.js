@@ -7,7 +7,7 @@ import Node from "./Node";
 export default class Graph {
 	constructor() {
 		this.graph = {};
-		this.nodeList = [];
+		this.nodeList = new Map();
 		this.linkList = [];
 		this.adjacency = {};
 		this.changed = false;
@@ -21,22 +21,25 @@ export default class Graph {
 	 */
 	addNode(node) {
 		if (!(node.id in this.graph)) {
-			this.nodeList.push(node);
+			this.nodeList.set(node.id, node); //	this.nodeList.push(node);
+
 			this.graph[node.id] = node;
 		} else {
 			console.log("Node already exists: " + node.id);
 		}
 		return node;
 	}
-	getNode(nodeID) {
-		var node = this.graph[nodeID];
-		return node;
+	getNode(nodeId) {
+		//var node = this.graph[nodeId];
+		return this.nodeList.get(nodeId);
 	}
 
+	/* 
 	nodeAt(index) {
 		var node = this.nodeList[index];
 		return node;
 	}
+*/
 
 	/**
 	 *  Add an object. Create a node from the specified object
@@ -68,7 +71,8 @@ export default class Graph {
 		return this.linkList.length;
 	}
 	getNodeCount() {
-		return this.nodeList.length;
+		//return this.nodeList.length;
+		return this.nodeList.size;
 	}
 
 	addLink(sourceNode_id, targetNode_id) {
@@ -126,12 +130,11 @@ export default class Graph {
 		console.log("Graph.loadJSON: json_string: ");
 		console.log(json_input);
 		var json_object ;
-		if (typeof json_string === "string") {
+		if (typeof json_input === "string") {
 			console.log("Graph.loadJSON: input is of type string: ");
 			json_object = JSON.parse(json_input);
-
 		}
-		else if (typeof json_string === "object") {
+		else if (typeof json_input === "object") {
 			console.log("Graph.loadJSON: input is of type object: ");
 			json_object = json_input;
 		}
@@ -155,7 +158,8 @@ export default class Graph {
 
 
 	toString() {
-		return this.nodeList.map(printNode);
+		//return this.nodeList.map(printNode);
+		return Array.from(this.nodeList.values()).map(printNode);
 	}
 }
 
