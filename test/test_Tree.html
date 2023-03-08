@@ -8,11 +8,15 @@
 
     const jsonData = {
       nodes: [
-        { id: "O", name: "O Payne ", parentId: null, title: "CEO", picture: "1.jpg" },
-        { id: "E", name: "E Warm", parentId: "O", title: "VP Marketing", pic: "2.jpg" },
-        { id: "F", name: "F Hoffa", parentId: "O", title: "VP Sales", pic: "3.jpg" },
-        { id: "N", name: "N Flamin", parentId: "O", title: "VP Engineering", pic: "4.jpg" }
-      ]
+        { id: "O", parentId: null, data: { name: "O Payne ", title: "CEO", picture: "1.jpg" } },
+        // 1st Level
+        { id: "E", parentId: "O", data: { name: "E Warm", title: "VP Marketing", pic: "2.jpg" } },
+        { id: "F", parentId: "O", data: { name: "F Hoffa", title: "VP Sales", pic: "3.jpg" } },
+        { id: "N", parentId: "O", data: { name: "N Flaming", title: "VP Engineering", pic: "4.jpg" } },
+        // 2nd Level
+        { id: "A", parentId: "E", data: { name: "A Smith", title: "Director Marketing", pic: "3.jpg" } },
+        { id: "D", parentId: "E", data: { name: "D Jones", title: "Director Marketing", pic: "4.jpg" } },
+      ],
     };
 
     tree.loadFromJSON(JSON.stringify(jsonData));
