@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <script src="../dist/umd/graphjs.min.js"></script>
+  </head>
+  <body></body>
+  <script>
+    const tree = new graphjs.Tree();
+
+    const jsonData = {
+      nodes: [
+        { id: "O", name: "O Payne ", parentId: null, title: "CEO", picture: "1.jpg" },
+        { id: "E", name: "E Warm", parentId: "O", title: "VP Marketing", pic: "2.jpg" },
+        { id: "F", name: "F Hoffa", parentId: "O", title: "VP Sales", pic: "3.jpg" },
+        { id: "N", name: "N Flamin", parentId: "O", title: "VP Engineering", pic: "4.jpg" }
+      ]
+    };
+
+    tree.loadFromJSON(JSON.stringify(jsonData));
+    console.log("tree", tree);
+
+    console.log("Traverse tree DF");
+    tree.traverseDF((node) => console.log(node.toString()));
+
+    console.log("Traverse tree BF");
+    tree.traverseBF((node) => console.log(node.toString()));
+  </script>
+</html>
