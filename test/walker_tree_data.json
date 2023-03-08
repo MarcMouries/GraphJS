@@ -1,9 +1,9 @@
 {
     "nodes":
     [
-        { "id": "O", "name": "O Payne ",  "title": "CEO", "picture": "1.jpg" },
-        { "id": "E", "name": "E Warm",    "title": "VP Marketing", "pic": "2.jpg", "parentId": "O" },
-        { "id": "F", "name": "F Hoffa",   "title": "VP Sales", "pic": "3.jpg", "parentId": "O" },
-        { "id": "N", "name": "N Flaming", "title": "VP Engineering", "pic": "4.jpg", "parentId": "O" }
+        { "id": "O", "name": "O Payne ",  "parentId": null, "title": "CEO", "picture": "1.jpg" },
+        { "id": "E", "name": "E Warm",    "parentId": "O" , "title": "VP Marketing", "pic": "2.jpg"},
+        { "id": "F", "name": "F Hoffa",   "parentId": "O" , "title": "VP Sales", "pic": "3.jpg" },
+        { "id": "N", "name": "N Flaming", "parentId": "O" , "title": "VP Engineering", "pic": "4.jpg"  }
     ]
 }
