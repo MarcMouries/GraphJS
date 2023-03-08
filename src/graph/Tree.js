@@ -15,12 +15,10 @@ export class Tree extends Graph {
 
   traverseDF(callback) {
     function traverse(node) {
-      if (node) {
         callback(node);
         if (node.children) {
           node.children.forEach(traverse);
         }
-      }
     }
     traverse(this.root);
   }
@@ -36,13 +34,11 @@ export class Tree extends Graph {
 
   loadFromJSON(json) {
     const data = JSON.parse(json);
-    // const links = [];
-
+    console.log(data);
     // create nodes
-    //const nodeMap = new Map();
     data.nodes.forEach((nodeData) => {
-      const { id, name, title, pic } = nodeData;
-      const node = new TreeNode(id, name, title, pic);
+      const { id, parentId, data } = nodeData;
+      const node = new TreeNode(id, data, parentId);
       this.nodeMap.set(id, node);
     });
 
