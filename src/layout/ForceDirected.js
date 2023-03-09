@@ -1,10 +1,10 @@
 // =============================================================
 // Force Directed Layout
 // =============================================================
-import GraphLayout from "./GraphLayout";
+import AbstractGraphLayout from "./AbstractGraphLayout";
 import Vector from "../geometry/Vector";
 
-export default class ForceDirected extends GraphLayout {
+export default class ForceDirected extends AbstractGraphLayout {
 	constructor(graph, options) {
 
 		super();
