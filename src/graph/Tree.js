@@ -13,6 +13,10 @@ export class Tree extends Graph {
     this.root = nodeID;
   }
 
+  isRoot(node) {
+    return node === this.root;
+  }
+
   traverseDF(callback) {
     function traverse(node) {
         callback(node);
@@ -55,6 +59,3 @@ export class Tree extends Graph {
     });
   }
 }
-// add nodes and links to the graph
-//this.addNodes([...nodeMap.values()]);
-//this.addEdges(links);
