@@ -4,7 +4,7 @@
 //import Node from "../graph/Node";
 
 
-export default class GraphLayout {
+export default class AbstractGraphLayout {
 
     // @ts-ignore
     constructor(shapeType, x, y, width, height) {     }
