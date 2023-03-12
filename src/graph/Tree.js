@@ -12,6 +12,9 @@ export class Tree extends Graph {
   setRoot(nodeID) {
     this.root = nodeID;
   }
+  getRoot () {
+    return this.root;
+  }
 
   isRoot(node) {
     return node === this.root;
@@ -38,14 +41,17 @@ export class Tree extends Graph {
 
   loadFromJSON(json) {
     const data = JSON.parse(json);
-    console.log(data);
+  
     // create nodes
     data.nodes.forEach((nodeData) => {
       const { id, parentId, data } = nodeData;
       const node = new TreeNode(id, data, parentId);
       this.nodeMap.set(id, node);
+      // add node to nodesByLevel array
+      //console.log("")
+      //addNodeToLevel(id, parentId, nodesByLevel, node);
     });
-
+  
     // Add child nodes to parent nodes
     data.nodes.forEach((nodeData) => {
       const { id, parentId } = nodeData;
@@ -57,5 +63,21 @@ export class Tree extends Graph {
         this.root = node;
       }
     });
+    
+    // Function to add node to nodesByLevel array
+    /*
+    function addNodeToLevel(id, parentId, nodesByLevel, node) {
+
+      const level = parentId ? nodesByLevel[parentId].level + 1 : 0;
+      if (!nodesByLevel[level]) {
+        nodesByLevel[level] = [node];
+      } else {
+        nodesByLevel[level].push(node);
+      }
+      node.level = level;
+    }
+     */
   }
+  
+
 }
