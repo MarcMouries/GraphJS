@@ -24,13 +24,7 @@ chart.display();
 
 <table id="result_table" class="result_table">
   <caption></caption>
-  <thead>
-    <tr>
-      	<th>Org Chart</th>
-	<th>Forced Layout</th>
-	<th>Radial Layout</th>
-    </tr>
-  </thead>
+  <thead><tr><th>Org Chart</th>          <th>Forced Layout</th>          <th>Radial Layout</th></tr></thead>
   <tbody>
     <tr>
 	<td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Departments_in_advertising_agencies.jpg/440px-Departments_in_advertising_agencies.jpg"></td>
