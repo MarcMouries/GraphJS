@@ -408,8 +408,7 @@ class Node {
 		this.data = data;
 		this.level = 0;
 		this.children = [];
-		this.parent;
-		this.neighbor;
+
 		this.isCollapsed = false;
 
 		this.size = 20;
@@ -422,7 +421,7 @@ class Node {
 	}
 
 	toString() {
-		return "Node " + this.id + "(" + this.pos.x + ", " + this.pos.y + ")";
+		return "Node " + this.id + " (" + this.pos.x + ", " + this.pos.y + ")";
 	}
 
 	addChild(node) {
@@ -437,270 +436,375 @@ class Node {
 		return this.children.indexOf(node) > -1;
 	}
 
-	getChildAt(i) {
-		return this.children[i];
-	}
-
-	getFirstChild() {
-		return this.getChildAt(0);
-	}
-
-	getChildrenCount() {
-		return this.children.length;
-	}
-	isLeaf() {
-		return this.children && this.children.length == 0;
-	}
-	hasChild() {
-		return this.children && this.children.length > 0;
-	}
-	getLastChild() {
-		return this.getChildAt(this.getChildrenCount() - 1);
-	}
-	isAncestorCollapsed() {
-		if (this.parent == null) {
-			return false;
-		}
-		return this.parent.isCollapsed
-			? true
-			: this.parent.id === -1
-			? false
-			: this.parent.isAncestorCollapsed();
-	}
-
-	/**
-	 *  isLeftMost: is this node == to the first child of its parent?
-	 */
-	isLeftMost() {
-		if (!this.parent || this.parent === null) {
-			return true;
-		} else {
-			return this.parent.getFirstChild() === this;
-		}
-	}
-
-	/**
-	 *  isRightMost: is this node == to the last child of its parent?
-	 */
-	isRightMost() {
-		if (!this.parent || this.parent === null) {
-			return true;
-		} else {
-			return this.parent.getLastChild() === this;
-		}
-	}
-
-	getLeftSibling() {
-		if (this.parent === null || this.isLeftMost()) {
-			return null;
-		} else {
-			var index = this.parent.children.indexOf(this);
-			return this.parent.children[index - 1];
-		}
-	}
-
-	getRightSibling() {
-		if (this.parent === null || this.isRightMost()) {
-			return null;
-		} else {
-			var index = this.parent.children.indexOf(this);
-			return this.parent.children[index + 1];
-		}
-	}
-
-	getLeftMostChild() {
-		if (this.getChildrenCount() == 0) return null;
-
-		return this.children[0];
-	}
-
-	getRightMostChild() {
-		if (this.getChildrenCount() == 0) return null;
-
-		return this.children[this.getChildrenCount() - 1];
-	}
-
-	hasLeftSibling() {
-		return !this.isLeftMost();
-	}
+	
 }
 
 // =============================================================
 
 class Graph {
-	constructor() {
-		this.graph = {};
-		this.nodeList = [];
-		this.linkList = [];
-		this.adjacency = {};
-		this.changed = false;
-		this.root;
-	}
+  constructor() {
+    this.graph = {};
+    this.nodeList = new Map();
+    this.linkList = [];
+    this.adjacency = {};
+    this.changed = false;
+    this.root;
+  }
 
-	/**
-	 * Add a node
-	 * @param {*} node
-	 * @returns
-	 */
-	addNode(node) {
-		if (!(node.id in this.graph)) {
-			this.nodeList.push(node);
-			this.graph[node.id] = node;
-		} else {
-			console.log("Node already exists: " + node.id);
-		}
-		return node;
-	}
-	getNode(nodeID) {
-		var node = this.graph[nodeID];
-		return node;
-	}
+  /**
+   * Add a node
+   * @param {*} node
+   * @returns
+   */
+  addNode(node) {
+    if (!(node.id in this.graph)) {
+      this.nodeList.set(node.id, node); //	this.nodeList.push(node);
+      this.graph[node.id] = node;
+    } else {
+      console.error("Node already exists: " + node.id);
+    }
+    return node;
+  }
+  getNode(nodeId) {
+    //var node = this.graph[nodeId];
+    return this.nodeList.get(nodeId);
+  }
+  removeNode(nodeId) {
+    this.nodeList.delete(nodeId);
+  }
 
-	nodeAt(index) {
-		var node = this.nodeList[index];
-		return node;
-	}
+  /**
+   *  Add an object. Create a node from the specified object
+   * @param {*} object
+   * @returns
+   */
+  addObject(object) {
+    var node = new Node(object.id, object);
 
-	/**
-	 *  Add an object. Create a node from the specified object
-	 * @param {*} object
-	 * @returns
-	 */
-	addObject(object) {
-		var node = new Node(object.id, object);
+    if (object.parentId) {
+      node.parent = this.getNode(object.parentId);
+      if (!node.parent) {
+        console.error("Parent node not found for parentId: " + object.parentId);
+      } else {
+        node.level = node.parent.level + 1;
+        node.parent.children.push(node);
+      }
+    } else {
+      this.root = node;
+    }
+    this.addNode(node);
+    this.changed = true;
+    return node;
+  }
 
-		if (object.parentId) {
-			node.parent = this.getNode(object.parentId);
-			if (!node.parent) {
-				console.error(
-					"Parent node not found for parentId: " + object.parentId
-				);
-			} else {
-				node.level = node.parent.level + 1;
-				node.parent.children.push(node);
-			}
-		} else {
-			this.root = node;
-		}
-		this.addNode(node);
-		this.changed = true;
-		return node;
-	}
+  getLinkCount() {
+    return this.linkList.length;
+  }
+  getNodeCount() {
+    //return this.nodeList.length;
+    return this.nodeList.size;
+  }
 
-	getLinkCount() {
-		return this.linkList.length;
-	}
-	getNodeCount() {
-		return this.nodeList.length;
-	}
+  addLink(sourceNode_id, targetNode_id) {
+    var sourceNode = this.getNode(sourceNode_id);
+    if (sourceNode == undefined) {
+      throw new TypeError("Trying to add a link to the non-existent node with id: " + sourceNode_id);
+    }
+    var targetNode = this.getNode(targetNode_id);
+    if (targetNode == undefined) {
+      throw new TypeError("Trying to add a link to the non-existent node with id: " + targetNode_id);
+    }
 
-	addLink(sourceNode_id, targetNode_id) {
-		var sourceNode = this.getNode(sourceNode_id);
-		if (sourceNode == undefined) {
-			throw new TypeError(
-				"Trying to add a link to the non-existent node with id: " +
-				sourceNode_id
-			);
-		}
-		var targetNode = this.getNode(targetNode_id);
-		if (targetNode == undefined) {
-			throw new TypeError(
-				"Trying to add a link to the non-existent node with id: " +
-				targetNode_id
-			);
-		}
+    var link = new Link(sourceNode, targetNode);
+    var exists = false;
 
-		var link = new Link(sourceNode, targetNode);
-		var exists = false;
+    this.linkList.forEach(function (item) {
+      if (link.id === item.id) {
+        exists = true;
+      }
+    });
 
-		this.linkList.forEach(function (item) {
-			if (link.id === item.id) {
-				exists = true;
-			}
-		});
+    if (!exists) {
+      this.linkList.push(link);
+      sourceNode.addChild(targetNode);
+    } else {
+      console.log("LINK EXIST: " + " source: " + link.source.id + " => " + link.target.id);
+    }
 
-		if (!exists) {
-			this.linkList.push(link);
-			sourceNode.addChild(targetNode);
-		} else {
-			console.log(
-				"LINK EXIST: " +
-				" source: " +
-				link.source.id +
-				" => " +
-				link.target.id
-			);
-		}
+    if (!(link.source.id in this.adjacency)) {
+      this.adjacency[link.source.id] = {};
+    }
+    if (!(link.target.id in this.adjacency[link.source.id])) {
+      this.adjacency[link.source.id][link.target.id] = [];
+    }
+    this.adjacency[link.source.id][link.target.id].push(link);
+  }
 
-		if (!(link.source.id in this.adjacency)) {
-			this.adjacency[link.source.id] = {};
-		}
-		if (!(link.target.id in this.adjacency[link.source.id])) {
-			this.adjacency[link.source.id][link.target.id] = [];
-		}
-		this.adjacency[link.source.id][link.target.id].push(link);
-	}
+  /**
+   *  JSON input can be either a JSON String or a JSON object
+   * @param {*} json_input
+   */
+  loadJSON(json_input) {
+    console.log("Graph.loadJSON: json_string: ");
+    console.log(json_input);
+    var json_object;
+    if (typeof json_input === "string") {
+      console.log("Graph.loadJSON: input is of type string: ");
+      json_object = JSON.parse(json_input);
+    } else if (typeof json_input === "object") {
+      console.log("Graph.loadJSON: input is of type object: ");
+      json_object = json_input;
+    }
 
-	/**
-	 *  JSON input can be either a JSON String or a JSON object
-	 * @param {*} json_input
-	 */
-	loadJSON(json_input) {
-		console.log("Graph.loadJSON: json_string: ");
-		console.log(json_input);
-		var json_object ;
-		if (typeof json_string === "string") {
-			console.log("Graph.loadJSON: input is of type string: ");
-			json_object = JSON.parse(json_input);
+    var nodes = json_object["nodes"];
+    for (let index = 0; index < nodes.length; index++) {
+      var node = nodes[index];
+      this.addObject(node);
+    }
 
-		}
-		else if (typeof json_string === "object") {
-			console.log("Graph.loadJSON: input is of type object: ");
-			json_object = json_input;
-		}
+    var links = json_object["links"];
+    if (links) {
+      for (let index = 0; index < links.length; index++) {
+        var link = links[index];
+        this.addLink(link.source, link.target);
+      }
+    }
+    console.log("Graph.loadJSON:  loaded Graph=");
+    console.log(this.graph);
+  }
 
-		var nodes = json_object["nodes"];
-		for (let index = 0; index < nodes.length; index++) {
-			var node = nodes[index];
-			this.addObject(node);
-		}
-
-		var links = json_object["links"];
-		if (links) {
-			for (let index = 0; index < links.length; index++) {
-				var link = links[index];
-				this.addLink(link.source, link.target);
-			}
-		}
-		console.log("Graph.loadJSON:  loaded Graph=");
-		console.log(this.graph);
-	}
-
-
-	toString() {
-		return this.nodeList.map(printNode);
-	}
+  toString() {
+    //return this.nodeList.map(printNode);
+    return Array.from(this.nodeList.values()).map(printNode);
+  }
 }
 
 function printNode(node) {
-	var adjacentsRepresentation = "";
-	if (node.getAdjacents() == 0) {
-		adjacentsRepresentation = "no children";
-	} else {
-		adjacentsRepresentation = node
-			.getAdjacents()
-			.map(function (item) {
-				return item.id;
-			})
-			.join(", ");
-	}
-	return node.id + " => " + adjacentsRepresentation;
+  var adjacentsRepresentation = "";
+  if (node.getAdjacents() == 0) {
+    adjacentsRepresentation = "no children";
+  } else {
+    adjacentsRepresentation = node
+      .getAdjacents()
+      .map(function (item) {
+        return item.id;
+      })
+      .join(", ");
+  }
+  return node.id + " => " + adjacentsRepresentation;
+}
+
+class TreeNode extends Node {
+  constructor(nodeID, nodeData, parentID) {
+    super(nodeID, nodeData);
+    this.parentID = parentID;
+    this.children = [];
+    this.parent;
+    //this.neighbor;
+
+    console.log("TreeNode: constructor: ", nodeID, nodeData, parentID);
+  }
+
+  addChild(node) {
+    // const childNode = new TreeNode(nodeID, nodeData, this.nodeID);
+    this.children.push(node);
+    return node;
+  }
+
+  getChildAt(i) {
+    return this.children[i];
+  }
+  getFirstChild() {
+    return this.getChildAt(0);
+  }
+  getChildren() {
+    return this.children;
+  }
+  getChildrenCount() {
+    return this.children.length;
+  }
+  /**
+   *  isLeftMost: is this node == to the first child of its parent?
+   */
+  isLeftMost() {
+    if (!this.parent || this.parent === null) {
+      return true;
+    } else {
+      return this.parent.getFirstChild() === this;
+    }
+  }
+
+  /**
+   *  isRightMost: is this node == to the last child of its parent?
+   */
+  isRightMost() {
+    if (!this.parent || this.parent === null) {
+      return true;
+    } else {
+      return this.parent.getLastChild() === this;
+    }
+  }
+
+  getLastChild() {
+    return this.getChildAt(this.getChildrenCount() - 1);
+  }
+
+  getLeftSibling() {
+    if (this.parent === null || this.isLeftMost()) {
+      return null;
+    } else {
+      var index = this.parent.children.indexOf(this);
+      return this.parent.children[index - 1];
+    }
+  }
+
+  isLeaf() {
+    return this.children && this.children.length == 0;
+  }
+  hasChild() {
+    return this.children && this.children.length > 0;
+  }
+
+  isAncestorCollapsed() {
+    if (this.parent == null) {
+      return false;
+    }
+    return this.parent.isCollapsed ? true : this.parent.id === -1 ? false : this.parent.isAncestorCollapsed();
+  }
+
+  getRightSibling() {
+    if (this.parent === null || this.isRightMost()) {
+      return null;
+    } else {
+      var index = this.parent.children.indexOf(this);
+      return this.parent.children[index + 1];
+    }
+  }
+
+  getLeftMostChild() {
+    if (this.getChildrenCount() == 0) return null;
+
+    return this.children[0];
+  }
+
+  getRightMostChild() {
+    if (this.getChildrenCount() == 0) return null;
+
+    return this.children[this.getChildrenCount() - 1];
+  }
+
+  hasLeftSibling() {
+    return !this.isLeftMost();
+  }
+}
+
+//import Link from "./Link";
+
+class Tree extends Graph {
+  constructor() {
+    super();
+    this.root = null;
+    this.nodeMap = new Map();
+  }
+
+  setRoot(nodeID) {
+    this.root = nodeID;
+  }
+  getRoot () {
+    return this.root;
+  }
+
+  isRoot(node) {
+    return node === this.root;
+  }
+
+  traverseDF(callback) {
+    function traverse(node) {
+        callback(node);
+        if (node.children) {
+          node.children.forEach(traverse);
+        }
+    }
+    traverse(this.root);
+  }
+
+  traverseBF(callback) {
+    const queue = [this.root];
+    while (queue.length) {
+      const node = queue.shift();
+      callback(node);
+      node.children.forEach((child) => queue.push(child));
+    }
+  }
+
+  loadFromJSON(json) {
+    const data = JSON.parse(json);
+  
+    // create nodes
+    data.nodes.forEach((nodeData) => {
+      const { id, parentId, data } = nodeData;
+      const node = new TreeNode(id, data, parentId);
+      this.nodeMap.set(id, node);
+      // add node to nodesByLevel array
+      //console.log("")
+      //addNodeToLevel(id, parentId, nodesByLevel, node);
+    });
+  
+    // Add child nodes to parent nodes
+    data.nodes.forEach((nodeData) => {
+      const { id, parentId } = nodeData;
+      const node = this.nodeMap.get(id);
+      if (parentId) {
+        const parent = this.nodeMap.get(parentId);
+        parent.addChild(node);
+      } else {
+        this.root = node;
+      }
+    });
+    
+    // Function to add node to nodesByLevel array
+    /*
+    function addNodeToLevel(id, parentId, nodesByLevel, node) {
+
+      const level = parentId ? nodesByLevel[parentId].level + 1 : 0;
+      if (!nodesByLevel[level]) {
+        nodesByLevel[level] = [node];
+      } else {
+        nodesByLevel[level].push(node);
+      }
+      node.level = level;
+    }
+     */
+  }
+  
+
+}
+
+/* eslint-disable no-unused-vars */
+
+//import Graph from "../graph/Graph";
+//import Node from "../graph/Node";
+
+
+class AbstractGraphLayout {
+
+    // need to get nodeWidth & nodeHeight
+    constructor(graph, options) {
+		this.graph = graph;
+
+    }
+
+    calculate_Positions(graph, starting_vertex, center) {
+        console.error("not implemented in AbstractGraphLayout. Make sure to use a concrete layout class.");
+    }
 }
 
 // =============================================================
 
-class ForceDirected extends GraphLayout {
+class ForceDirected extends AbstractGraphLayout {
 	constructor(graph, options) {
+
+		super();
 		this.graph = graph;
 		this.initNodes();
 
@@ -765,11 +869,13 @@ class ForceDirected extends GraphLayout {
 
 	applyRepulsiveForces() {
 		// apply repulsive force between nodes
-		for (let i = 0; i < this.graph.nodeList.length; i++) {
-			for (let j = i + 1; j < this.graph.nodeList.length; j++) {
+		let nodeValues = Array.from(this.graph.nodeList.values());
+
+		for (let i = 0; i < nodeValues.length - 1; i++) {
+			for (let j = i + 1; j < nodeValues.length; j++) {
 				if (i != j) {
-					let node1 = this.graph.nodeList[i];
-					let node2 = this.graph.nodeList[j];
+					let node1 = nodeValues[i];
+					let node2 = nodeValues[j];
 					//console.log("applyRepulsiveForces");
 					//console.log(node1);
 					//console.log(node2);
@@ -847,6 +953,65 @@ class ForceDirected extends GraphLayout {
 		console.warn("total_KE= " + total_KE);
 		*/
 	}
+}
+
+class TreeLayout extends AbstractGraphLayout {
+
+  constructor(tree) {
+    super(tree);
+    /**
+		 * lastNodeAtLevel: stores the last node visited at each level to set as left most nodes' neighbor
+		 */
+		this.lastNodeAtLevel = [];
+
+    const firstWalk = (node, level) => {
+      console.log("firstWalk", node, level);
+
+      // private function implementation
+      node.prelim = 0;
+      node.modifier = 0;
+      node.width = node.width || this.nodeWidth;
+      node.height = node.height || this.nodeHeight;
+
+      setNodeNeighbor(node);
+
+      //
+      let leftSibling = node.getLeftSibling();
+			console.log("leftSibling  = " + leftSibling);
+
+    };
+
+    const setNodeNeighbor = (node) => {
+      console.log("setNodeNeighbor", node.toString());
+      let isLeftMost = node.isLeftMost();
+      let isRightMost = node.isRightMost();
+      console.log("setNodeNeighbor NODE= " + node.id + " , level= " + node.level + ", isLeftMost(" + isLeftMost + ")" + ", isRightMost(" + isRightMost + ")");
+      if (isRightMost) {
+        //console.log("\\_setNodeNeighbor lastNodeAtLevel      = " + node.id);
+        //console.log("\\_setNodeNeighbor this.lastNodeAtLevel[node.level]       = " + node);
+        this.lastNodeAtLevel[node.level] = node;
+      }
+      else if (isLeftMost) {
+        node.neighbor = this.lastNodeAtLevel[node.level];
+        if (node.neighbor) ;
+      }
+      else ;
+    };
+
+    // PUBLIC FUNCTIONS
+    this.calculate_Positions = (root, center) => {
+
+      console.log("calculate_Positions", this, center);
+      //var root = this.graph.getRoot();
+      console.log("root", root);
+      let starting_node = root;
+
+      // call the private function
+      firstWalk(starting_node, 0);
+
+      // public function implementation
+    };
+  }
 }
 
 var NONE = "none";
@@ -1304,5 +1469,5 @@ function moveObjectToLastPosition(object_list, object_to_move) {
 
 var version = "0.1";
 
-export { Arc, Circle, ForceDirected, Graph, Link, MChart, Node, Rectangle, Renderer, Vector, rectContainsShape, setupHiDefCanvas, to_radians, version };
+export { AbstractGraphLayout, Arc, Circle, ForceDirected, Graph, Link, MChart, Node, Rectangle, Renderer, Tree, TreeLayout, TreeNode, Vector, rectContainsShape, setupHiDefCanvas, to_radians, version };
 //# sourceMappingURL=index.js.map
