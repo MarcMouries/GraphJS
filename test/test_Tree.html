@@ -72,5 +72,10 @@ Level 2: Node (A),Node (D),Node (G),Node (M)
 
     console.log("Traverse tree BF");
     tree.traverseBF((node) => console.log(node.toString()));
+
+    var root = tree.getRoot();
+    let layout = new graphjs.TreeLayout(tree, {});
+
+    layout.calculate_Positions(root, {});
   </script>
 </html>
