@@ -1,14 +1,13 @@
 import Node from "./Node";
 
 class TreeNode extends Node {
-  constructor(nodeID, nodeData, parentID) {
+  constructor(nodeID, nodeData) {
     super(nodeID, nodeData);
-    this.parentID = parentID;
     this.children = [];
     this.parent;
     //this.neighbor;
 
-    console.log("TreeNode: constructor: ", nodeID, nodeData, parentID);
+    console.log("TreeNode: constructor: ", nodeID, nodeData);
   }
 
   addChild(node) {
