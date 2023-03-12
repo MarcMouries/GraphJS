@@ -2,14 +2,14 @@
 	"name": "graphjs",
 	"version": "0.0.3",
 	"description": "GraphJS",
-  "author": {
+	"author": {
 		"name": "Marc Mouries"
-  },
+	},
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
 	"browser": "dist/umd/graphjs.min.js",
-  "jsdelivr": "dist/umd/graphjs.min.js",
-  "unpkg": "dist/umd/graphjs.min.js",
+	"jsdelivr": "dist/umd/graphjs.min.js",
+	"unpkg": "dist/umd/graphjs.min.js",
 	"dependencies": {},
 	"devDependencies": {
 		"@babel/core": "^7.16.0",
@@ -24,16 +24,16 @@
 	"files": [
 		"dist"
 	],
-  "keywords": [
+	"keywords": [
 		"graph",
 		"visualization",
 		"canvas"
 	],
 	"license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MarcMouries/GraphJS.git"
-  },
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/MarcMouries/GraphJS.git"
+	},
 	"scripts": {
 		"build": "rollup -c",
 		"dev": "rollup -c -w",
