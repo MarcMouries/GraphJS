@@ -1,0 +1,33 @@
+{  "name": "O",
+   "children": [
+        {   "name": "E",
+            "children":
+             [
+                {   "name": "A"
+                },
+                {   "name": "D",
+                    "children": [ ]
+                }
+            ]
+        },
+        {   "name": "F"       },
+        {   "name": "N",
+            "children":
+            [
+                {   "name": "G",
+                    "children": []
+                },
+                {   "name": "M",
+                    "children":
+                    [
+                        { "name": "H" },
+                        { "name": "I" },
+                        { "name": "J" },
+                        { "name": "K" },
+                        { "name": "L" }
+                    ]
+                }
+            ]
+        }
+    ]
+}
