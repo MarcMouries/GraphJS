@@ -7,8 +7,8 @@ const DEFAULTS = {
   siblingSpacing: 20,
   subtreeSeparation: 500,
   nodeWidth: 1000,
-  nodeHeight: 500
-}
+  nodeHeight: 500,
+};
 
 export default class TreeLayout extends AbstractGraphLayout {
   constructor(tree, options) {
@@ -18,22 +18,25 @@ export default class TreeLayout extends AbstractGraphLayout {
      */
     this.lastNodeAtLevel = [];
 
-		this.options = Object.assign({}, DEFAULTS, options);
-		options || (options = {});
-		for (let i in DEFAULTS) {
-			if (i in options) {
-				this[i] = options[i];
-			}
-      else {
+    this.options = Object.assign({}, DEFAULTS, options);
+    options || (options = {});
+    for (let i in DEFAULTS) {
+      if (i in options) {
+        this[i] = options[i];
+      } else {
         this[i] = DEFAULTS[i];
       }
-		}
+    }
 
-    console.log('TreeLayout constructed.');
-		console.log(this);
+    console.log("TreeLayout constructed.");
+    console.log(this);
 
+    /**
+     * Do a post-order traversal (ie: from the bottom-left to the top-right)
+     * Visit the current node after visiting all the nodes from left to right.
+     */
     const firstWalk = (node, level) => {
-      console.log("firstWalk", node, level);
+      //console.log("firstWalk", node, level);
 
       // private function implementation
       node.prelim = 0;
@@ -67,7 +70,7 @@ export default class TreeLayout extends AbstractGraphLayout {
           //console.log("prelim  = " + node.prelim);
           //console.log("modifier= " + node.modifier);
         }
-      }	else {
+      } else {
         /* This Node is not a leaf, so call this procedure 
         /* recursively for each of its offspring.          */
         var children_count = node.getChildrenCount();
@@ -83,7 +86,7 @@ export default class TreeLayout extends AbstractGraphLayout {
         //console.log(node.id + " is the parent of nodes " + leftMostChild.id + " and " + rightMostChild.id);
 
         if (leftSibling) {
-          node.prelim += leftSibling.prelim + this.siblingSpacing
+          node.prelim += leftSibling.prelim + this.siblingSpacing;
           let meanNodeSize = getMeanNodeSize(node, leftSibling);
           node.prelim += meanNodeSize;
           node.modifier = node.prelim - midPoint;
@@ -91,20 +94,19 @@ export default class TreeLayout extends AbstractGraphLayout {
           //console.log("modifier= " + node.prelim + " - " + node.modifier);
           console.log("Calling Apportion for = " + node.id + " - level = " + level);
           apportion(node, level);
-
         } else {
           node.prelim = midPoint;
           //console.log("prelim  = " + node.prelim);
         }
       }
-    }
+    };
 
     const getMidPoint = (node) => {
       var leftMostChild = node.getLeftMostChild();
       var rightMostChild = node.getRightMostChild();
       var midPoint = (leftMostChild.prelim + rightMostChild.prelim) / 2;
       return midPoint;
-    }
+    };
 
     const setNodeNeighbor = (node) => {
       let isLeftMost = node.isLeftMost();
@@ -131,10 +133,10 @@ export default class TreeLayout extends AbstractGraphLayout {
         case "NORTH":
         case "SOUTH":
           if (leftNode) {
-            meanNodeSize = leftNode.width;/// 2;
+            meanNodeSize = leftNode.width; /// 2;
           }
           if (rightNode) {
-            meanNodeSize = rightNode.width;// / 2;
+            meanNodeSize = rightNode.width; // / 2;
           }
           break;
         case "EAST":
@@ -148,102 +150,125 @@ export default class TreeLayout extends AbstractGraphLayout {
           break;
       }
       return meanNodeSize;
-    }
+    };
+
+      /**
+       * Determine the leftmost descendant of a node at a given depth.
+       * This is implemented using a post-order walk of the subtree
+       * under node, down to the level of searchDepth.
+       * If we've searched to the proper distance, return the currently leftmost node.
+       * Otherwise, recursively look at the progressively lower levels.
+       */
+       const getLeftmost = (node, currentLevel, searchDepth) => {
+        console.log("START getLeftmost= " + node.id + "/" + currentLevel + "/" + searchDepth);
+
+        /*  searched far enough.           */
+        if (currentLevel >= searchDepth) {
+          return node;
+        } else if (node.isLeaf()) {
+          return null; /* This node has no descendants    */
+        } else {
+          /* Do a post-order walk of the subtree.     */
+          var children_count = node.getChildrenCount();
+          //console.log("  " + ThisNode.id + "/  children_count=" + children_count);
+          for (var i = 0; i < children_count; i++) {
+            let child = node.children[i];
+            let leftmost = getLeftmost(child, currentLevel + 1, searchDepth);
+            if (leftmost) {
+              return leftmost;
+            }
+          }
+        }
+      };
 
 
-
-	/*------------------------------------------------------
-	* Clean up the positioning of small sibling subtrees.
-	* Subtrees of a node are formed independently and placed as close together as possible.
-	* By requiring that the subtrees be rigid at the time they are put together, we avoid
-	* the undesirable effects that can accrue from positioning nodes rather than subtrees.
-	*
-	*  Called for non-leaf nodes
-	*----------------------------------------------------*/
+    /*------------------------------------------------------
+     * Clean up the positioning of small sibling subtrees.
+     * Subtrees of a node are formed independently and placed as close together as possible.
+     * By requiring that the subtrees be rigid at the time they are put together, we avoid
+     * the undesirable effects that can accrue from positioning nodes rather than subtrees.
+     *
+     *  Called for non-leaf nodes
+     *----------------------------------------------------*/
     const apportion = (node, level) => {
-//console.log("_apportion " + node.id);
+      //console.log("_apportion " + node.id);
 
-var firstChild = node.children[0];
-var firstChildLeftNeighbor = firstChild.neighbor;
-var compareDepth = 1;
-var depthToStop = this.maximumDepth - level;
+      var firstChild = node.children[0];
+      var firstChildLeftNeighbor = firstChild.neighbor;
+      var compareDepth = 1;
+      var depthToStop = this.maximumDepth - level;
 
+      if (firstChild && firstChildLeftNeighbor && compareDepth < depthToStop) {
+        var rightModSum, leftModSum, rightAncestor, leftAncestor;
 
-if (firstChild && firstChildLeftNeighbor && compareDepth < depthToStop) {
+        leftModSum = 0;
+        rightModSum = 0;
+        rightAncestor = firstChild;
+        leftAncestor = firstChildLeftNeighbor;
+        for (var l = 0; l < compareDepth; l += 1) {
+          rightAncestor = rightAncestor.parent;
+          leftAncestor = leftAncestor.parent;
+          rightModSum += rightAncestor.modifier;
+          leftModSum += leftAncestor.modifier;
+        }
+        /**
+         * Find the moveDistance, and apply it to Node's subtree.
+         * Apply appropriate portions to smaller interior subtrees.
+         **/
+        var meanNodeSize = 10; //firstChildLeftNeighbor._getSize(this.orientation);
 
-  var rightModSum, leftModSum, rightAncestor, leftAncestor;
+        var totalGap = firstChildLeftNeighbor.prelim + leftModSum + this.subtreeSeparation + meanNodeSize - (firstChild.prelim + rightModSum);
+        //console.log("\\__apportion: totalGap of " + node.id + " = " + totalGap);
 
-  leftModSum = 0;
-  rightModSum = 0;
-  rightAncestor = firstChild;
-  leftAncestor = firstChildLeftNeighbor;
-  for (var l = 0; l < compareDepth; l += 1) {
-    rightAncestor = rightAncestor.parent;
-    leftAncestor = leftAncestor.parent;
-    rightModSum += rightAncestor.modifier;
-    leftModSum += leftAncestor.modifier;
-  }
-  /**
-   * Find the moveDistance, and apply it to Node's subtree.
-   * Apply appropriate portions to smaller interior subtrees.
-   **/
-  var meanNodeSize = 10;//firstChildLeftNeighbor._getSize(this.orientation);
+        if (totalGap > 0) {
+          /* Count interior sibling subtrees in LeftSiblings */
 
-  var totalGap = (firstChildLeftNeighbor.prelim + leftModSum + this.subtreeSeparation + meanNodeSize)
-    - (firstChild.prelim + rightModSum);
-  //console.log("\\__apportion: totalGap of " + node.id + " = " + totalGap);
+          var subtree, subtreeMoveAux;
 
-  if (totalGap > 0) {
-    /* Count interior sibling subtrees in LeftSiblings */
+          var numberOfLeftSiblings = 0;
+          for (subtree = node; subtree && subtree !== leftAncestor; subtree = subtree.getLeftSibling()) {
+            numberOfLeftSiblings += 1;
+            //console.log("\\__apportion: numberOfLeftSiblings: " + numberOfLeftSiblings);
+            //console.log("\\__apportion: leftAncestor = " + leftAncestor.id);
+          }
 
-    var subtree, subtreeMoveAux;
+          if (subtree) {
+            /* Apply portions to appropriate leftsibling subtrees. */
+            var portion = totalGap / numberOfLeftSiblings;
+            subtreeMoveAux = node;
 
-    var numberOfLeftSiblings = 0;
-    for (subtree = node; subtree && subtree !== leftAncestor; subtree = subtree.getLeftSibling()) {
-      numberOfLeftSiblings += 1;
-      //console.log("\\__apportion: numberOfLeftSiblings: " + numberOfLeftSiblings);
-      //console.log("\\__apportion: leftAncestor = " + leftAncestor.id);
-    }
+            while (subtreeMoveAux !== leftAncestor) {
+              //console.log("\\__apportion: subtree " + subtree.id + " & " + "subtreeMoveAux " + subtreeMoveAux.id);
 
-    if (subtree) {
-      /* Apply portions to appropriate leftsibling subtrees. */
-      var portion = totalGap / numberOfLeftSiblings;
-      subtreeMoveAux = node;
+              subtreeMoveAux.prelim += totalGap;
+              subtreeMoveAux.modifier += totalGap;
+              totalGap -= portion;
+              subtreeMoveAux = subtreeMoveAux.getLeftSibling();
+            }
+          } else {
+            /* Don't need to move anything--it needs to be done by an ancestor because      */
+            /* pAncestorNeighbor and pAncestorLeftmost are not siblings of each other.      */
+            return;
+          }
+        } /* end of the while  */
 
-      while (subtreeMoveAux !== leftAncestor) {
-        //console.log("\\__apportion: subtree " + subtree.id + " & " + "subtreeMoveAux " + subtreeMoveAux.id);
+        /* Determine the leftmost descendant of thisNode */
+        /* at the next lower level to compare its         */
+        /* positioning against that of its neighbor.     */
+        compareDepth++;
 
-        subtreeMoveAux.prelim += totalGap;
-        subtreeMoveAux.modifier += totalGap;
-        totalGap -= portion;
-        subtreeMoveAux = subtreeMoveAux.getLeftSibling();
+        if (firstChild.getChildrenCount() === 0) {
+          firstChild = getLeftmost(node, 0, compareDepth);
+        } else {
+          firstChild = firstChild.getFirstChild();
+        }
+        if (firstChild) {
+          firstChildLeftNeighbor = firstChild.neighbor;
+        }
       }
-    }
-    else {
-      /* Don't need to move anything--it needs to be done by an ancestor because      */
-      /* pAncestorNeighbor and pAncestorLeftmost are not siblings of each other.      */
-      return;
-    }
-  }   /* end of the while  */
-
-  /* Determine the leftmost descendant of thisNode */
-  /* at the next lower level to compare its         */
-  /* positioning against that of its neighbor.     */
-  compareDepth++;
 
 
-  if (firstChild.getChildrenCount() === 0) {
-    firstChild = this.getLeftmost(node, 0, compareDepth);
-  }
-  else {
-    firstChild = firstChild.getFirstChild();
-  }
-  if (firstChild) {
-    firstChildLeftNeighbor = firstChild.neighbor;
-  }
-}
-
-    }
+    };
 
     // PUBLIC FUNCTIONS
     this.calculate_Positions = (root, center) => {
@@ -256,7 +281,6 @@ if (firstChild && firstChildLeftNeighbor && compareDepth < depthToStop) {
       firstWalk(starting_node, 0);
 
       // public function implementation
-
     };
   }
 }
