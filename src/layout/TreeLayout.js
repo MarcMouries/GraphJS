@@ -152,35 +152,34 @@ export default class TreeLayout extends AbstractGraphLayout {
       return meanNodeSize;
     };
 
-      /**
-       * Determine the leftmost descendant of a node at a given depth.
-       * This is implemented using a post-order walk of the subtree
-       * under node, down to the level of searchDepth.
-       * If we've searched to the proper distance, return the currently leftmost node.
-       * Otherwise, recursively look at the progressively lower levels.
-       */
-       const getLeftmost = (node, currentLevel, searchDepth) => {
-        console.log("START getLeftmost= " + node.id + "/" + currentLevel + "/" + searchDepth);
+    /**
+     * Determine the leftmost descendant of a node at a given depth.
+     * This is implemented using a post-order walk of the subtree
+     * under node, down to the level of searchDepth.
+     * If we've searched to the proper distance, return the currently leftmost node.
+     * Otherwise, recursively look at the progressively lower levels.
+     */
+    const getLeftmost = (node, currentLevel, searchDepth) => {
+      //console.log("START getLeftmost= " + node.id + "/" + currentLevel + "/" + searchDepth);
 
-        /*  searched far enough.           */
-        if (currentLevel >= searchDepth) {
-          return node;
-        } else if (node.isLeaf()) {
-          return null; /* This node has no descendants    */
-        } else {
-          /* Do a post-order walk of the subtree.     */
-          var children_count = node.getChildrenCount();
-          //console.log("  " + ThisNode.id + "/  children_count=" + children_count);
-          for (var i = 0; i < children_count; i++) {
-            let child = node.children[i];
-            let leftmost = getLeftmost(child, currentLevel + 1, searchDepth);
-            if (leftmost) {
-              return leftmost;
-            }
+      /*  searched far enough.           */
+      if (currentLevel >= searchDepth) {
+        return node;
+      } else if (node.isLeaf()) {
+        return null; /* This node has no descendants    */
+      } else {
+        /* Do a post-order walk of the subtree.     */
+        var children_count = node.getChildrenCount();
+        //console.log("  " + ThisNode.id + "/  children_count=" + children_count);
+        for (var i = 0; i < children_count; i++) {
+          let child = node.children[i];
+          let leftmost = getLeftmost(child, currentLevel + 1, searchDepth);
+          if (leftmost) {
+            return leftmost;
           }
         }
-      };
-
+      }
+    };
 
     /*------------------------------------------------------
      * Clean up the positioning of small sibling subtrees.
@@ -268,7 +267,33 @@ export default class TreeLayout extends AbstractGraphLayout {
       }
 
 
-    };
+    }; // apportion
+
+      /*------------------------------------------------------
+       * During a second pre-order walk, each node is given a final x-coordinate by summing its preliminary
+       * x-coordinate and the modifiers of all the node's ancestors.
+       * The y-coordinate depends on the height of the tree.
+       * (The roles of x and y are reversed for RootOrientations of EAST or WEST.)
+       * Returns: TRUE if no errors, otherwise returns FALSE.
+       *----------------------------------------- ----------*/
+      const secondWalk = (node, level, modSum) => {
+        //console.log("secondWalk    = " + node);
+        if (level <= this.maximumDepth) {
+          var xTopAdjustment = 0;
+          var yTopAdjustment = 0;
+
+          node.x = xTopAdjustment + node.prelim + modSum;
+          node.y = yTopAdjustment + level * this.levelSeparation;
+          //console.log("\\secondWalk: Node(" + node.id + " / " + xTopAdjustment + " / " + node.prelim + " / " + modSum);
+          //console.log("\\secondWalk: " + node.x + "," + node.y);
+
+          var children_count = node.getChildrenCount();
+          for (var i = 0; i < children_count; i++) {
+            var child = node.children[i];
+            secondWalk(child, level + 1, modSum + node.modifier);
+          }
+        }
+      };
 
     // PUBLIC FUNCTIONS
     this.calculate_Positions = (root, center) => {
@@ -279,7 +304,7 @@ export default class TreeLayout extends AbstractGraphLayout {
 
       // call the private function
       firstWalk(starting_node, 0);
-
+      secondWalk(starting_node, 0, 0);
       // public function implementation
     };
   }
