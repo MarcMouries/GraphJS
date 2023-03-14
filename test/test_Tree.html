@@ -41,7 +41,7 @@ Walker Tree
         { id: "M", parentId: "N", data: { name: "M Jones", title: "Director Marketing", pic: "4.jpg" } },
 
         // 3rd Level
-        /*
+
         { id: "B", parentId: "D", data: { name: "B Brown", title: "Director Marketing", pic: "3.jpg" } },
         { id: "C", parentId: "D", data: { name: "C Carly", title: "Director Marketing", pic: "3.jpg" } },
 
@@ -50,7 +50,6 @@ Walker Tree
         { id: "J", parentId: "M", data: { name: "J .", title: "Director Marketing", pic: "3.jpg" } },
         { id: "K", parentId: "M", data: { name: "K .", title: "Director Marketing", pic: "3.jpg" } },
         { id: "L", parentId: "M", data: { name: "L .", title: "Director Marketing", pic: "3.jpg" } },
-        */
       ],
     };
 
@@ -74,8 +73,11 @@ Level 2: Node (A),Node (D),Node (G),Node (M)
     tree.traverseBF((node) => console.log(node.toString()));
 
     var root = tree.getRoot();
-    let layout = new graphjs.TreeLayout(tree, {});
-
-    layout.calculate_Positions(root, {});
+    let layout = new graphjs.TreeLayout(tree, {
+      nodeHeight : 60,
+      nodeWidth:160
+    });
+    layout.calculate_Positions(root, { x: 100, y: 100 });
+    console.log("layout", layout);
   </script>
 </html>
