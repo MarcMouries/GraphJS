@@ -5,9 +5,7 @@ class TreeNode extends Node {
     super(nodeID, nodeData);
     this.children = [];
     this.parent;
-    //this.neighbor;
-
-    console.log("TreeNode: constructor: ", nodeID, nodeData);
+    this.level = 0;
   }
 
   addChild(node) {
