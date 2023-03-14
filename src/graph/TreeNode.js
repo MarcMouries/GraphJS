@@ -9,8 +9,8 @@ class TreeNode extends Node {
   }
 
   addChild(node) {
-    // const childNode = new TreeNode(nodeID, nodeData, this.nodeID);
     this.children.push(node);
+    node.parent = this;
     return node;
   }
 
