@@ -12,7 +12,7 @@ export class Tree extends Graph {
   setRoot(nodeID) {
     this.root = nodeID;
   }
-  getRoot () {
+  getRoot() {
     return this.root;
   }
 
@@ -22,10 +22,10 @@ export class Tree extends Graph {
 
   traverseDF(callback) {
     function traverse(node) {
-        callback(node);
-        if (node.children) {
-          node.children.forEach(traverse);
-        }
+      callback(node);
+      if (node.children) {
+        node.children.forEach(traverse);
+      }
     }
     traverse(this.root);
   }
@@ -39,6 +39,10 @@ export class Tree extends Graph {
     }
   }
 
+  /**
+   * Returns { status: 'success'} or { status: 'error', message: "error message"}
+   * @param {*} json
+   */
   loadFromJSON(json) {
     const data = JSON.parse(json);
 
@@ -58,27 +62,15 @@ export class Tree extends Graph {
       const node = this.nodeMap.get(id);
       if (parentId) {
         const parent = this.nodeMap.get(parentId);
+        if (!parent) {
+          return { status: "error", message: "Parent node not found for parentId: " + parentId };
+        }
         parent.addChild(node);
-        node.parent = parent;
+        node.level = node.parent.level + 1;
       } else {
         this.root = node;
       }
     });
-
-    // Function to add node to nodesByLevel array
-    /*
-    function addNodeToLevel(id, parentId, nodesByLevel, node) {
-
-      const level = parentId ? nodesByLevel[parentId].level + 1 : 0;
-      if (!nodesByLevel[level]) {
-        nodesByLevel[level] = [node];
-      } else {
-        nodesByLevel[level].push(node);
-      }
-      node.level = level;
-    }
-     */
+    return { status: "success" };
   }
-  
-
 }
