@@ -1,9 +1,19 @@
 {
-    "nodes":
-    [
-        { "id": "O", "parentId": null, "data": {"name": "O Payne ", "title": "CEO", "picture": "1.jpg" }},
-        { "id": "E", "parentId": "O" , "data": {"name": "E Warm"  , "title": "VP Marketing", "pic": "2.jpg"}},
-        { "id": "F", "parentId": "O" , "data": {"name": "F Hoffa" , "title": "VP Sales", "pic": "3.jpg" }},
-        { "id": "N", "parentId": "O" , "data": {"name": "N Flaming","title": "VP Engineering", "pic": "4.jpg"  }}
+    "nodes": [
+      { "id": "O", "parentId": null, "data": { "name": "O Pine", "title": "CEO", "picture": "1.jpg" } },
+      { "id": "E", "parentId": "O", "data": { "name": "E Warm", "title": "VP Marketing", "pic": "2.jpg" } },
+      { "id": "F", "parentId": "O", "data": { "name": "F Hoffa", "title": "VP Sales", "pic": "3.jpg" } },
+      { "id": "N", "parentId": "O", "data": { "name": "N Flood", "title": "VP Engineering", "pic": "4.jpg" } },
+      { "id": "A", "parentId": "E", "data": { "name": "A Smith", "title": "Director Marketing", "pic": "3.jpg" } },
+      { "id": "D", "parentId": "E", "data": { "name": "D Jones", "title": "Director Marketing", "pic": "4.jpg" } },
+      { "id": "G", "parentId": "N", "data": { "name": "G Smith", "title": "Director Marketing", "pic": "3.jpg" } },
+      { "id": "M", "parentId": "N", "data": { "name": "M Jones", "title": "Director Marketing", "pic": "4.jpg" } },
+      { "id": "B", "parentId": "D", "data": { "name": "B Brown", "title": "Director Marketing", "pic": "3.jpg" } },
+      { "id": "C", "parentId": "D", "data": { "name": "C Carly", "title": "Director Marketing", "pic": "3.jpg" } },
+      { "id": "H", "parentId": "M", "data": { "name": "H .", "title": "Director Marketing", "pic": "3.jpg" } },
+      { "id": "I", "parentId": "M", "data": { "name": "I .", "title": "Director Marketing", "pic": "3.jpg" } },
+      { "id": "J", "parentId": "M", "data": { "name": "J .", "title": "Director Marketing", "pic": "3.jpg" } },
+      { "id": "K", "parentId": "M", "data": { "name": "K .", "title": "Director Marketing", "pic": "3.jpg" } },
+      { "id": "L", "parentId": "M", "data": { "name": "L .", "title": "Director Marketing", "pic": "3.jpg" } }
     ]
 }
