@@ -2,13 +2,15 @@ import AbstractGraphLayout from "./AbstractGraphLayout";
 
 const DEFAULTS = {
   rootOrientation: "NORTH",
-  maximumDepth: 50,
-  levelSeparation: 100,
-  siblingSpacing: 20,
-  subtreeSeparation: 500,
-  nodeWidth: 1000,
-  nodeHeight: 500,
-};
+  maximumDepth: 3,
+  levelSeparation: 50 /* distance between levels = vertical spread */,
+  siblingSpacing: 50 /* distance between leaf siblings */,
+  subtreeSeparation: 160 /* distance between each subtree */,
+  stackedLeaves: true,
+  stackedIndentation : 40,
+  nodeWidth: 0,
+  nodeHeight: 0
+}
 
 export default class TreeLayout extends AbstractGraphLayout {
   constructor(tree, options) {
@@ -287,6 +289,17 @@ export default class TreeLayout extends AbstractGraphLayout {
           //console.log("\\secondWalk: Node(" + node.id + " / " + xTopAdjustment + " / " + node.prelim + " / " + modSum);
           //console.log("\\secondWalk: " + node.x + "," + node.y);
 
+          if (this.leavesStacked) {
+            if (node.isLeaf()) {
+              const indentation = 30;
+              let index = node.getIndex();
+              node.x = node.parent.x + indentation;
+              node.y += node.getIndex() * this.nodeHeight + node.getIndex() * this.siblingSpacing; //	shift the node down
+              console.log(`secondWalk: ${node} #${index}  (${node.x}, ${node.y})`);
+            }
+          }
+
+
           var children_count = node.getChildrenCount();
           for (var i = 0; i < children_count; i++) {
             var child = node.children[i];
@@ -294,6 +307,7 @@ export default class TreeLayout extends AbstractGraphLayout {
           }
         }
       };
+
 
     // PUBLIC FUNCTIONS
     this.calculate_Positions = (root, center) => {
@@ -305,7 +319,10 @@ export default class TreeLayout extends AbstractGraphLayout {
       // call the private function
       firstWalk(starting_node, 0);
       secondWalk(starting_node, 0, 0);
-      // public function implementation
     };
+
+    this.getTreeDimension = () => {
+        return { "TO DO" : ""};
+    }
   }
 }
