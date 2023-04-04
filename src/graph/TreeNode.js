@@ -99,6 +99,11 @@ class TreeNode extends Node {
   hasLeftSibling() {
     return !this.isLeftMost();
   }
+
+  getIndex () {
+    return this.parent.children.indexOf(this);
+  }
+
 }
 
 export { TreeNode };
