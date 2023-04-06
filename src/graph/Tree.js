@@ -39,6 +39,10 @@ export class Tree extends Graph {
     }
   }
 
+  getNode(nodeId) {
+    return this.nodeMap.get(nodeId);
+  }
+
   /**
    * Returns { status: 'success'} or { status: 'error', message: "error message"}
    * @param {*} json
@@ -47,7 +51,7 @@ export class Tree extends Graph {
     const data = JSON.parse(json);
 
     // create nodes
-    data.nodes.forEach((nodeData) => {
+    data.forEach((nodeData) => {
       const { id, data } = nodeData;
       const node = new TreeNode(id, data, null);
       this.nodeMap.set(id, node);
@@ -57,7 +61,7 @@ export class Tree extends Graph {
     });
 
     // Add child nodes to parent nodes
-    data.nodes.forEach((nodeData) => {
+    data.forEach((nodeData) => {
       const { id, parentId } = nodeData;
       const node = this.nodeMap.get(id);
       if (parentId) {
