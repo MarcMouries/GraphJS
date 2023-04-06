@@ -1,4 +1,4 @@
-export default class OrgChart {
+export class OrgChart {
 
     constructor(container) {
         this.container = container;

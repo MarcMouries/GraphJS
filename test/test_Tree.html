@@ -1,8 +1,10 @@
 <html>
   <head>
-    <script src="../dist/umd/graphjs.min.js"></script>
+	<script src="../dist/umd/graphjs.min.js"></script>
   </head>
-  <body></body>
+  <body>
+    <div class="chart-container"></div>;
+  </body>
   <script>
     const tree = new graphjs.Tree();
 
@@ -26,7 +28,7 @@ Walker Tree
 
        https://efanzh.org/tree-graph-generator/
 */
-    const jsonData = {
+    const jsonData_Walker = {
       nodes: [
         { id: "O", parentId: null,data: { name: "O Pine ", title: "CEO", picture: "1.jpg" } },
         // 1st Level
@@ -53,6 +55,25 @@ Walker Tree
       ]
     };
 
+    const jsonData_Org = {
+      nodes: [
+        { id: "O", parentId: null,data: { name: "O Pine ", title: "CEO", picture: "1.jpg" } },
+        { id: "E", parentId: "O", data: { name: "E Warm", title: "VP Marketing", pic: "2.jpg" } },
+        { id: "F", parentId: "O", data: { name: "F Hoffa", title: "VP Sales", pic: "3.jpg" } },
+        { id: "E1", parentId: "E", data: { name: "E 1", title: "VP Engineering", pic: "4.jpg" } },
+        { id: "E2", parentId: "E", data: { name: "E 2", title: "VP Engineering", pic: "4.jpg" } },
+        { id: "F1", parentId: "F", data: { name: "F 1", title: "VP Engineering", pic: "4.jpg" } },
+        { id: "F2", parentId: "F", data: { name: "F 2", title: "VP Engineering", pic: "4.jpg" } }
+    ]};
+
+
+    const chartElement = document.querySelector('.chart-container');
+    console.log("chartElement", chartElement);
+
+    const orgChart = new graphjs.OrgChart(chartElement);
+    console.log("orgChart", orgChart);
+    orgChart.setData(jsonData_Org);
+
 /*
     // //        Graph Visit Breadth First
     2) we can call a method visitBreadthFirstByLevel that prints 
@@ -63,7 +84,7 @@ Level 1: Node (E),Node (F),Node (N)
 Level 2: Node (A),Node (D),Node (G),Node (M)
 
 */
-    tree.loadFromJSON(JSON.stringify(jsonData));
+    tree.loadFromJSON(JSON.stringify(jsonData_Walker));
     console.log("tree", tree);
 
     console.log("Traverse tree DF");

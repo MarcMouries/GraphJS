@@ -1271,7 +1271,7 @@ class TreeLayout extends AbstractGraphLayout {
     };
 
     this.getTreeDimension = () => {
-        return {};
+        return { "TO DO" : ""};
     };
   }
 }
@@ -1729,6 +1729,27 @@ function moveObjectToLastPosition(object_list, object_to_move) {
 	});
 }
 
+class OrgChart {
+
+    constructor(container) {
+        this.container = container;
+
+        const nodesContainer = document.createElement("div");
+        nodesContainer.id = "nodes-container";
+        this.container.appendChild(nodesContainer);
+
+        this.linksContainer = document.createElement("div");
+        this.linksContainer.id = "links-container";
+        this.container.appendChild(this.linksContainer);
+        this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        this.linksContainer.appendChild(this.svg);
+    }
+
+    setData(data) {
+        console.log("HERE in setData", data);
+    }
+}
+
 var version = "0.1";
 
 exports.AbstractGraphLayout = AbstractGraphLayout;
@@ -1739,6 +1760,7 @@ exports.Graph = Graph;
 exports.Link = Link;
 exports.MChart = MChart;
 exports.Node = Node;
+exports.OrgChart = OrgChart;
 exports.Rectangle = Rectangle;
 exports.Renderer = Renderer;
 exports.Tree = Tree;

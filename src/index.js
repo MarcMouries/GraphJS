@@ -6,6 +6,7 @@ export * from "./layout";
 export * from "./shape";
 
 export {MChart} from "./MChart";
+export {OrgChart} from "./OrgChart";
 
 export var version = "0.1"
 
