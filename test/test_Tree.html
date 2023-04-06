@@ -72,14 +72,18 @@ Level 2: Node (A),Node (D),Node (G),Node (M)
     console.log("Traverse tree BF");
     tree.traverseBF((node) => console.log(node.toString()));
 
-    let layout = new graphjs.TreeLayout(tree, {
+    let treeLayout = new graphjs.TreeLayout(tree, {
       nodeHeight : 60,
       nodeWidth:160
     });
     var root = tree.getRoot();
-    layout.calculate_Positions(root, { x: 100, y: 100 });
-    console.log("layout", layout);
+    treeLayout.calculate_Positions(root, { x: 100, y: 100 });
+    console.log("treeLayout", treeLayout);
 
+    var treeDimension = treeLayout.getTreeDimension();
+    console.log(" -  treeDimension : ", treeDimension);
+
+    
 
   </script>
 </html>
