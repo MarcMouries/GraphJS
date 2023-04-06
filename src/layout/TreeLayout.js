@@ -4,6 +4,8 @@ const DEFAULTS = {
   rootOrientation: "NORTH",
   maximumDepth: 3,
   levelSeparation: 50 /* distance between levels = vertical spread */,
+  marginTop : 10,
+  marginLeft : 10,
   siblingSpacing: 50 /* distance between leaf siblings */,
   subtreeSeparation: 160 /* distance between each subtree */,
   stackedLeaves: true,
@@ -28,6 +30,14 @@ export default class TreeLayout extends AbstractGraphLayout {
       } else {
         this[i] = DEFAULTS[i];
       }
+    }
+
+    if (this.levelSeparation < this.nodeHeight * 2) {
+      this.levelSeparation = this.nodeHeight * 2;
+    }
+    // should be proportional to the width of the tree
+    if (this.subtreeSeparation < this.nodeWidth * 3) {
+      //this.subtreeSeparation = this.nodeWidth*2;
     }
 
     console.log("TreeLayout constructed.");
@@ -281,24 +291,20 @@ export default class TreeLayout extends AbstractGraphLayout {
       const secondWalk = (node, level, modSum) => {
         //console.log("secondWalk    = " + node);
         if (level <= this.maximumDepth) {
-          var xTopAdjustment = 0;
-          var yTopAdjustment = 0;
 
-          node.x = xTopAdjustment + node.prelim + modSum;
-          node.y = yTopAdjustment + level * this.levelSeparation;
+          node.x = this.marginLeft + node.prelim + modSum;
+          node.y = this.marginTop + level * this.levelSeparation;
           //console.log("\\secondWalk: Node(" + node.id + " / " + xTopAdjustment + " / " + node.prelim + " / " + modSum);
           //console.log("\\secondWalk: " + node.x + "," + node.y);
 
-          if (this.leavesStacked) {
+          if (this.stackedLeaves) {
             if (node.isLeaf()) {
-              const indentation = 30;
               let index = node.getIndex();
-              node.x = node.parent.x + indentation;
+              node.x = node.parent.x + this.stackedIndentation;
               node.y += node.getIndex() * this.nodeHeight + node.getIndex() * this.siblingSpacing; //	shift the node down
               console.log(`secondWalk: ${node} #${index}  (${node.x}, ${node.y})`);
             }
           }
-
 
           var children_count = node.getChildrenCount();
           for (var i = 0; i < children_count; i++) {
