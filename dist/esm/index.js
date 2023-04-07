@@ -739,6 +739,10 @@ class Tree extends Graph {
     }
   }
 
+  getNode(nodeId) {
+    return this.nodeMap.get(nodeId);
+  }
+
   /**
    * Returns { status: 'success'} or { status: 'error', message: "error message"}
    * @param {*} json
@@ -747,7 +751,7 @@ class Tree extends Graph {
     const data = JSON.parse(json);
 
     // create nodes
-    data.nodes.forEach((nodeData) => {
+    data.forEach((nodeData) => {
       const { id, data } = nodeData;
       const node = new TreeNode(id, data, null);
       this.nodeMap.set(id, node);
@@ -757,7 +761,7 @@ class Tree extends Graph {
     });
 
     // Add child nodes to parent nodes
-    data.nodes.forEach((nodeData) => {
+    data.forEach((nodeData) => {
       const { id, parentId } = nodeData;
       const node = this.nodeMap.get(id);
       if (parentId) {
@@ -954,6 +958,8 @@ const DEFAULTS = {
   rootOrientation: "NORTH",
   maximumDepth: 3,
   levelSeparation: 50 /* distance between levels = vertical spread */,
+  marginTop : 10,
+  marginLeft : 10,
   siblingSpacing: 50 /* distance between leaf siblings */,
   subtreeSeparation: 160 /* distance between each subtree */,
   stackedLeaves: true,
@@ -979,6 +985,12 @@ class TreeLayout extends AbstractGraphLayout {
         this[i] = DEFAULTS[i];
       }
     }
+
+    if (this.levelSeparation < this.nodeHeight * 2) {
+      this.levelSeparation = this.nodeHeight * 2;
+    }
+    // should be proportional to the width of the tree
+    if (this.subtreeSeparation < this.nodeWidth * 3) ;
 
     console.log("TreeLayout constructed.");
     console.log(this);
@@ -1226,24 +1238,20 @@ class TreeLayout extends AbstractGraphLayout {
       const secondWalk = (node, level, modSum) => {
         //console.log("secondWalk    = " + node);
         if (level <= this.maximumDepth) {
-          var xTopAdjustment = 0;
-          var yTopAdjustment = 0;
 
-          node.x = xTopAdjustment + node.prelim + modSum;
-          node.y = yTopAdjustment + level * this.levelSeparation;
+          node.x = this.marginLeft + node.prelim + modSum;
+          node.y = this.marginTop + level * this.levelSeparation;
           //console.log("\\secondWalk: Node(" + node.id + " / " + xTopAdjustment + " / " + node.prelim + " / " + modSum);
           //console.log("\\secondWalk: " + node.x + "," + node.y);
 
-          if (this.leavesStacked) {
+          if (this.stackedLeaves) {
             if (node.isLeaf()) {
-              const indentation = 30;
               let index = node.getIndex();
-              node.x = node.parent.x + indentation;
+              node.x = node.parent.x + this.stackedIndentation;
               node.y += node.getIndex() * this.nodeHeight + node.getIndex() * this.siblingSpacing; //	shift the node down
               console.log(`secondWalk: ${node} #${index}  (${node.x}, ${node.y})`);
             }
           }
-
 
           var children_count = node.getChildrenCount();
           for (var i = 0; i < children_count; i++) {
@@ -1725,25 +1733,245 @@ function moveObjectToLastPosition(object_list, object_to_move) {
 	});
 }
 
+class SVGUtil {
+  static createSVGelement(width, height) {
+    let svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgElement.setAttribute("width", width);
+    svgElement.setAttribute("height", height);
+    return svgElement;
+  }
+  static createLine(svg, x1, y1, x2, y2) {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", x1);
+    line.setAttribute("y1", y1);
+    line.setAttribute("x2", x2);
+    line.setAttribute("y2", y2);
+    line.setAttribute("stroke", "#022D42");
+    line.setAttribute("stroke-width", 1);
+    svg.appendChild(line);
+  }
+
+  static deleteLines(svg) {
+    const lines = svg.querySelectorAll("line");
+    lines.forEach((line) => line.remove());
+  }
+}
+
 class OrgChart {
+  constructor(container) {
+    this.container = container;
 
-    constructor(container) {
-        this.container = container;
+    this.nodesContainer = document.createElement("div");
+    this.nodesContainer.id = "nodes";
+    this.container.appendChild(this.nodesContainer);
 
-        const nodesContainer = document.createElement("div");
-        nodesContainer.id = "nodes-container";
-        this.container.appendChild(nodesContainer);
+    this.linksContainer = document.createElement("div");
+    this.linksContainer.id = "links-container";
+    this.container.appendChild(this.linksContainer);
+    this.svg = SVGUtil.createSVGelement(1000, 1000);
+    this.linksContainer.appendChild(this.svg);
+    this.tree = new Tree();
+  }
 
-        this.linksContainer = document.createElement("div");
-        this.linksContainer.id = "links-container";
-        this.container.appendChild(this.linksContainer);
-        this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        this.linksContainer.appendChild(this.svg);
+  setData(data) {
+    console.log("HERE in setData", data);
+    this.tree.loadFromJSON(JSON.stringify(data));
+    console.log("tree", this.tree);
+
+    this.treeLayout = new TreeLayout(this.tree, {
+      nodeHeight: 50,
+      nodeWidth: 160,
+    });
+    var root = this.tree.getRoot();
+    this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
+    console.log("treeLayout", this.treeLayout);
+
+    var treeDimension = this.treeLayout.getTreeDimension();
+    console.log(" -  treeDimension : ", treeDimension);
+
+    const cssString = `
+    .position-card {
+      align-items: flex-start;
+      background: #ffffff;
+      border-top: 10px solid #01778e;
+      box-shadow: 0 1px 4px 2px hsla(0, 0%, 80%, 0.3);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      font-family: sans-serif;
+      position: absolute;
+      padding: 4px 8px;
+
     }
 
-    setData(data) {
-        console.log("HERE in setData", data);
+.position-card .name {
+  font-size: 12px;
+  font-weight: 300;
+}
+.position-card .job-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+.position-info {
+  align-items: flex-start;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.position-data {
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+}
+.child-count {
+  cursor: pointer;
+  font-size: 0.6em;
+  position: absolute;
+  right: 50%;
+  bottom: 0;
+  padding: 4px;
+  vertical-align: middle;
+  text-align: center;
+  transform: translate(50%, 100%);
+  box-shadow: 0 1px 4px 2px hsla(0, 0%, 80%, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+   `;
+
+    const styleElement = document.createElement("style");
+    styleElement.textContent = cssString;
+    document.head.appendChild(styleElement);
+
+    this.#drawNode(root);
+  }
+  #drawNode = function (node) {
+    console.log(`drawNode node id: "${node.id}", level: ${node.level}, path: ${node.path}`);
+    console.log(node);
+    //console.log(this.#nodeTemplateHtml(node));
+
+    const existingChild = this.nodesContainer.querySelector(`[data-node-id='${node.id}']`);
+    console.log("existingChild: ", existingChild);
+
+    if (!existingChild) {
+      const nodeElement = this.#buildNode(node);
+      this.nodesContainer.appendChild(nodeElement);
     }
+    this.#createLine(node);
+
+    // Draw this node's children.
+    if (!node.isCollapsed) {
+      node.children.forEach((child) => {
+        this.#drawNode(child);
+      });
+    }
+  }.bind(this);
+
+  #nodeTemplateHtml = function (node) {
+    return `
+      <div class="position-card" style="left: ${node.x}px; top: ${node.y}px; width: 150px;">
+        <div class="position-info">
+          <div class="job-title">${node.data.job_title}</div>
+          <div class="name">${node.data.name}</div>
+        </div>
+      <!-- position data -->
+      </div>
+    `;
+  };
+
+  //         <div style="margin-top:-0px;background-color:#01778e;height:10px;width:100%;border-radius:1px"></div>
+
+  //  <div class="position-data">
+  //    <div>A</div><div>B</div>
+  //  </div>
+
+  #buildNode = function (node, templateHtml) {
+    console.log("BuildNode templateHtml", templateHtml);
+
+    const templateFilled = this.#nodeTemplateHtml(node);
+    const parser = new DOMParser();
+    const templateElement = parser.parseFromString(templateFilled, "text/html").querySelector(".position-card");
+    const nodeElement = templateElement.cloneNode(true);
+
+    nodeElement.dataset.nodeId = node.id.toString();
+
+    nodeElement.style.left = `${node.x}px`;
+    nodeElement.style.top = `${node.y}px`;
+    nodeElement.style.width = `160px`;
+
+    const childCount = node.children.length;
+    if (childCount > 0) {
+      var childCountElement = document.createElement("span");
+      childCountElement.classList.add("child-count");
+      childCountElement.innerHTML = "" + childCount;
+      nodeElement.appendChild(childCountElement);
+
+      childCountElement.addEventListener("click", (e) => {
+        var nodeElement = e.target.parentElement;
+        let nodeId = nodeElement.dataset.nodeId;
+        console.log("nodeId=" + nodeId);
+        // toggleNodeCollapsedProperty(nodeId);
+        console.log("this.tree=", this.tree);
+        let clickedNode = this.tree.getNode(nodeId);
+        console.log("node=", clickedNode);
+        clickedNode.isCollapsed = !clickedNode.isCollapsed;
+
+        if (clickedNode.isCollapsed) {
+          //nodeElement.innerHTML = '';  // remove all children
+          const rootElement = this.nodesContainer;
+          while (rootElement.firstChild) {
+            rootElement.removeChild(rootElement.firstChild);
+          }
+
+          // get all the nodes currently displayed
+          const nodeElementList = this.nodesContainer.querySelectorAll("[data-node-id]");
+          const nodesList = Array.from(nodeElementList).map((node) => node.getAttribute("data-node-id"));
+          console.log("nodes currently displayed=", nodesList);
+
+          SVGUtil.deleteLines(this.svg);
+        }
+
+        //console.log(this.tree);
+
+        //context.clearRect(0, 0, canvas.width, canvas.height);
+        // redraw the tree
+        this.#drawNode(this.tree.getRoot());
+      });
+    }
+    return nodeElement;
+  };
+
+  #buildLine = function (node) {
+    if (node.isLeaf()) {
+      console.log("TODO: buildLine: node is leaf", node);
+    }
+  };
+
+  #createLine = function (node) {
+    console.log("createLine TODO check if stackedLeaves: ", node);
+
+    if (node.parent && node.parent.isCollapsed) {
+      return;
+    }
+    if (node.isLeaf()) {
+      console.log("TODO: buildLine: node is leaf", node);
+      const leftMiddlePoint = { x: node.x, y: node.y + node.height / 2 };
+      const indentationPoint = { x: leftMiddlePoint.x - this.treeLayout.stackedIndentation / 2, y: leftMiddlePoint.y };
+
+      // horizontal line from node to vertical line
+      //drawLine(context, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y, line_color, line_width);
+      SVGUtil.createLine(this.svg, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y);
+      // vertical line from indentation to parent
+      //drawLine(context, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
+      SVGUtil.createLine(this.svg, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
+    }
+  };
 }
 
 var version = "0.1";
