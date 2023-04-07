@@ -161,10 +161,8 @@ export class OrgChart {
         var nodeElement = e.target.parentElement;
         let nodeId = nodeElement.dataset.nodeId;
         console.log("nodeId=" + nodeId);
-        // toggleNodeCollapsedProperty(nodeId);
-        console.log("this.tree=", this.tree);
         let clickedNode = this.tree.getNode(nodeId);
-        console.log("node=", clickedNode);
+        console.log("clickedNode=", clickedNode);
         clickedNode.isCollapsed = !clickedNode.isCollapsed;
 
          // get all the nodes currently displayed
@@ -210,10 +208,8 @@ export class OrgChart {
       const indentationPoint = { x: leftMiddlePoint.x - this.treeLayout.stackedIndentation / 2, y: leftMiddlePoint.y };
 
       // horizontal line from node to vertical line
-      //drawLine(context, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y, line_color, line_width);
       SVGUtil.createLine(this.svg, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y);
       // vertical line from indentation to parent
-      //drawLine(context, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
       SVGUtil.createLine(this.svg, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
     }
   };
