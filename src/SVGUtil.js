@@ -12,7 +12,7 @@ export class SVGUtil {
     line.setAttribute("x2", x2);
     line.setAttribute("y2", y2);
     line.setAttribute("stroke", "#022D42");
-    line.setAttribute("stroke-width", 1);
+    line.setAttribute("stroke-width", 0.6);
     svg.appendChild(line);
   }
 
