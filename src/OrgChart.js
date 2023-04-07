@@ -1,5 +1,6 @@
 import { TreeLayout } from "./layout";
 import { Tree } from "./graph/Tree";
+import { SVGUtil } from "./SVGUtil.js";
 
 export class OrgChart {
   constructor(container) {
@@ -12,11 +13,9 @@ export class OrgChart {
     this.linksContainer = document.createElement("div");
     this.linksContainer.id = "links-container";
     this.container.appendChild(this.linksContainer);
-    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.svg = SVGUtil.createSVGelement(1000, 1000);
     this.linksContainer.appendChild(this.svg);
-
     this.tree = new Tree();
-
   }
 
   setData(data) {
@@ -24,38 +23,39 @@ export class OrgChart {
     this.tree.loadFromJSON(JSON.stringify(data));
     console.log("tree", this.tree);
 
-    let treeLayout = new TreeLayout(this.tree, {
+    this.treeLayout = new TreeLayout(this.tree, {
       nodeHeight: 50,
       nodeWidth: 160,
     });
     var root = this.tree.getRoot();
-    treeLayout.calculate_Positions(root, { x: 100, y: 100 });
-    console.log("treeLayout", treeLayout);
+    this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
+    console.log("treeLayout", this.treeLayout);
 
-    var treeDimension = treeLayout.getTreeDimension();
+    var treeDimension = this.treeLayout.getTreeDimension();
     console.log(" -  treeDimension : ", treeDimension);
 
     const cssString = `
     .position-card {
+      align-items: flex-start;
       background: #ffffff;
-      border-radius: 4px;
+      border-top: 10px solid #01778e;
       box-shadow: 0 1px 4px 2px hsla(0, 0%, 80%, 0.3);
-      position: absolute;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
       font-family: sans-serif;
-      align-items: flex-start;
+      position: absolute;
+      padding: 4px 8px;
+
     }
 
 .position-card .name {
-  font-size: 16px;
-  font-weight: 600;
-  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 300;
 }
 .position-card .job-title {
-  font-size: 12px;
-  font-weight: 400;
-  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 500;
 }
 .position-info {
   align-items: flex-start;
@@ -85,6 +85,7 @@ export class OrgChart {
   vertical-align: middle;
   text-align: center;
   transform: translate(50%, 100%);
+  box-shadow: 0 1px 4px 2px hsla(0, 0%, 80%, 0.3);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
    `;
@@ -96,12 +97,18 @@ export class OrgChart {
     this.#drawNode(root);
   }
   #drawNode = function (node) {
-    console.log(`node id: "${node.id}", level: ${node.level}, path: ${node.path}`);
-    //console.log(node);
+    console.log(`drawNode node id: "${node.id}", level: ${node.level}, path: ${node.path}`);
+    console.log(node);
     //console.log(this.#nodeTemplateHtml(node));
 
-    const nodeElement = this.#buildNode(node);
-    this.nodesContainer.appendChild(nodeElement);
+    const existingChild = this.nodesContainer.querySelector(`[data-node-id='${node.id}']`);
+    console.log("existingChild: ", existingChild);
+
+    if (!existingChild) {
+      const nodeElement = this.#buildNode(node);
+      this.nodesContainer.appendChild(nodeElement);
+    }
+    this.#createLine(node);
 
     // Draw this node's children.
     if (!node.isCollapsed) {
@@ -111,24 +118,26 @@ export class OrgChart {
     }
   }.bind(this);
 
-
   #nodeTemplateHtml = function (node) {
     return `
       <div class="position-card" style="left: ${node.x}px; top: ${node.y}px; width: 150px;">
         <div class="position-info">
-          <div class="name">${node.data.name}</div>
           <div class="job-title">${node.data.job_title}</div>
+          <div class="name">${node.data.name}</div>
         </div>
       <!-- position data -->
       </div>
     `;
   };
-//  <div class="position-data">
-//    <div>A</div><div>B</div>
-//  </div>
+
+  //         <div style="margin-top:-0px;background-color:#01778e;height:10px;width:100%;border-radius:1px"></div>
+
+  //  <div class="position-data">
+  //    <div>A</div><div>B</div>
+  //  </div>
 
   #buildNode = function (node, templateHtml) {
-    console.log("templateHtml", templateHtml);
+    console.log("BuildNode templateHtml", templateHtml);
 
     const templateFilled = this.#nodeTemplateHtml(node);
     const parser = new DOMParser();
@@ -140,7 +149,6 @@ export class OrgChart {
     nodeElement.style.left = `${node.x}px`;
     nodeElement.style.top = `${node.y}px`;
     nodeElement.style.width = `160px`;
-//    nodeElement.style.position = "absolute";
 
     const childCount = node.children.length;
     if (childCount > 0) {
@@ -150,26 +158,63 @@ export class OrgChart {
       nodeElement.appendChild(childCountElement);
 
       childCountElement.addEventListener("click", (e) => {
-        var target = e.target;
-        var nodeElement = target.parentElement;
+        var nodeElement = e.target.parentElement;
         let nodeId = nodeElement.dataset.nodeId;
         console.log("nodeId=" + nodeId);
         // toggleNodeCollapsedProperty(nodeId);
         console.log("this.tree=", this.tree);
-        let node = this.tree.getNode(nodeId);
-        console.log("node=" , node);
-        if (!node.isCollapsed) {
+        let clickedNode = this.tree.getNode(nodeId);
+        console.log("node=", clickedNode);
+        clickedNode.isCollapsed = !clickedNode.isCollapsed;
+
+         // get all the nodes currently displayed
+         const nodeElementList = this.nodesContainer.querySelectorAll("[data-node-id]");
+         const nodesList = Array.from(nodeElementList).map((node) => node.getAttribute("data-node-id"));
+         console.log("nodes currently displayed=", nodesList);
+
+        if (clickedNode.isCollapsed) {
           //nodeElement.innerHTML = '';  // remove all children
           const rootElement = this.nodesContainer;
           while (rootElement.firstChild) {
             rootElement.removeChild(rootElement.firstChild);
           }
+
+          SVGUtil.deleteLines(this.svg);
         }
-        node.isCollapsed = !node.isCollapsed;
+
+        //console.log(this.tree);
+
         //context.clearRect(0, 0, canvas.width, canvas.height);
+        // redraw the tree
         this.#drawNode(this.tree.getRoot());
       });
     }
     return nodeElement;
-  }
+  };
+
+  #buildLine = function (node) {
+    if (node.isLeaf()) {
+      console.log("TODO: buildLine: node is leaf", node);
+    }
+  };
+
+  #createLine = function (node) {
+    console.log("createLine TODO check if stackedLeaves: ", node);
+
+    if (node.parent && node.parent.isCollapsed) {
+      return;
+    }
+    if (node.isLeaf()) {
+      console.log("TODO: buildLine: node is leaf", node);
+      const leftMiddlePoint = { x: node.x, y: node.y + node.height / 2 };
+      const indentationPoint = { x: leftMiddlePoint.x - this.treeLayout.stackedIndentation / 2, y: leftMiddlePoint.y };
+
+      // horizontal line from node to vertical line
+      //drawLine(context, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y, line_color, line_width);
+      SVGUtil.createLine(this.svg, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y);
+      // vertical line from indentation to parent
+      //drawLine(context, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
+      SVGUtil.createLine(this.svg, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
+    }
+  };
 }
