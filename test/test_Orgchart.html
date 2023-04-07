@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <script src="../dist/umd/graphjs.min.js"></script>
+  </head>
+  <body>
+    <div class="chart-container"></div>
+  </body>
+  <script>
+    const chartElement = document.querySelector(".chart-container");
+    console.log("chartElement", chartElement);
+
+    fetch("./orgchart.json")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        const orgChart = new graphjs.OrgChart(chartElement);
+        console.log("orgChart", orgChart);
+        orgChart.setData(data);
+      })
+      .catch((error) => {
+        // handle any errors
+        console.error(error);
+      });
+  </script>
+</html>
