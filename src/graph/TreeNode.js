@@ -5,7 +5,7 @@ class TreeNode extends Node {
     super(nodeID, nodeData);
     this.children = [];
     this.parent;
-    this.level = 0;
+    this.level = 1;
   }
 
   addChild(node) {
