@@ -1,8 +1,12 @@
 export class SVGUtil {
-  static createSVGelement(width, height) {
+ // static createSVGelement(width, height) {
+  static createSVGelement() {
     let svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svgElement.setAttribute("width", width);
-    svgElement.setAttribute("height", height);
+    //svgElement.setAttribute("width", width);
+    //svgElement.setAttribute("height", height);
+
+    svgElement.setAttribute("width", "100%");
+    svgElement.setAttribute("height", "100%");
     return svgElement;
   }
   static createLine(svg, x1, y1, x2, y2) {
