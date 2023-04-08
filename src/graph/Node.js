@@ -6,7 +6,6 @@ export default class Node {
 		this.id = id;
 
 		this.data = data;
-		this.level = 0;
 		this.children = [];
 
 		this.isCollapsed = false;
@@ -21,7 +20,9 @@ export default class Node {
 	}
 
 	toString() {
-		return "Node " + this.id + " (" + this.pos.x + ", " + this.pos.y + ")";
+//		return "Node " + this.id + " (" + this.pos.x + ", " + this.pos.y + ")";
+		return "Node " + this.id + " (" + this.x + ", " + this.y + ")";
+
 	}
 
 	addChild(node) {
