@@ -6,15 +6,17 @@ export class OrgChart {
   constructor(container) {
     this.container = container;
 
-    this.nodesContainer = document.createElement("div");
-    this.nodesContainer.id = "nodes";
-    this.container.appendChild(this.nodesContainer);
-
     this.linksContainer = document.createElement("div");
     this.linksContainer.id = "links";
     this.container.appendChild(this.linksContainer);
     this.svg = SVGUtil.createSVGelement(1000, 1000);
     this.linksContainer.appendChild(this.svg);
+
+    this.nodesContainer = document.createElement("div");
+    this.nodesContainer.id = "nodes";
+    this.container.appendChild(this.nodesContainer);
+
+
     this.tree = new Tree();
   }
 
@@ -25,7 +27,7 @@ export class OrgChart {
 
     this.treeLayout = new TreeLayout(this.tree, {
       nodeHeight: 50,
-      nodeWidth: 160,
+      nodeWidth: 200,
     });
     var root = this.tree.getRoot();
     this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
@@ -104,11 +106,12 @@ export class OrgChart {
     const existingChild = this.nodesContainer.querySelector(`[data-node-id='${node.id}']`);
     console.log("existingChild: ", existingChild);
 
+    this.#createLine(node);
+
     if (!existingChild) {
       const nodeElement = this.#buildNode(node);
       this.nodesContainer.appendChild(nodeElement);
     }
-    this.#createLine(node);
 
     // Draw this node's children.
     if (!node.isCollapsed) {
@@ -148,7 +151,7 @@ export class OrgChart {
 
     nodeElement.style.left = `${node.x}px`;
     nodeElement.style.top = `${node.y}px`;
-    nodeElement.style.width = `200px`;
+    nodeElement.style.width = `${node.width}px`;
 
     const childCount = node.children.length;
     if (childCount > 0) {
@@ -201,24 +204,52 @@ export class OrgChart {
       const indentationPoint = { x: leftMiddlePoint.x - this.treeLayout.stackedIndentation / 2, y: leftMiddlePoint.y };
 
       // horizontal line from node to vertical line
+      //           |
+      //      ────────────
+      // =>   --   --   --
       SVGUtil.createLine(this.svg, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y);
       // vertical line from indentation to parent
+      //           |
+      //      ────────────
+      // =>   |--  |--  |--
       SVGUtil.createLine(this.svg, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
     } else {
-      // ┌──────┼──────┐
+      // draw a horizontal line connecting the first or left most child and the last or right most child
+      //           |
+      // =>   ────────────
+      //     |     |      |
       if (node.level == 1) {
         if (!node.isCollapsed && node.children.length >= 1) {
           // horizontal line from leftMostChild to the rightMostChild
           let leftMostChild = node.getLeftMostChild();
           let rightMostChild = node.getRightMostChild();
-          //drawLine(context, leftMostChild.x + node.width / 2, leftMostChild.y - node.height / 2, rightMostChild.x + node.width / 2, rightMostChild.y - node.height / 2, line_color, line_width);
-          console.log("=> leftMostChild : " + leftMostChild);
-          console.log("=> rightMostChild : " + rightMostChild);
+          console.log("=> left Child : " + leftMostChild);
+          console.log("=> right Child : " + rightMostChild);
           SVGUtil.createLine(this.svg, leftMostChild.x + node.width / 2, leftMostChild.y - node.height / 2, rightMostChild.x + node.width / 2, rightMostChild.y - node.height / 2);
+
+          // Find the bottom middle point of the current node
+          //   =>       |
+          //      ────────────
+          //      |     |      |
+        const nodeBottomMiddlePoint = {
+          x: node.x + node.width / 2,
+          y: node.y + (node.height / 2)
+        };
+        // Straight line from parent to child just below it
+        const intersectionPoint = {
+          x: nodeBottomMiddlePoint.x,
+          y: nodeBottomMiddlePoint.y  + this.treeLayout.levelSeparation - node.height
+        };
+         SVGUtil.createLine(this.svg,
+           nodeBottomMiddlePoint.x, nodeBottomMiddlePoint.y,
+           intersectionPoint.x, intersectionPoint.y);
         }
       }
-      // vertical line from the child to the line across top of children
-      if (node.parent !== null) {
+      // draw vertical line connecting the child to the line across top of children
+      //           |
+      //      ────────────
+      // =>  |     |      |
+      if (node.parent !== undefined) {
         // Find the top middle point of the current node
         const nodeTopMiddlePoint = {
           x: node.x + node.width / 2,
@@ -229,9 +260,12 @@ export class OrgChart {
           x: nodeTopMiddlePoint.x,
           y: nodeTopMiddlePoint.y - node.height / 2,
         };
-
-        SVGUtil.createLine(this.svg, nodeTopMiddlePoint.x, nodeTopMiddlePoint.y, intersectionPoint.x, intersectionPoint.y);
+        SVGUtil.createLine(this.svg,
+           nodeTopMiddlePoint.x, nodeTopMiddlePoint.y,
+           intersectionPoint.x, intersectionPoint.y);
       }
+
+
     }
   };
 }
