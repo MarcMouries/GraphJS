@@ -6,12 +6,18 @@ class TreeNode extends Node {
     this.children = [];
     this.parent;
     this.level = 1;
+    this.path = "1";
   }
 
+    /**
+     * Add a child node to a node, sets the child node as the parent of the current node 
+     * and returns the index of the new child node in the list of children.
+     * @param items New elements to add to the array.
+     * @returns number The index of the new child node in the list of children
+     */
   addChild(node) {
-    this.children.push(node);
     node.parent = this;
-    return node;
+    return this.children.push(node);
   }
 
   getChildAt(i) {
