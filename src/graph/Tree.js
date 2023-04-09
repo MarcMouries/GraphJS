@@ -69,8 +69,11 @@ export class Tree extends Graph {
         if (!parent) {
           return { status: "error", message: "Parent node not found for parentId: " + parentId };
         }
-        parent.addChild(node);
+        const nodeIndex = parent.addChild(node);
         node.level = node.parent.level + 1;
+        const parentPath = node.parent ? (node.parent.path + "-") : "";
+        node.path = parentPath + (nodeIndex + 1);
+        console.log(`Node ${id} / index : ${nodeIndex}  / path : ${node.path}`);
       } else {
         this.root = node;
       }
