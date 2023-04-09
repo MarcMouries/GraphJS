@@ -11,7 +11,7 @@ export class OrgChart {
     this.container.appendChild(this.nodesContainer);
 
     this.linksContainer = document.createElement("div");
-    this.linksContainer.id = "links-container";
+    this.linksContainer.id = "links";
     this.container.appendChild(this.linksContainer);
     this.svg = SVGUtil.createSVGelement(1000, 1000);
     this.linksContainer.appendChild(this.svg);
@@ -120,7 +120,7 @@ export class OrgChart {
 
   #nodeTemplateHtml = function (node) {
     return `
-      <div class="position-card" style="left: ${node.x}px; top: ${node.y}px; width: 150px;">
+      <div class="position-card" style="left: ${node.x}px; top: ${node.y}px">
         <div class="position-info">
           <div class="job-title">${node.data.job_title}</div>
           <div class="name">${node.data.name}</div>
@@ -148,7 +148,7 @@ export class OrgChart {
 
     nodeElement.style.left = `${node.x}px`;
     nodeElement.style.top = `${node.y}px`;
-    nodeElement.style.width = `160px`;
+    nodeElement.style.width = `200px`;
 
     const childCount = node.children.length;
     if (childCount > 0) {
@@ -165,10 +165,10 @@ export class OrgChart {
         console.log("clickedNode=", clickedNode);
         clickedNode.isCollapsed = !clickedNode.isCollapsed;
 
-         // get all the nodes currently displayed
-         const nodeElementList = this.nodesContainer.querySelectorAll("[data-node-id]");
-         const nodesList = Array.from(nodeElementList).map((node) => node.getAttribute("data-node-id"));
-         console.log("nodes currently displayed=", nodesList);
+        // get all the nodes currently displayed
+        const nodeElementList = this.nodesContainer.querySelectorAll("[data-node-id]");
+        const nodesList = Array.from(nodeElementList).map((node) => node.getAttribute("data-node-id"));
+        console.log("nodes currently displayed=", nodesList);
 
         if (clickedNode.isCollapsed) {
           //nodeElement.innerHTML = '';  // remove all children
@@ -190,12 +190,6 @@ export class OrgChart {
     return nodeElement;
   };
 
-  #buildLine = function (node) {
-    if (node.isLeaf()) {
-      console.log("TODO: buildLine: node is leaf", node);
-    }
-  };
-
   #createLine = function (node) {
     console.log("createLine TODO check if stackedLeaves: ", node);
 
@@ -203,7 +197,6 @@ export class OrgChart {
       return;
     }
     if (node.isLeaf()) {
-      console.log("TODO: buildLine: node is leaf", node);
       const leftMiddlePoint = { x: node.x, y: node.y + node.height / 2 };
       const indentationPoint = { x: leftMiddlePoint.x - this.treeLayout.stackedIndentation / 2, y: leftMiddlePoint.y };
 
@@ -211,6 +204,34 @@ export class OrgChart {
       SVGUtil.createLine(this.svg, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y);
       // vertical line from indentation to parent
       SVGUtil.createLine(this.svg, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
+    } else {
+      // ┌──────┼──────┐
+      if (node.level == 1) {
+        if (!node.isCollapsed && node.children.length >= 1) {
+          // horizontal line from leftMostChild to the rightMostChild
+          let leftMostChild = node.getLeftMostChild();
+          let rightMostChild = node.getRightMostChild();
+          //drawLine(context, leftMostChild.x + node.width / 2, leftMostChild.y - node.height / 2, rightMostChild.x + node.width / 2, rightMostChild.y - node.height / 2, line_color, line_width);
+          console.log("=> leftMostChild : " + leftMostChild);
+          console.log("=> rightMostChild : " + rightMostChild);
+          SVGUtil.createLine(this.svg, leftMostChild.x + node.width / 2, leftMostChild.y - node.height / 2, rightMostChild.x + node.width / 2, rightMostChild.y - node.height / 2);
+        }
+      }
+      // vertical line from the child to the line across top of children
+      if (node.parent !== null) {
+        // Find the top middle point of the current node
+        const nodeTopMiddlePoint = {
+          x: node.x + node.width / 2,
+          y: node.y,
+        };
+        // Calculate the point where the vertical line intersects with the horizontal line
+        const intersectionPoint = {
+          x: nodeTopMiddlePoint.x,
+          y: nodeTopMiddlePoint.y - node.height / 2,
+        };
+
+        SVGUtil.createLine(this.svg, nodeTopMiddlePoint.x, nodeTopMiddlePoint.y, intersectionPoint.x, intersectionPoint.y);
+      }
     }
   };
 }
