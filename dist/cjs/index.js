@@ -410,7 +410,6 @@ class Node {
 		this.id = id;
 
 		this.data = data;
-		this.level = 0;
 		this.children = [];
 
 		this.isCollapsed = false;
@@ -425,7 +424,9 @@ class Node {
 	}
 
 	toString() {
-		return "Node " + this.id + " (" + this.pos.x + ", " + this.pos.y + ")";
+//		return "Node " + this.id + " (" + this.pos.x + ", " + this.pos.y + ")";
+		return "Node " + this.id + " (" + this.x + ", " + this.y + ")";
+
 	}
 
 	addChild(node) {
@@ -603,13 +604,19 @@ class TreeNode extends Node {
     super(nodeID, nodeData);
     this.children = [];
     this.parent;
-    this.level = 0;
+    this.level = 1;
+    this.path = "1";
   }
 
+    /**
+     * Add a child node to a node, sets the child node as the parent of the current node 
+     * and returns the index of the new child node in the list of children.
+     * @param items New elements to add to the array.
+     * @returns number The index of the new child node in the list of children
+     */
   addChild(node) {
-    this.children.push(node);
     node.parent = this;
-    return node;
+    return this.children.push(node);
   }
 
   getChildAt(i) {
@@ -773,8 +780,11 @@ class Tree extends Graph {
         if (!parent) {
           return { status: "error", message: "Parent node not found for parentId: " + parentId };
         }
-        parent.addChild(node);
+        const nodeIndex = parent.addChild(node);
         node.level = node.parent.level + 1;
+        const parentPath = node.parent ? (node.parent.path + "-") : "";
+        node.path = parentPath + (nodeIndex + 1);
+        console.log(`Node ${id} / index : ${nodeIndex}  / path : ${node.path}`);
       } else {
         this.root = node;
       }
@@ -1738,10 +1748,14 @@ function moveObjectToLastPosition(object_list, object_to_move) {
 }
 
 class SVGUtil {
-  static createSVGelement(width, height) {
+ // static createSVGelement(width, height) {
+  static createSVGelement() {
     let svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svgElement.setAttribute("width", width);
-    svgElement.setAttribute("height", height);
+    //svgElement.setAttribute("width", width);
+    //svgElement.setAttribute("height", height);
+
+    svgElement.setAttribute("width", "100%");
+    svgElement.setAttribute("height", "100%");
     return svgElement;
   }
   static createLine(svg, x1, y1, x2, y2) {
@@ -1751,7 +1765,7 @@ class SVGUtil {
     line.setAttribute("x2", x2);
     line.setAttribute("y2", y2);
     line.setAttribute("stroke", "#022D42");
-    line.setAttribute("stroke-width", 1);
+    line.setAttribute("stroke-width", 0.6);
     svg.appendChild(line);
   }
 
@@ -1765,15 +1779,17 @@ class OrgChart {
   constructor(container) {
     this.container = container;
 
+    this.linksContainer = document.createElement("div");
+    this.linksContainer.className = "links";
+    this.container.appendChild(this.linksContainer);
+    this.svg = SVGUtil.createSVGelement(1000, 1000);
+    this.linksContainer.appendChild(this.svg);
+
     this.nodesContainer = document.createElement("div");
     this.nodesContainer.id = "nodes";
     this.container.appendChild(this.nodesContainer);
 
-    this.linksContainer = document.createElement("div");
-    this.linksContainer.id = "links-container";
-    this.container.appendChild(this.linksContainer);
-    this.svg = SVGUtil.createSVGelement(1000, 1000);
-    this.linksContainer.appendChild(this.svg);
+
     this.tree = new Tree();
   }
 
@@ -1784,7 +1800,7 @@ class OrgChart {
 
     this.treeLayout = new TreeLayout(this.tree, {
       nodeHeight: 50,
-      nodeWidth: 160,
+      nodeWidth: 200,
     });
     var root = this.tree.getRoot();
     this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
@@ -1816,6 +1832,10 @@ class OrgChart {
   font-size: 14px;
   font-weight: 500;
 }
+.links {
+  position: relative;
+  z-index: -2;
+}
 .position-info {
   align-items: flex-start;
   background-color: white;
@@ -1835,6 +1855,8 @@ class OrgChart {
   width: 100%;
 }
 .child-count {
+  background-color: white;
+  z-index: -1;
   cursor: pointer;
   font-size: 0.6em;
   position: absolute;
@@ -1863,11 +1885,12 @@ class OrgChart {
     const existingChild = this.nodesContainer.querySelector(`[data-node-id='${node.id}']`);
     console.log("existingChild: ", existingChild);
 
+    this.#createLine(node);
+
     if (!existingChild) {
       const nodeElement = this.#buildNode(node);
       this.nodesContainer.appendChild(nodeElement);
     }
-    this.#createLine(node);
 
     // Draw this node's children.
     if (!node.isCollapsed) {
@@ -1879,7 +1902,7 @@ class OrgChart {
 
   #nodeTemplateHtml = function (node) {
     return `
-      <div class="position-card" style="left: ${node.x}px; top: ${node.y}px; width: 150px;">
+      <div class="position-card" style="left: ${node.x}px; top: ${node.y}px">
         <div class="position-info">
           <div class="job-title">${node.data.job_title}</div>
           <div class="name">${node.data.name}</div>
@@ -1907,7 +1930,7 @@ class OrgChart {
 
     nodeElement.style.left = `${node.x}px`;
     nodeElement.style.top = `${node.y}px`;
-    nodeElement.style.width = `160px`;
+    nodeElement.style.width = `${node.width}px`;
 
     const childCount = node.children.length;
     if (childCount > 0) {
@@ -1920,11 +1943,14 @@ class OrgChart {
         var nodeElement = e.target.parentElement;
         let nodeId = nodeElement.dataset.nodeId;
         console.log("nodeId=" + nodeId);
-        // toggleNodeCollapsedProperty(nodeId);
-        console.log("this.tree=", this.tree);
         let clickedNode = this.tree.getNode(nodeId);
-        console.log("node=", clickedNode);
+        console.log("clickedNode=", clickedNode);
         clickedNode.isCollapsed = !clickedNode.isCollapsed;
+
+        // get all the nodes currently displayed
+        const nodeElementList = this.nodesContainer.querySelectorAll("[data-node-id]");
+        const nodesList = Array.from(nodeElementList).map((node) => node.getAttribute("data-node-id"));
+        console.log("nodes currently displayed=", nodesList);
 
         if (clickedNode.isCollapsed) {
           //nodeElement.innerHTML = '';  // remove all children
@@ -1932,11 +1958,6 @@ class OrgChart {
           while (rootElement.firstChild) {
             rootElement.removeChild(rootElement.firstChild);
           }
-
-          // get all the nodes currently displayed
-          const nodeElementList = this.nodesContainer.querySelectorAll("[data-node-id]");
-          const nodesList = Array.from(nodeElementList).map((node) => node.getAttribute("data-node-id"));
-          console.log("nodes currently displayed=", nodesList);
 
           SVGUtil.deleteLines(this.svg);
         }
@@ -1951,12 +1972,6 @@ class OrgChart {
     return nodeElement;
   };
 
-  #buildLine = function (node) {
-    if (node.isLeaf()) {
-      console.log("TODO: buildLine: node is leaf", node);
-    }
-  };
-
   #createLine = function (node) {
     console.log("createLine TODO check if stackedLeaves: ", node);
 
@@ -1964,16 +1979,72 @@ class OrgChart {
       return;
     }
     if (node.isLeaf()) {
-      console.log("TODO: buildLine: node is leaf", node);
       const leftMiddlePoint = { x: node.x, y: node.y + node.height / 2 };
       const indentationPoint = { x: leftMiddlePoint.x - this.treeLayout.stackedIndentation / 2, y: leftMiddlePoint.y };
 
       // horizontal line from node to vertical line
-      //drawLine(context, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y, line_color, line_width);
+      //           |
+      //      ────────────
+      // =>   --   --   --
       SVGUtil.createLine(this.svg, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y);
       // vertical line from indentation to parent
-      //drawLine(context, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
+      //           |
+      //      ────────────
+      // =>   |--  |--  |--
       SVGUtil.createLine(this.svg, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
+    } else {
+      // draw a horizontal line connecting the first or left most child and the last or right most child
+      //           |
+      // =>   ────────────
+      //     |     |      |
+      if (node.level == 1) {
+        if (!node.isCollapsed && node.children.length >= 1) {
+          // horizontal line from leftMostChild to the rightMostChild
+          let leftMostChild = node.getLeftMostChild();
+          let rightMostChild = node.getRightMostChild();
+          console.log("=> left Child : " + leftMostChild);
+          console.log("=> right Child : " + rightMostChild);
+          SVGUtil.createLine(this.svg, leftMostChild.x + node.width / 2, leftMostChild.y - node.height / 2, rightMostChild.x + node.width / 2, rightMostChild.y - node.height / 2);
+
+          // Find the bottom middle point of the current node
+          //   =>       |
+          //      ────────────
+          //      |     |      |
+        const nodeBottomMiddlePoint = {
+          x: node.x + node.width / 2,
+          y: node.y + (node.height / 2)
+        };
+        // Straight line from parent to child just below it
+        const intersectionPoint = {
+          x: nodeBottomMiddlePoint.x,
+          y: nodeBottomMiddlePoint.y  + this.treeLayout.levelSeparation - node.height
+        };
+         SVGUtil.createLine(this.svg,
+           nodeBottomMiddlePoint.x, nodeBottomMiddlePoint.y,
+           intersectionPoint.x, intersectionPoint.y);
+        }
+      }
+      // draw vertical line connecting the child to the line across top of children
+      //           |
+      //      ────────────
+      // =>  |     |      |
+      if (node.parent !== undefined) {
+        // Find the top middle point of the current node
+        const nodeTopMiddlePoint = {
+          x: node.x + node.width / 2,
+          y: node.y,
+        };
+        // Calculate the point where the vertical line intersects with the horizontal line
+        const intersectionPoint = {
+          x: nodeTopMiddlePoint.x,
+          y: nodeTopMiddlePoint.y - node.height / 2,
+        };
+        SVGUtil.createLine(this.svg,
+           nodeTopMiddlePoint.x, nodeTopMiddlePoint.y,
+           intersectionPoint.x, intersectionPoint.y);
+      }
+
+
     }
   };
 }
