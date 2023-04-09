@@ -7,7 +7,7 @@ export class OrgChart {
     this.container = container;
 
     this.linksContainer = document.createElement("div");
-    this.linksContainer.id = "links";
+    this.linksContainer.className = "links";
     this.container.appendChild(this.linksContainer);
     this.svg = SVGUtil.createSVGelement(1000, 1000);
     this.linksContainer.appendChild(this.svg);
@@ -59,6 +59,10 @@ export class OrgChart {
   font-size: 14px;
   font-weight: 500;
 }
+.links {
+  position: relative;
+  z-index: -2;
+}
 .position-info {
   align-items: flex-start;
   background-color: white;
@@ -78,6 +82,8 @@ export class OrgChart {
   width: 100%;
 }
 .child-count {
+  background-color: white;
+  z-index: -1;
   cursor: pointer;
   font-size: 0.6em;
   position: absolute;
