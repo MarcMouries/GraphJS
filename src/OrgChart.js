@@ -4,6 +4,21 @@ import { SVGUtil } from "./SVGUtil";
 import { DOMUtil } from "./DOMUtil";
 
 export class OrgChart {
+
+  #nodeContentFunction = null;
+
+  #defaultNodeTemplateHtml = function (node) {
+    return `
+      <div class="position-card" style="left: ${node.x}px; top: ${node.y}px">
+        <div class="position-info">
+          <div class="job-title">${node.data.job_title}</div>
+          <div class="name">${node.data.name}</div>
+        </div>
+      <!-- position data -->
+      </div>
+    `;
+  };
+
   constructor(container) {
     this.container = container;
 
@@ -104,11 +119,17 @@ export class OrgChart {
     this.#drawNode(root);
   }
 
-  setNodeHtml(node, customTemplateFunction) {
-    if (typeof customTemplateFunction === 'function') {
-      return customTemplateFunction(node);
+  #getNodeHtml = function (node) {
+    const templateFunction = this.#nodeContentFunction || this.#defaultNodeTemplateHtml;
+    return templateFunction(node);
+  };
+
+
+  setNodeHtml(nodeContentFunction) {
+    if (typeof nodeContentFunction === 'function') {
+      this.#nodeContentFunction = nodeContentFunction;
     } else {
-      throw new Error('customTemplateFunction should be a function');
+      throw new Error('nodeContentFunction should be a function');
     }
   }
 
@@ -117,7 +138,6 @@ export class OrgChart {
   #drawNode = function (node) {
     console.log(`drawNode node id: "${node.id}", level: ${node.level}, path: ${node.path}`);
     console.log(node);
-    //console.log(this.#nodeTemplateHtml(node));
 
     const existingChild = this.nodesContainer.querySelector(`[data-node-id='${node.id}']`);
     console.log("existingChild: ", existingChild);
@@ -137,17 +157,7 @@ export class OrgChart {
     }
   }.bind(this);
 
-  #defaultNodeTemplateHtml = function (node) {
-    return `
-      <div class="position-card" style="left: ${node.x}px; top: ${node.y}px">
-        <div class="position-info">
-          <div class="job-title">${node.data.job_title}</div>
-          <div class="name">${node.data.name}</div>
-        </div>
-      <!-- position data -->
-      </div>
-    `;
-  };
+
 
   //         <div style="margin-top:-0px;background-color:#01778e;height:10px;width:100%;border-radius:1px"></div>
 
@@ -158,11 +168,11 @@ export class OrgChart {
   #buildNode = function (node, templateHtml) {
     console.log("BuildNode templateHtml", templateHtml);
 
-    const templateFilled = this.#defaultNodeTemplateHtml(node);
-    const parser = new DOMParser();
-    const templateElement = parser.parseFromString(templateFilled, "text/html").querySelector(".position-card");
-    const nodeElement = templateElement.cloneNode(true);
+    const templateFilled = this.#getNodeHtml(node);
 
+    const nodeElement = document.createElement("div");
+    nodeElement.innerHTML = templateFilled;
+ 
     nodeElement.dataset.nodeId = node.id.toString();
 
     nodeElement.style.left = `${node.x}px`;
@@ -222,9 +232,6 @@ export class OrgChart {
           SVGUtil.deleteLines(this.svg);
         }
 
-        //console.log(this.tree);
-
-        //context.clearRect(0, 0, canvas.width, canvas.height);
         // redraw the tree
         this.#drawNode(this.tree.getRoot());
       });
