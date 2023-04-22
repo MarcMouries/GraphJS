@@ -1,6 +1,7 @@
 import { TreeLayout } from "./layout";
 import { Tree } from "./graph/Tree";
-import { SVGUtil } from "./SVGUtil.js";
+import { SVGUtil } from "./SVGUtil";
+import { DOMUtil } from "./DOMUtil";
 
 export class OrgChart {
   constructor(container) {
@@ -48,55 +49,53 @@ export class OrgChart {
       font-family: sans-serif;
       position: absolute;
       padding: 4px 8px;
-
+      transition: top 0.3s ease-in-out, left 0.3s ease-in-out;
     }
 
-.position-card .name {
-  font-size: 12px;
-  font-weight: 300;
-}
-.position-card .job-title {
-  font-size: 14px;
-  font-weight: 500;
-}
-.links {
-  position: relative;
-  z-index: -2;
-}
-.position-info {
-  align-items: flex-start;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
+    .position-card .name {
+      font-size: 12px;
+      font-weight: 300;
+    }
+    .position-card .job-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .links {
+      position: relative;
+    }
+    .position-info {
+      align-items: flex-start;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
 
-.position-data {
-  background-color: white;
-  display: flex;
-  flex-direction: row;
-  align-content: center;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-around;
-  width: 100%;
-}
-.child-count {
-  background-color: white;
-  z-index: -1;
-  cursor: pointer;
-  font-size: 0.6em;
-  position: absolute;
-  right: 50%;
-  bottom: 0;
-  padding: 4px;
-  vertical-align: middle;
-  text-align: center;
-  transform: translate(50%, 100%);
-  box-shadow: 0 1px 4px 2px hsla(0, 0%, 80%, 0.3);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-}
-   `;
+    .position-data {
+      background-color: white;
+      display: flex;
+      flex-direction: row;
+      align-content: center;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+    }
+    .child-count {
+      height: 10px;
+      width: 10px;
+      background-color: white;
+      cursor: pointer;
+      font-size: 0.5em;
+      position: fixed;
+      padding: 4px;
+      vertical-align: middle;
+      text-align: center;
+      __transform: translate(50%, 100%);
+      box-shadow: 0 1px 4px 2px hsla(0, 0%, 80%, 0.3);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    }
+      `;
 
     const styleElement = document.createElement("style");
     styleElement.textContent = cssString;
@@ -104,6 +103,17 @@ export class OrgChart {
 
     this.#drawNode(root);
   }
+
+  setNodeHtml(node, customTemplateFunction) {
+    if (typeof customTemplateFunction === 'function') {
+      return customTemplateFunction(node);
+    } else {
+      throw new Error('customTemplateFunction should be a function');
+    }
+  }
+
+
+
   #drawNode = function (node) {
     console.log(`drawNode node id: "${node.id}", level: ${node.level}, path: ${node.path}`);
     console.log(node);
@@ -127,7 +137,7 @@ export class OrgChart {
     }
   }.bind(this);
 
-  #nodeTemplateHtml = function (node) {
+  #defaultNodeTemplateHtml = function (node) {
     return `
       <div class="position-card" style="left: ${node.x}px; top: ${node.y}px">
         <div class="position-info">
@@ -148,7 +158,7 @@ export class OrgChart {
   #buildNode = function (node, templateHtml) {
     console.log("BuildNode templateHtml", templateHtml);
 
-    const templateFilled = this.#nodeTemplateHtml(node);
+    const templateFilled = this.#defaultNodeTemplateHtml(node);
     const parser = new DOMParser();
     const templateElement = parser.parseFromString(templateFilled, "text/html").querySelector(".position-card");
     const nodeElement = templateElement.cloneNode(true);
@@ -161,10 +171,33 @@ export class OrgChart {
 
     const childCount = node.children.length;
     if (childCount > 0) {
-      var childCountElement = document.createElement("span");
+      var childCountElement = document.createElement("div");
       childCountElement.classList.add("child-count");
+
+
+      // if stacked => left = 
+      // else different => left = 
+      console.log("childCount node         : '" + node);
+      console.log("childCount stackedLeaves: '" + this.treeLayout.stackedLeaves);
+      console.log("childCount level        : '" + node.level);
+
+      if (node.level == 1) {
+        childCountElement.style.left = `${node.x + node.width / 2}px`;
+        childCountElement.style.top = `${node.y +  node.height}px`;
+      }
+      else if (this.treeLayout.stackedLeaves) {
+        if (node.level == 2) {
+          //let index = node.getIndex();
+          childCountElement.style.left = `${node.x + (this.treeLayout.stackedIndentation / 2) }px`; // - 5 = half of the element width
+          childCountElement.style.top = `${node.y +  node.height}px`;
+        }
+      }
+
+
       childCountElement.innerHTML = "" + childCount;
       nodeElement.appendChild(childCountElement);
+      const childCountDim =  DOMUtil.getDivDimensions(childCountElement);
+      console.log("childCountDim dimensions: '" + childCountDim.width + "' x '" + childCountDim.height);
 
       childCountElement.addEventListener("click", (e) => {
         var nodeElement = e.target.parentElement;
