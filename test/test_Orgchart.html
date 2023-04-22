@@ -6,20 +6,32 @@
     <div class="chart-container"></div>
   </body>
   <script>
-    const chartElement = document.querySelector(".chart-container");
-    console.log("chartElement", chartElement);
+        const chartElement = document.querySelector(".chart-container");
+        console.log("chartElement", chartElement);
 
-    fetch("./orgchart.json")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        const orgChart = new graphjs.OrgChart(chartElement);
-        console.log("orgChart", orgChart);
-        orgChart.setData(data);
-      })
-      .catch((error) => {
-        // handle any errors
-        console.error(error);
-      });
+
+
+        fetch("./orgchart.json")
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            const orgChart = new graphjs.OrgChart(chartElement);
+            console.log("orgChart", orgChart);
+            orgChart.setNodeHtml ( function (node) {
+                return `
+                  <div class="position-card" style="left: ${node.x}px; top: ${node.y}px">
+                    <div class="custom-info">
+                      <div class="job-title">CUSTOM ${node.data.job_title}</div>
+                      <div class="name">${node.data.name}</div>
+                    </div>
+                  </div>
+                `;
+              });
+            orgChart.setData(data);
+          })
+          .catch((error) => {
+            // handle any errors
+            console.error(error);
+          });
   </script>
 </html>
