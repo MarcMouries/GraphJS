@@ -1,3 +1,5 @@
+import { DOMUtil } from './DOMUtil';
+
 export class SVGUtil {
  // static createSVGelement(width, height) {
   static createSVGelement() {
@@ -9,6 +11,14 @@ export class SVGUtil {
     svgElement.setAttribute("height", "100%");
     return svgElement;
   }
+
+  static addGroup(svg, node, elementHTML) {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const { width, height } = DOMUtil.getDimensions(elementHTML);
+      group.innerHTML = `<foreignObject x="${node.x}" y="${node.y}" width="${width}" height="${height}">${elementHTML}</foreignObject>`;
+      svg.appendChild(group);
+  }
+
   static createLine(svg, x1, y1, x2, y2) {
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", x1);
