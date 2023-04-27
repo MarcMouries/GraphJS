@@ -1,21 +1,18 @@
 import { DOMUtil } from './DOMUtil';
 
 export class SVGUtil {
- // static createSVGelement(width, height) {
-  static createSVGelement() {
+  static addSVGElement(container) {
     let svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    //svgElement.setAttribute("width", width);
-    //svgElement.setAttribute("height", height);
-
     svgElement.setAttribute("width", "100%");
     svgElement.setAttribute("height", "100%");
+    container.appendChild(svgElement);
     return svgElement;
   }
 
   static addGroup(svg, node, elementHTML) {
       const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
       const { width, height } = DOMUtil.getDimensions(elementHTML);
-      group.innerHTML = `<foreignObject x="${node.x}" y="${node.y}" width="${width}" height="${height}">${elementHTML}</foreignObject>`;
+      group.innerHTML = `<foreignObject x="${node.x}" y="${node.y}" width="${width}" height="${height}">${elementHTML.outerHTML}</foreignObject>`;
       svg.appendChild(group);
   }
 
