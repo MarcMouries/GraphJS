@@ -3,10 +3,11 @@ import { TreeNode } from "./TreeNode";
 //import Link from "./Link";
 
 export class Tree extends Graph {
-  constructor() {
+
+  constructor(data) {
     super();
     this.root = null;
-    this.nodeMap = new Map();
+    this.buildTree(data);
   }
 
   setRoot(nodeID) {
@@ -47,37 +48,32 @@ export class Tree extends Graph {
    * Returns { status: 'success'} or { status: 'error', message: "error message"}
    * @param {*} json
    */
-  loadFromJSON(json) {
-    const data = JSON.parse(json);
+  buildTree(data) {
 
-    // create nodes
-    data.forEach((nodeData) => {
-      const { id, data } = nodeData;
-      const node = new TreeNode(id, data, null);
-      this.nodeMap.set(id, node);
-      // add node to nodesByLevel array
-      //console.log("")
-      //addNodeToLevel(id, parentId, nodesByLevel, node);
-    });
+    const rootData = data.find((node) => node.parentId === null);
+    if (!rootData) {
+      throw new Error("No root node found in the data");
+    }
+    this.root = new TreeNode(rootData.id, rootData.data);
+    this.nodeList.set(rootData.id, this.root);
 
-    // Add child nodes to parent nodes
-    data.forEach((nodeData) => {
-      const { id, parentId } = nodeData;
-      const node = this.nodeMap.get(id);
-      if (parentId) {
-        const parent = this.nodeMap.get(parentId);
-        if (!parent) {
-          return { status: "error", message: "Parent node not found for parentId: " + parentId };
-        }
-        const nodeIndex = parent.addChild(node);
-        node.level = node.parent.level + 1;
-        const parentPath = node.parent ? (node.parent.path + "-") : "";
-        node.path = parentPath + (nodeIndex + 1);
-        console.log(`Node ${id} / index : ${nodeIndex}  / path : ${node.path}`);
-      } else {
-        this.root = node;
-      }
-    });
-    return { status: "success" };
+    const buildSubTree = (parentNode) => {
+      const childrenData = data.filter((node) => node.parentId === parentNode.id);
+      childrenData.forEach((childData) => {
+        const childNode = new TreeNode(childData.id, childData.data, parentNode);
+        parentNode.addChild(childNode);
+        this.nodeList.set(childData.id, childNode);
+
+  
+        childNode.level = parentNode.level + 1;
+        const parentPath = parentNode.path ? parentNode.path + "-" : "";
+        childNode.path = parentPath + (parentNode.children.length);
+  
+        buildSubTree(childNode);
+      });
+    };
+  
+    buildSubTree(this.root);
   }
+
 }
