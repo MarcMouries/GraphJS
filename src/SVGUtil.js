@@ -9,6 +9,19 @@ export class SVGUtil {
     return svgElement;
   }
 
+  static createForeignObject(node, rootElement) {
+    const foreignObject = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "foreignObject"
+    );
+    foreignObject.setAttribute("id", `node-${node.id}`);
+    foreignObject.setAttribute("width", node.width);
+    foreignObject.setAttribute("height", node.height);
+    foreignObject.innerHTML = rootElement.outerHTML;
+
+    return foreignObject;
+  }
+
   static addGroup(svg, node, elementHTML) {
       const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
       const { width, height } = DOMUtil.getDimensions(elementHTML);
