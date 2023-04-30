@@ -19,6 +19,9 @@ class TreeNode extends Node {
     node.parent = this;
     return this.children.push(node);
   }
+  getChildCount() {
+    return this.children.length;
+  }
 
   getChildAt(i) {
     return this.children[i];
