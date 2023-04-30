@@ -40,8 +40,16 @@ export class Tree extends Graph {
     }
   }
 
+  traverseBottomUp(callback) {
+    const traverse = (node) => {
+      node.children.forEach((child) => traverse(child));
+      callback(node);
+    };
+    traverse(this.root);
+  }
+
   getNode(nodeId) {
-    return this.nodeMap.get(nodeId);
+    return this.nodeList.get(nodeId);
   }
 
   /**
@@ -64,15 +72,13 @@ export class Tree extends Graph {
         parentNode.addChild(childNode);
         this.nodeList.set(childData.id, childNode);
 
-  
         childNode.level = parentNode.level + 1;
         const parentPath = parentNode.path ? parentNode.path + "-" : "";
         childNode.path = parentPath + (parentNode.children.length);
-  
         buildSubTree(childNode);
       });
     };
-  
+
     buildSubTree(this.root);
   }
 
