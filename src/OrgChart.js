@@ -2,14 +2,18 @@ import { TreeLayout } from "./layout";
 import { Tree } from "./graph/Tree";
 import { SVGUtil } from "./SVGUtil";
 import { DOMUtil } from "./DOMUtil";
+import { Animation } from "./Animation";
 
 export class OrgChart {
 
   #nodeContentFunction = null;
+  #nodeStyleFunction = null;
+  delayPerLevel = 300;
+
 
   #defaultNodeTemplateHtml = function (node) {
     return `
-      <div class="position-card" style="left: ${node.x}px; top: ${node.y}px">
+      <div class="position-card">
         <div class="position-info">
           <div class="job-title">${node.data.job_title}</div>
           <div class="name">${node.data.name}</div>
@@ -19,40 +23,29 @@ export class OrgChart {
     `;
   };
 
+
+
   constructor(container) {
     this.container = container;
-
-    this.linksContainer = document.createElement("div");
-    this.linksContainer.className = "links";
-    this.container.appendChild(this.linksContainer);
-    this.svg = SVGUtil.createSVGelement(1000, 1000);
-    this.linksContainer.appendChild(this.svg);
-
-    this.nodesContainer = document.createElement("div");
-    this.nodesContainer.id = "nodes";
-    this.container.appendChild(this.nodesContainer);
+    this.svg = SVGUtil.addSVGElement(this.container)
 
 
-    this.tree = new Tree();
-  }
+    // this.linksContainer = document.createElement("div");
+    // this.linksContainer.className = "links";
+    // this.container.appendChild(this.linksContainer);
 
-  setData(data) {
-    console.log("HERE in setData", data);
-    this.tree.loadFromJSON(JSON.stringify(data));
-    console.log("tree", this.tree);
+    // this.linksContainer.appendChild(this.svg);
 
-    this.treeLayout = new TreeLayout(this.tree, {
-      nodeHeight: 50,
-      nodeWidth: 200,
-    });
-    var root = this.tree.getRoot();
-    this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
-    console.log("treeLayout", this.treeLayout);
+    // this.nodesContainer = document.createElement("div");
+    // this.nodesContainer.id = "nodes";
+    // this.container.appendChild(this.nodesContainer);
 
-    var treeDimension = this.treeLayout.getTreeDimension();
-    console.log(" -  treeDimension : ", treeDimension);
+    this.cssString = `
 
-    const cssString = `
+    .animate-opacity {
+      transition: opacity 1s ease-in-out;
+    }
+/*
     .position-card {
       align-items: flex-start;
       background: #ffffff;
@@ -99,32 +92,28 @@ export class OrgChart {
     .child-count {
       height: 10px;
       width: 10px;
+      padding: 4px;
       background-color: white;
       cursor: pointer;
       font-size: 0.5em;
       position: fixed;
-      padding: 4px;
       vertical-align: middle;
       text-align: center;
       __transform: translate(50%, 100%);
       box-shadow: 0 1px 4px 2px hsla(0, 0%, 80%, 0.3);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
     }
+    */
       `;
-
-    const styleElement = document.createElement("style");
-    styleElement.textContent = cssString;
-    document.head.appendChild(styleElement);
-
-    this.#drawNode(root);
   }
 
-  #getNodeHtml = function (node) {
-    const templateFunction = this.#nodeContentFunction || this.#defaultNodeTemplateHtml;
-    return templateFunction(node);
-  };
-
-
+  setNodeClass(nodeStyleFunction) {
+    if (typeof nodeStyleFunction === "function") {
+      this.#nodeStyleFunction = nodeStyleFunction;
+    } else {
+      throw new Error("nodeStyleFunction should be a function");
+    }
+  }
   setNodeHtml(nodeContentFunction) {
     if (typeof nodeContentFunction === 'function') {
       this.#nodeContentFunction = nodeContentFunction;
@@ -133,9 +122,123 @@ export class OrgChart {
     }
   }
 
+  setData(data) {
+    console.log("HERE in setData", data);
+    this.tree = new Tree(data);
+    console.log("tree", this.tree);
+
+    this.treeLayout = new TreeLayout(this.tree, {
+      nodeHeight: 50,
+      nodeWidth: 200,
+    });
+    var root = this.tree.getRoot();
+    this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
+    console.log("treeLayout", this.treeLayout);
+
+    var treeDimension = this.treeLayout.getTreeDimension();
+    console.log(" -  treeDimension : ", treeDimension);
+
+    const styleElement = document.createElement("style");
+    styleElement.textContent = this.cssString;
+    document.head.appendChild(styleElement);
+  }
 
 
-  #drawNode = function (node) {
+  #getNodeClassName = function (node) {
+    return this.#nodeStyleFunction ? this.#nodeStyleFunction(node) : "";
+  };
+  #getNodeHtml = function (node) {
+    const templateFunction = this.#nodeContentFunction || this.#defaultNodeTemplateHtml;
+    return templateFunction(node);
+  };
+
+
+  animateNode(node, parentDelay = 0) {
+    const group = this.svg.querySelector(`[data-node-id="${node.id}"]`);
+    const delay = parentDelay + node.level * this.delayPerLevel;
+    
+    if (node.parent) {
+      const origPoint = { x: node.parent.x, y: node.parent.y };
+      const destPoint = { x: node.x, y: node.y };
+      group.setAttribute("transform", `translate(${origPoint.x}, ${origPoint.y})`);
+      setTimeout(() => {
+        Animation.animate(group, origPoint, destPoint, 2000);
+      }, delay);
+    } else {
+      group.setAttribute("transform", `translate(${node.x}, ${node.y})`);
+    }
+  
+    setTimeout(() => {
+      group.style.opacity = 1;
+    }, delay);
+  }
+  
+  
+  renderNodes() {
+    const root = this.tree.getRoot();
+  
+    // Calculate the dimensions
+    const templateFilled = this.#getNodeHtml(root);
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = templateFilled;
+    const rootElement = tempElement.firstElementChild;
+    const dimensions = DOMUtil.getDimensions(rootElement);
+  
+    console.log("rootElement: ", rootElement);
+    console.log("dimensions: ", dimensions);
+
+    const nodeGroups = [];
+  
+    this.tree.traverseBF((node) => {
+      node.width = dimensions.width;
+      node.height = dimensions.height;
+      nodeGroups.push({ level: node.level, group: this.renderNode(node, false) });
+    });
+  
+    nodeGroups
+      .sort((a, b) => b.level - a.level)
+      .forEach((nodeGroup) => this.svg.appendChild(nodeGroup.group));
+  
+    const delayPerLevel = 800;
+  
+    this.tree.traverseBF((node) => {
+      const delay = node.level * delayPerLevel;
+      this.animateNode(node, delay);
+    });
+  }
+  
+  
+
+  renderNode(node, animate = true) {
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    group.setAttribute("data-node-id", node.id);
+    const templateFilled = this.#getNodeHtml(node);
+  
+    const tempElement = document.createElement("div");
+    tempElement.innerHTML = templateFilled;
+    const rootElement = tempElement.firstElementChild;
+  
+    const className = this.#getNodeClassName(node);
+    if (className) {
+      rootElement.classList.add(className);
+    }
+    const foreignObject = SVGUtil.createForeignObject(node, rootElement);
+    group.appendChild(foreignObject);
+  
+    if (animate) {
+      this.animateNode(node);
+    } else {
+      group.setAttribute("transform", `translate(${node.x}, ${node.y})`);
+    }
+
+  group.style.opacity = 0; // Set the initial opacity to 0
+  group.classList.add("animate-opacity"); // Add the class for the opacity transition
+
+    return group;
+  }
+
+
+  #drawNode(node) {
     console.log(`drawNode node id: "${node.id}", level: ${node.level}, path: ${node.path}`);
     console.log(node);
 
@@ -152,36 +255,32 @@ export class OrgChart {
     // Draw this node's children.
     if (!node.isCollapsed) {
       node.children.forEach((child) => {
-        this.#drawNode(child);
+        this.renderNode(child);
       });
     }
-  }.bind(this);
+  }
 
-
-
-  //         <div style="margin-top:-0px;background-color:#01778e;height:10px;width:100%;border-radius:1px"></div>
-
-  //  <div class="position-data">
-  //    <div>A</div><div>B</div>
-  //  </div>
 
   #buildNode = function (node, templateHtml) {
     console.log("BuildNode templateHtml", templateHtml);
 
     const templateFilled = this.#getNodeHtml(node);
-
-    const nodeElement = document.createElement("div");
-    nodeElement.innerHTML = templateFilled;
- 
+    const nodeStyle = this.getNodeClassName(node);
+    console.log("nodeStyle ", nodeStyle)
+    // so that we get the inner div directly without the outer div,
+    const tempWrapper = document.createElement("div");
+    tempWrapper.innerHTML = templateFilled;
+    const nodeElement = tempWrapper.firstElementChild;
     nodeElement.dataset.nodeId = node.id.toString();
 
     nodeElement.style.left = `${node.x}px`;
     nodeElement.style.top = `${node.y}px`;
     nodeElement.style.width = `${node.width}px`;
 
-    const childCount = node.children.length;
+    const childCount = node.getChildCount();
     if (childCount > 0) {
-      var childCountElement = document.createElement("div");
+
+      let childCountElement = document.createElement("div");
       childCountElement.classList.add("child-count");
 
 
@@ -193,21 +292,23 @@ export class OrgChart {
 
       if (node.level == 1) {
         childCountElement.style.left = `${node.x + node.width / 2}px`;
-        childCountElement.style.top = `${node.y +  node.height}px`;
+        childCountElement.style.top = `${node.y + node.height}px`;
       }
       else if (this.treeLayout.stackedLeaves) {
         if (node.level == 2) {
           //let index = node.getIndex();
-          childCountElement.style.left = `${node.x + (this.treeLayout.stackedIndentation / 2) }px`; // - 5 = half of the element width
-          childCountElement.style.top = `${node.y +  node.height}px`;
+          childCountElement.style.left = `${node.x + (this.treeLayout.stackedIndentation / 2)}px`; // - 5 = half of the element width
+          childCountElement.style.top = `${node.y + node.height}px`;
         }
       }
 
 
       childCountElement.innerHTML = "" + childCount;
-      nodeElement.appendChild(childCountElement);
-      const childCountDim =  DOMUtil.getDivDimensions(childCountElement);
+      const childCountDim = DOMUtil.getDimensions(childCountElement);
       console.log("childCountDim dimensions: '" + childCountDim.width + "' x '" + childCountDim.height);
+      const { width, height } = DOMUtil.getDimensions(childCountElement);
+      console.log(`childCountDim dimensions: ${width} x ${height}`);
+
 
       childCountElement.addEventListener("click", (e) => {
         var nodeElement = e.target.parentElement;
@@ -235,6 +336,8 @@ export class OrgChart {
         // redraw the tree
         this.#drawNode(this.tree.getRoot());
       });
+      nodeElement.appendChild(childCountElement);
+
     }
     return nodeElement;
   };
@@ -277,18 +380,18 @@ export class OrgChart {
           //   =>       |
           //      ────────────
           //      |     |      |
-        const nodeBottomMiddlePoint = {
-          x: node.x + node.width / 2,
-          y: node.y + (node.height / 2)
-        };
-        // Straight line from parent to child just below it
-        const intersectionPoint = {
-          x: nodeBottomMiddlePoint.x,
-          y: nodeBottomMiddlePoint.y  + this.treeLayout.levelSeparation - node.height
-        };
-         SVGUtil.createLine(this.svg,
-           nodeBottomMiddlePoint.x, nodeBottomMiddlePoint.y,
-           intersectionPoint.x, intersectionPoint.y);
+          const nodeBottomMiddlePoint = {
+            x: node.x + node.width / 2,
+            y: node.y + (node.height / 2)
+          };
+          // Straight line from parent to child just below it
+          const intersectionPoint = {
+            x: nodeBottomMiddlePoint.x,
+            y: nodeBottomMiddlePoint.y + this.treeLayout.levelSeparation - node.height
+          };
+          SVGUtil.createLine(this.svg,
+            nodeBottomMiddlePoint.x, nodeBottomMiddlePoint.y,
+            intersectionPoint.x, intersectionPoint.y);
         }
       }
       // draw vertical line connecting the child to the line across top of children
@@ -307,8 +410,8 @@ export class OrgChart {
           y: nodeTopMiddlePoint.y - node.height / 2,
         };
         SVGUtil.createLine(this.svg,
-           nodeTopMiddlePoint.x, nodeTopMiddlePoint.y,
-           intersectionPoint.x, intersectionPoint.y);
+          nodeTopMiddlePoint.x, nodeTopMiddlePoint.y,
+          intersectionPoint.x, intersectionPoint.y);
       }
 
 
