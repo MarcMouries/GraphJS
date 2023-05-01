@@ -7,7 +7,7 @@ export class Animation {
         }
     }
 
-    static animateElement(element, origPoint, destPoint, duration) {
+    static animate(element, origPoint, destPoint, duration) {
         let startTime = null;
         let requestId;
 
@@ -30,7 +30,7 @@ export class Animation {
                 duration
             );
 
-            element.style.transform = `translate(${x}px, ${y}px)`;
+            element.setAttribute("transform", `translate(${x}, ${y})`);
 
             if (runtime < duration) {
                 requestId = requestAnimationFrame(animation);
