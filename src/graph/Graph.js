@@ -64,8 +64,10 @@ export default class Graph {
     return this.linkList.length;
   }
   getNodeCount() {
-    //return this.nodeList.length;
     return this.nodeList.size;
+  }
+  getNodes() {
+    return Array.from(this.nodeList.values());
   }
 
   addLink(sourceNode_id, targetNode_id) {
