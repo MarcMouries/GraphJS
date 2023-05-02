@@ -8,7 +8,7 @@ export class OrgChart {
 
   #nodeContentFunction = null;
   #nodeStyleFunction = null;
-  delayPerLevel = 300;
+  delayPerLevel = 50;
 
 
   #defaultNodeTemplateHtml = function (node) {
@@ -45,7 +45,7 @@ export class OrgChart {
     .animate-opacity {
       transition: opacity 1s ease-in-out;
     }
-/*
+
     .position-card {
       align-items: flex-start;
       background: #ffffff;
@@ -103,7 +103,7 @@ export class OrgChart {
       box-shadow: 0 1px 4px 2px hsla(0, 0%, 80%, 0.3);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
     }
-    */
+    
       `;
   }
 
@@ -126,17 +126,6 @@ export class OrgChart {
     console.log("HERE in setData", data);
     this.tree = new Tree(data);
     console.log("tree", this.tree);
-
-    this.treeLayout = new TreeLayout(this.tree, {
-      nodeHeight: 50,
-      nodeWidth: 200,
-    });
-    var root = this.tree.getRoot();
-    this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
-    console.log("treeLayout", this.treeLayout);
-
-    var treeDimension = this.treeLayout.getTreeDimension();
-    console.log(" -  treeDimension : ", treeDimension);
 
     const styleElement = document.createElement("style");
     styleElement.textContent = this.cssString;
@@ -162,7 +151,7 @@ export class OrgChart {
       const destPoint = { x: node.x, y: node.y };
       group.setAttribute("transform", `translate(${origPoint.x}, ${origPoint.y})`);
       setTimeout(() => {
-        Animation.animate(group, origPoint, destPoint, 2000);
+        Animation.animate(group, origPoint, destPoint, 1000);
       }, delay);
     } else {
       group.setAttribute("transform", `translate(${node.x}, ${node.y})`);
@@ -187,6 +176,16 @@ export class OrgChart {
     console.log("rootElement: ", rootElement);
     console.log("dimensions: ", dimensions);
 
+    this.treeLayout = new TreeLayout(this.tree, {
+      nodeWidth: dimensions.width,
+      nodeHeight: dimensions.height,
+    });
+    this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
+    console.log("treeLayout", this.treeLayout);
+
+    var treeDimension = this.treeLayout.getTreeDimension();
+    console.log(" -  treeDimension : ", treeDimension);
+
     const nodeGroups = [];
   
     this.tree.traverseBF((node) => {
@@ -199,10 +198,10 @@ export class OrgChart {
       .sort((a, b) => b.level - a.level)
       .forEach((nodeGroup) => this.svg.appendChild(nodeGroup.group));
   
-    const delayPerLevel = 800;
-  
     this.tree.traverseBF((node) => {
-      const delay = node.level * delayPerLevel;
+      const delay = node.level * 6 * this.delayPerLevel;
+      console.log(`delay for ${node.id} = ${delay}`);
+
       this.animateNode(node, delay);
     });
   }
