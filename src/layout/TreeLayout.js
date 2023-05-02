@@ -3,8 +3,8 @@ import AbstractGraphLayout from "./AbstractGraphLayout";
 const DEFAULTS = {
   rootOrientation: "NORTH",
   maximumDepth: 3,
-  levelSeparation: 50 /* distance between levels = vertical spread */,
-  marginTop : 10,
+  levelSeparation: 200 /* distance between levels = vertical spread */,
+  marginTop : 0,
   marginLeft : 10,
   siblingSpacing: 50 /* distance between leaf siblings */,
   subtreeSeparation: 160 /* distance between each subtree */,
@@ -33,7 +33,7 @@ export default class TreeLayout extends AbstractGraphLayout {
     }
 
     if (this.levelSeparation < this.nodeHeight * 2) {
-      this.levelSeparation = this.nodeHeight * 2;
+    //  this.levelSeparation = this.nodeHeight * 2;
     }
     // should be proportional to the width of the tree
     if (this.subtreeSeparation < this.nodeWidth * 3) {
@@ -291,20 +291,23 @@ export default class TreeLayout extends AbstractGraphLayout {
       const secondWalk = (node, level, modSum) => {
         //console.log("secondWalk    = " + node);
         if (level <= this.maximumDepth) {
-
           node.x = this.marginLeft + node.prelim + modSum;
           node.y = this.marginTop + level * this.levelSeparation;
-          //console.log("\\secondWalk: Node(" + node.id + " / " + xTopAdjustment + " / " + node.prelim + " / " + modSum);
-          //console.log("\\secondWalk: " + node.x + "," + node.y);
+
+          console.log("\\secondWalk: Node(" + node.id + " / " + " / " + node.prelim + " / " + modSum);
+          console.log("\\secondWalk: " + node.x + "," + node.y);
 
           if (this.stackedLeaves) {
             if (node.isLeaf()) {
-              let index = node.getIndex();
               node.x = node.parent.x + this.stackedIndentation;
-              node.y += node.getIndex() * this.nodeHeight + node.getIndex() * this.siblingSpacing; //	shift the node down
-              console.log(`secondWalk: ${node} #${index}  (${node.x}, ${node.y})`);
+              node.y += node.getIndex() * this.levelSeparation;
             }
           }
+          else {
+            // when not stacked + this.siblingSpacing; //	shi
+            //node.y += node.getIndex() * this.nodeHeight + node.getIndex() * this.siblingSpacing; //	shift the node down
+          }
+          console.log(`secondWalk: ${node} (${node.x}, ${node.y})`);
 
           var children_count = node.getChildrenCount();
           for (var i = 0; i < children_count; i++) {
