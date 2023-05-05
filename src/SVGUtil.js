@@ -1,6 +1,7 @@
 import { DOMUtil } from './DOMUtil';
 
 export class SVGUtil {
+
   static addSVGElement(container) {
     let svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svgElement.setAttribute("width", "100%");
@@ -35,6 +36,7 @@ export class SVGUtil {
     line.setAttribute("y1", y1);
     line.setAttribute("x2", x2);
     line.setAttribute("y2", y2);
+    line.classList.add("orgchart-line");
     line.setAttribute("stroke", "#022D42");
     line.setAttribute("stroke-width", 0.6);
     svg.appendChild(line);
