@@ -24,10 +24,16 @@ export class SVGUtil {
   }
 
   static addGroup(svg, node, elementHTML) {
-      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      const { width, height } = DOMUtil.getDimensions(elementHTML);
-      group.innerHTML = `<foreignObject x="${node.x}" y="${node.y}" width="${width}" height="${height}">${elementHTML.outerHTML}</foreignObject>`;
-      svg.appendChild(group);
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const { width, height } = DOMUtil.getDimensions(elementHTML);
+    group.innerHTML = `<foreignObject x="${node.x}" y="${node.y}" width="${width}" height="${height}">${elementHTML.outerHTML}</foreignObject>`;
+    svg.appendChild(group);
+  }
+
+  static createGroup(svgElement) {
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    svgElement.appendChild(group);
+    return group;
   }
 
   static createLine(svg, x1, y1, x2, y2) {
