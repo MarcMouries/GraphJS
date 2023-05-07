@@ -2,10 +2,6 @@ export class DOMUtil {
 
   /** calculate the dimensions of the specified DOM element */
   static getDimensions(element) {
-
-   // element.setAttribute("style", "border: 10px solid black; box-shadow: 2px 2px 5px #888;");
-
-
     const tempElement = document.createElement("div");
     tempElement.style.position = "absolute";
     tempElement.style.visibility = "hidden";
@@ -31,9 +27,6 @@ export class DOMUtil {
     parseInt(style.borderRightWidth) +
     parseInt(style.paddingLeft) +
     parseInt(style.paddingRight);
-
-//    const width = tempElement.offsetWidth;
-//    const height = tempElement.offsetHeight;
 
     document.body.removeChild(tempElement);
 
