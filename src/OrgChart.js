@@ -3,6 +3,7 @@ import { Tree } from "./graph/Tree";
 import { SVGUtil } from "./SVGUtil";
 import { DOMUtil } from "./DOMUtil";
 import { Animation } from "./Animation";
+import {SVG} from "./SVG";
 
 export class OrgChart {
 
@@ -27,7 +28,9 @@ export class OrgChart {
 
   constructor(container) {
     this.container = container;
-    this.svg = SVGUtil.addSVGElement(this.container)
+    //this.svg = SVGUtil.addSVGElement(this.container);
+    this.svg = new SVG(this.container);
+
 
 
     // this.linksContainer = document.createElement("div");
@@ -143,7 +146,7 @@ export class OrgChart {
 
 
   animateNode(node, parentDelay = 0) {
-    const group = this.svg.querySelector(`[data-node-id="${node.id}"]`);
+    const group = this.svg.svg.querySelector(`[data-node-id="${node.id}"]`);
     const delay = parentDelay + node.level * this.delayPerLevel;
     
     if (node.parent) {
@@ -172,39 +175,54 @@ export class OrgChart {
     tempElement.innerHTML = templateFilled;
     const rootElement = tempElement.firstElementChild;
     const dimensions = DOMUtil.getDimensions(rootElement);
-  
+
+
     console.log("rootElement: ", rootElement);
     console.log("dimensions: ", dimensions);
-
+  
     this.treeLayout = new TreeLayout(this.tree, {
       nodeWidth: dimensions.width,
       nodeHeight: dimensions.height,
     });
     this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
     console.log("treeLayout", this.treeLayout);
-
+  
     var treeDimension = this.treeLayout.getTreeDimension();
     console.log(" -  treeDimension : ", treeDimension);
-
+  
+    // node orgering for proper z-index
     const nodeGroups = [];
+  
+    // Create a new group element for the lines
+    const lineGroup = SVGUtil.createGroup(this.svg.svgGroup);
   
     this.tree.traverseBF((node) => {
       node.width = dimensions.width;
       node.height = dimensions.height;
+      node.totalHeight = dimensions.totalHeight;
+      node.totalWidth = dimensions.totalWidth;
+
       nodeGroups.push({ level: node.level, group: this.renderNode(node, false) });
+  
+      // Add lines to the line group after the node is added to the SVG element
+      this.createLine(node, lineGroup);
     });
   
     nodeGroups
       .sort((a, b) => b.level - a.level)
-      .forEach((nodeGroup) => this.svg.appendChild(nodeGroup.group));
+      .forEach((nodeGroup) => this.svg.svgGroup.appendChild(nodeGroup.group));
+  
+    // Add the line group before the node groups
+    this.svg.svgGroup.insertBefore(lineGroup, nodeGroups[0].group);
   
     this.tree.traverseBF((node) => {
       const delay = node.level * 6 * this.delayPerLevel;
       console.log(`delay for ${node.id} = ${delay}`);
-
+  
       this.animateNode(node, delay);
     });
   }
+  
   
   
 
@@ -221,6 +239,7 @@ export class OrgChart {
     if (className) {
       rootElement.classList.add(className);
     }
+    
     const foreignObject = SVGUtil.createForeignObject(node, rootElement);
     group.appendChild(foreignObject);
   
@@ -230,13 +249,13 @@ export class OrgChart {
       group.setAttribute("transform", `translate(${node.x}, ${node.y})`);
     }
 
-  group.style.opacity = 0; // Set the initial opacity to 0
-  group.classList.add("animate-opacity"); // Add the class for the opacity transition
+    group.style.opacity = 0; // Set the initial opacity to 0
+    group.classList.add("animate-opacity"); // Add the class for the opacity transition
 
     return group;
   }
 
-
+/*
   #drawNode(node) {
     console.log(`drawNode node id: "${node.id}", level: ${node.level}, path: ${node.path}`);
     console.log(node);
@@ -340,8 +359,8 @@ export class OrgChart {
     }
     return nodeElement;
   };
-
-  #createLine = function (node) {
+ */
+  createLine = function (node) {
     console.log("createLine TODO check if stackedLeaves: ", node);
 
     if (node.parent && node.parent.isCollapsed) {
@@ -355,12 +374,12 @@ export class OrgChart {
       //           |
       //      ────────────
       // =>   --   --   --
-      SVGUtil.createLine(this.svg, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y);
+      SVGUtil.createLine(this.svg.svgGroup, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y);
       // vertical line from indentation to parent
       //           |
       //      ────────────
       // =>   |--  |--  |--
-      SVGUtil.createLine(this.svg, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
+      SVGUtil.createLine(this.svg.svgGroup, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
     } else {
       // draw a horizontal line connecting the first or left most child and the last or right most child
       //           |
@@ -373,7 +392,9 @@ export class OrgChart {
           let rightMostChild = node.getRightMostChild();
           console.log("=> left Child : " + leftMostChild);
           console.log("=> right Child : " + rightMostChild);
-          SVGUtil.createLine(this.svg, leftMostChild.x + node.width / 2, leftMostChild.y - node.height / 2, rightMostChild.x + node.width / 2, rightMostChild.y - node.height / 2);
+          SVGUtil.createLine(this.svg.svgGroup, 
+            leftMostChild.x + node.width / 2, leftMostChild.y - node.height / 2,
+            rightMostChild.x + node.width / 2, rightMostChild.y - node.height / 2);
 
           // Find the bottom middle point of the current node
           //   =>       |
@@ -381,14 +402,22 @@ export class OrgChart {
           //      |     |      |
           const nodeBottomMiddlePoint = {
             x: node.x + node.width / 2,
-            y: node.y + (node.height / 2)
+            y: node.y + node.height - this.treeLayout.marginTop
           };
           // Straight line from parent to child just below it
           const intersectionPoint = {
             x: nodeBottomMiddlePoint.x,
-            y: nodeBottomMiddlePoint.y + this.treeLayout.levelSeparation - node.height
+            y: nodeBottomMiddlePoint.y + this.treeLayout.levelSeparation
           };
-          SVGUtil.createLine(this.svg,
+          console.log("Straight line from parent to child just below it");
+          console.log("node", node);
+          console.log("nodeBottomMiddlePoint", nodeBottomMiddlePoint);
+          console.log("intersectionPoint", intersectionPoint);
+
+
+          SVGUtil.createLine(this.svg.svgGroup, 0, nodeBottomMiddlePoint.y , 1200, nodeBottomMiddlePoint.y);
+
+          SVGUtil.createLine(this.svg.svgGroup,
             nodeBottomMiddlePoint.x, nodeBottomMiddlePoint.y,
             intersectionPoint.x, intersectionPoint.y);
         }
@@ -408,7 +437,7 @@ export class OrgChart {
           x: nodeTopMiddlePoint.x,
           y: nodeTopMiddlePoint.y - node.height / 2,
         };
-        SVGUtil.createLine(this.svg,
+        SVGUtil.createLine(this.svg.svgGroup,
           nodeTopMiddlePoint.x, nodeTopMiddlePoint.y,
           intersectionPoint.x, intersectionPoint.y);
       }
