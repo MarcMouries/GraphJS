@@ -3,7 +3,7 @@ import { Tree } from "./graph/Tree";
 import { SVGUtil } from "./SVGUtil";
 import { DOMUtil } from "./DOMUtil";
 import { Animation } from "./Animation";
-import {SVG} from "./SVG";
+import { SVG } from "./SVG";
 
 export class OrgChart {
 
@@ -148,7 +148,7 @@ export class OrgChart {
   animateNode(node, parentDelay = 0) {
     const group = this.svg.svg.querySelector(`[data-node-id="${node.id}"]`);
     const delay = parentDelay + node.level * this.delayPerLevel;
-    
+
     if (node.parent) {
       const origPoint = { x: node.parent.x, y: node.parent.y };
       const destPoint = { x: node.x, y: node.y };
@@ -159,16 +159,16 @@ export class OrgChart {
     } else {
       group.setAttribute("transform", `translate(${node.x}, ${node.y})`);
     }
-  
+
     setTimeout(() => {
       group.style.opacity = 1;
     }, delay);
   }
-  
-  
+
+
   renderNodes() {
     const root = this.tree.getRoot();
-  
+
     // Calculate the dimensions
     const templateFilled = this.#getNodeHtml(root);
     const tempElement = document.createElement("div");
@@ -179,23 +179,23 @@ export class OrgChart {
 
     console.log("rootElement: ", rootElement);
     console.log("dimensions: ", dimensions);
-  
+
     this.treeLayout = new TreeLayout(this.tree, {
       nodeWidth: dimensions.width,
       nodeHeight: dimensions.height,
     });
     this.treeLayout.calculate_Positions(root, { x: 100, y: 100 });
     console.log("treeLayout", this.treeLayout);
-  
+
     var treeDimension = this.treeLayout.getTreeDimension();
     console.log(" -  treeDimension : ", treeDimension);
-  
+
     // node orgering for proper z-index
     const nodeGroups = [];
-  
+
     // Create a new group element for the lines
     const lineGroup = SVGUtil.createGroup(this.svg.svgGroup);
-  
+
     this.tree.traverseBF((node) => {
       node.width = dimensions.width;
       node.height = dimensions.height;
@@ -203,46 +203,46 @@ export class OrgChart {
       node.totalWidth = dimensions.totalWidth;
 
       nodeGroups.push({ level: node.level, group: this.renderNode(node, false) });
-  
+
       // Add lines to the line group after the node is added to the SVG element
       this.createLine(node, lineGroup);
     });
-  
+
     nodeGroups
       .sort((a, b) => b.level - a.level)
       .forEach((nodeGroup) => this.svg.svgGroup.appendChild(nodeGroup.group));
-  
+
     // Add the line group before the node groups
     this.svg.svgGroup.insertBefore(lineGroup, nodeGroups[0].group);
-  
+
     this.tree.traverseBF((node) => {
       const delay = node.level * 6 * this.delayPerLevel;
       console.log(`delay for ${node.id} = ${delay}`);
-  
+
       this.animateNode(node, delay);
     });
   }
-  
-  
-  
+
+
+
 
   renderNode(node, animate = true) {
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("data-node-id", node.id);
     const templateFilled = this.#getNodeHtml(node);
-  
+
     const tempElement = document.createElement("div");
     tempElement.innerHTML = templateFilled;
     const rootElement = tempElement.firstElementChild;
-  
+
     const className = this.#getNodeClassName(node);
     if (className) {
       rootElement.classList.add(className);
     }
-    
+
     const foreignObject = SVGUtil.createForeignObject(node, rootElement);
     group.appendChild(foreignObject);
-  
+
     if (animate) {
       this.animateNode(node);
     } else {
@@ -255,119 +255,121 @@ export class OrgChart {
     return group;
   }
 
-/*
-  #drawNode(node) {
-    console.log(`drawNode node id: "${node.id}", level: ${node.level}, path: ${node.path}`);
-    console.log(node);
-
-    const existingChild = this.nodesContainer.querySelector(`[data-node-id='${node.id}']`);
-    console.log("existingChild: ", existingChild);
-
-    this.#createLine(node);
-
-    if (!existingChild) {
-      const nodeElement = this.#buildNode(node);
-      this.nodesContainer.appendChild(nodeElement);
-    }
-
-    // Draw this node's children.
-    if (!node.isCollapsed) {
-      node.children.forEach((child) => {
-        this.renderNode(child);
-      });
-    }
-  }
 
 
-  #buildNode = function (node, templateHtml) {
-    console.log("BuildNode templateHtml", templateHtml);
-
-    const templateFilled = this.#getNodeHtml(node);
-    const nodeStyle = this.getNodeClassName(node);
-    console.log("nodeStyle ", nodeStyle)
-    // so that we get the inner div directly without the outer div,
-    const tempWrapper = document.createElement("div");
-    tempWrapper.innerHTML = templateFilled;
-    const nodeElement = tempWrapper.firstElementChild;
-    nodeElement.dataset.nodeId = node.id.toString();
-
-    nodeElement.style.left = `${node.x}px`;
-    nodeElement.style.top = `${node.y}px`;
-    nodeElement.style.width = `${node.width}px`;
-
-    const childCount = node.getChildCount();
-    if (childCount > 0) {
-
-      let childCountElement = document.createElement("div");
-      childCountElement.classList.add("child-count");
-
-
-      // if stacked => left = 
-      // else different => left = 
-      console.log("childCount node         : '" + node);
-      console.log("childCount stackedLeaves: '" + this.treeLayout.stackedLeaves);
-      console.log("childCount level        : '" + node.level);
-
-      if (node.level == 1) {
-        childCountElement.style.left = `${node.x + node.width / 2}px`;
-        childCountElement.style.top = `${node.y + node.height}px`;
+  /*
+    #drawNode(node) {
+      console.log(`drawNode node id: "${node.id}", level: ${node.level}, path: ${node.path}`);
+      console.log(node);
+  
+      const existingChild = this.nodesContainer.querySelector(`[data-node-id='${node.id}']`);
+      console.log("existingChild: ", existingChild);
+  
+      this.#createLine(node);
+  
+      if (!existingChild) {
+        const nodeElement = this.#buildNode(node);
+        this.nodesContainer.appendChild(nodeElement);
       }
-      else if (this.treeLayout.stackedLeaves) {
-        if (node.level == 2) {
-          //let index = node.getIndex();
-          childCountElement.style.left = `${node.x + (this.treeLayout.stackedIndentation / 2)}px`; // - 5 = half of the element width
+  
+      // Draw this node's children.
+      if (!node.isCollapsed) {
+        node.children.forEach((child) => {
+          this.renderNode(child);
+        });
+      }
+    }
+  
+  
+    #buildNode = function (node, templateHtml) {
+      console.log("BuildNode templateHtml", templateHtml);
+  
+      const templateFilled = this.#getNodeHtml(node);
+      const nodeStyle = this.getNodeClassName(node);
+      console.log("nodeStyle ", nodeStyle)
+      // so that we get the inner div directly without the outer div,
+      const tempWrapper = document.createElement("div");
+      tempWrapper.innerHTML = templateFilled;
+      const nodeElement = tempWrapper.firstElementChild;
+      nodeElement.dataset.nodeId = node.id.toString();
+  
+      nodeElement.style.left = `${node.x}px`;
+      nodeElement.style.top = `${node.y}px`;
+      nodeElement.style.width = `${node.width}px`;
+  
+      const childCount = node.getChildCount();
+      if (childCount > 0) {
+  
+        let childCountElement = document.createElement("div");
+        childCountElement.classList.add("child-count");
+  
+  
+        // if stacked => left = 
+        // else different => left = 
+        console.log("childCount node         : '" + node);
+        console.log("childCount stackedLeaves: '" + this.treeLayout.stackedLeaves);
+        console.log("childCount level        : '" + node.level);
+  
+        if (node.level == 1) {
+          childCountElement.style.left = `${node.x + node.width / 2}px`;
           childCountElement.style.top = `${node.y + node.height}px`;
         }
-      }
-
-
-      childCountElement.innerHTML = "" + childCount;
-      const childCountDim = DOMUtil.getDimensions(childCountElement);
-      console.log("childCountDim dimensions: '" + childCountDim.width + "' x '" + childCountDim.height);
-      const { width, height } = DOMUtil.getDimensions(childCountElement);
-      console.log(`childCountDim dimensions: ${width} x ${height}`);
-
-
-      childCountElement.addEventListener("click", (e) => {
-        var nodeElement = e.target.parentElement;
-        let nodeId = nodeElement.dataset.nodeId;
-        console.log("nodeId=" + nodeId);
-        let clickedNode = this.tree.getNode(nodeId);
-        console.log("clickedNode=", clickedNode);
-        clickedNode.isCollapsed = !clickedNode.isCollapsed;
-
-        // get all the nodes currently displayed
-        const nodeElementList = this.nodesContainer.querySelectorAll("[data-node-id]");
-        const nodesList = Array.from(nodeElementList).map((node) => node.getAttribute("data-node-id"));
-        console.log("nodes currently displayed=", nodesList);
-
-        if (clickedNode.isCollapsed) {
-          //nodeElement.innerHTML = '';  // remove all children
-          const rootElement = this.nodesContainer;
-          while (rootElement.firstChild) {
-            rootElement.removeChild(rootElement.firstChild);
+        else if (this.treeLayout.stackedLeaves) {
+          if (node.level == 2) {
+            //let index = node.getIndex();
+            childCountElement.style.left = `${node.x + (this.treeLayout.stackedIndentation / 2)}px`; // - 5 = half of the element width
+            childCountElement.style.top = `${node.y + node.height}px`;
           }
-
-          SVGUtil.deleteLines(this.svg);
         }
-
-        // redraw the tree
-        this.#drawNode(this.tree.getRoot());
-      });
-      nodeElement.appendChild(childCountElement);
-
-    }
-    return nodeElement;
-  };
- */
+  
+  
+        childCountElement.innerHTML = "" + childCount;
+        const childCountDim = DOMUtil.getDimensions(childCountElement);
+        console.log("childCountDim dimensions: '" + childCountDim.width + "' x '" + childCountDim.height);
+        const { width, height } = DOMUtil.getDimensions(childCountElement);
+        console.log(`childCountDim dimensions: ${width} x ${height}`);
+  
+  
+        childCountElement.addEventListener("click", (e) => {
+          var nodeElement = e.target.parentElement;
+          let nodeId = nodeElement.dataset.nodeId;
+          console.log("nodeId=" + nodeId);
+          let clickedNode = this.tree.getNode(nodeId);
+          console.log("clickedNode=", clickedNode);
+          clickedNode.isCollapsed = !clickedNode.isCollapsed;
+  
+          // get all the nodes currently displayed
+          const nodeElementList = this.nodesContainer.querySelectorAll("[data-node-id]");
+          const nodesList = Array.from(nodeElementList).map((node) => node.getAttribute("data-node-id"));
+          console.log("nodes currently displayed=", nodesList);
+  
+          if (clickedNode.isCollapsed) {
+            //nodeElement.innerHTML = '';  // remove all children
+            const rootElement = this.nodesContainer;
+            while (rootElement.firstChild) {
+              rootElement.removeChild(rootElement.firstChild);
+            }
+  
+            SVGUtil.deleteLines(this.svg);
+          }
+  
+          // redraw the tree
+          this.#drawNode(this.tree.getRoot());
+        });
+        nodeElement.appendChild(childCountElement);
+  
+      }
+      return nodeElement;
+    };
+   */
   createLine = function (node) {
-    console.log("createLine TODO check if stackedLeaves: ", node);
+    console.log("createLine TODO check if stackedLeaves: " + node);
 
     if (node.parent && node.parent.isCollapsed) {
       return;
     }
     if (node.isLeaf()) {
-      const leftMiddlePoint = { x: node.x, y: node.y + node.height / 2 };
+      const leftMiddlePoint = node.getLeftMiddlePoint();
       const indentationPoint = { x: leftMiddlePoint.x - this.treeLayout.stackedIndentation / 2, y: leftMiddlePoint.y };
 
       // horizontal line from node to vertical line
@@ -375,11 +377,13 @@ export class OrgChart {
       //      ────────────
       // =>   --   --   --
       SVGUtil.createLine(this.svg.svgGroup, leftMiddlePoint.x, leftMiddlePoint.y, indentationPoint.x, indentationPoint.y);
+
       // vertical line from indentation to parent
       //           |
       //      ────────────
       // =>   |--  |--  |--
       SVGUtil.createLine(this.svg.svgGroup, indentationPoint.x, indentationPoint.y, indentationPoint.x, indentationPoint.y - this.treeLayout.levelSeparation);
+
     } else {
       // draw a horizontal line connecting the first or left most child and the last or right most child
       //           |
@@ -390,59 +394,48 @@ export class OrgChart {
           // horizontal line from leftMostChild to the rightMostChild
           let leftMostChild = node.getLeftMostChild();
           let rightMostChild = node.getRightMostChild();
-          console.log("=> left Child : " + leftMostChild);
-          console.log("=> right Child : " + rightMostChild);
-          SVGUtil.createLine(this.svg.svgGroup, 
-            leftMostChild.x + node.width / 2, leftMostChild.y - node.height / 2,
-            rightMostChild.x + node.width / 2, rightMostChild.y - node.height / 2);
+
+          const nodeStartY = node.y + node.height;
+          const nextNodeY = leftMostChild.y;
+
+          const distanceBetweenNodes = nextNodeY - nodeStartY;
+          const midpoint = nodeStartY + distanceBetweenNodes / 2;
+          let nodeMiddle = node.width / 2;
+          SVGUtil.createLine(this.svg.svgGroup, leftMostChild.x + nodeMiddle, midpoint, rightMostChild.x + nodeMiddle, midpoint);
+
+          const leftMostChildSouth = leftMostChild.getTopMiddlePoint();
+          SVGUtil.createLine(this.svg.svgGroup,
+            leftMostChildSouth.x, midpoint,
+            leftMostChildSouth.x, leftMostChildSouth.y);
+          const rightMostChildSouth = rightMostChild.getTopMiddlePoint();
+          SVGUtil.createLine(this.svg.svgGroup,
+            rightMostChildSouth.x, midpoint,
+            rightMostChildSouth.x, leftMostChildSouth.y);
 
           // Find the bottom middle point of the current node
           //   =>       |
           //      ────────────
           //      |     |      |
-          const nodeBottomMiddlePoint = {
-            x: node.x + node.width / 2,
-            y: node.y + node.height - this.treeLayout.marginTop
-          };
-          // Straight line from parent to child just below it
-          const intersectionPoint = {
-            x: nodeBottomMiddlePoint.x,
-            y: nodeBottomMiddlePoint.y + this.treeLayout.levelSeparation
-          };
-          console.log("Straight line from parent to child just below it");
-          console.log("node", node);
-          console.log("nodeBottomMiddlePoint", nodeBottomMiddlePoint);
-          console.log("intersectionPoint", intersectionPoint);
+          const nodeBottomMiddle = node.getBottomMiddlePoint();
+          SVGUtil.createLine(this.svg.svgGroup, nodeBottomMiddle.x, nodeBottomMiddle.y, nodeBottomMiddle.x, midpoint);
 
+          // draw vertical line connecting the child to the line across top of children
+          //           |
+          //      ────────────
+          // =>  |     |      |
+          if (node.parent !== undefined) {
+            // Find the top middle point of the current node
+            const nodeTopMiddle = { x: node.x + node.width / 2, y: node.y };
 
-          SVGUtil.createLine(this.svg.svgGroup, 0, nodeBottomMiddlePoint.y , 1200, nodeBottomMiddlePoint.y);
+            // Straight line from parent to child just below it
+            let intersectionPoint = { x: nodeBottomMiddle.x, y: nodeBottomMiddle.y + this.treeLayout.levelSeparation};
 
-          SVGUtil.createLine(this.svg.svgGroup,
-            nodeBottomMiddlePoint.x, nodeBottomMiddlePoint.y,
-            intersectionPoint.x, intersectionPoint.y);
+            // Calculate the point where the vertical line intersects with the horizontal line
+            intersectionPoint = { x: nodeTopMiddle.x, y: nodeTopMiddle.y - node.height / 2 };
+            SVGUtil.createLine(this.svg.svgGroup, nodeTopMiddle.x, nodeTopMiddle.y, intersectionPoint.x, intersectionPoint.y);
+          }
         }
       }
-      // draw vertical line connecting the child to the line across top of children
-      //           |
-      //      ────────────
-      // =>  |     |      |
-      if (node.parent !== undefined) {
-        // Find the top middle point of the current node
-        const nodeTopMiddlePoint = {
-          x: node.x + node.width / 2,
-          y: node.y,
-        };
-        // Calculate the point where the vertical line intersects with the horizontal line
-        const intersectionPoint = {
-          x: nodeTopMiddlePoint.x,
-          y: nodeTopMiddlePoint.y - node.height / 2,
-        };
-        SVGUtil.createLine(this.svg.svgGroup,
-          nodeTopMiddlePoint.x, nodeTopMiddlePoint.y,
-          intersectionPoint.x, intersectionPoint.y);
-      }
-
-
     }
   };
 }
