@@ -20,7 +20,7 @@ export default class Node {
 	}
 
 	toString() {
-//		return "Node " + this.id + " (" + this.pos.x + ", " + this.pos.y + ")";
+		//		return "Node " + this.id + " (" + this.pos.x + ", " + this.pos.y + ")";
 		return "Node " + this.id + " (" + this.x + ", " + this.y + ")";
 
 	}
@@ -37,5 +37,25 @@ export default class Node {
 		return this.children.indexOf(node) > -1;
 	}
 
-	
+	getTopMiddlePoint() {
+		return {
+			x: this.x + (this.width / 2),
+			y: this.y
+		};
+	}
+
+	getBottomMiddlePoint() {
+		return {
+			x: this.x + (this.width / 2),
+			y: this.y + this.height
+		};
+	}
+
+	getLeftMiddlePoint() {
+		return {
+			x: this.x,
+			y: this.y + (this.height / 2)
+		};
+	}
+
 }
