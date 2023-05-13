@@ -5,33 +5,94 @@
   <body>
     <div class="chart-container"></div>
   </body>
+
+  <style>
+    * {
+      margin: 0px;
+      padding: 0px;
+      font-family: "Roboto", sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      color: #333;
+      list-style-type: none;
+      text-decoration: none;
+      box-sizing: border-box; /* If box-sizing: border-box is set, then the padding is included in the element's width and height.*/
+    }
+
+    /* ensures that the SVG element scales correctly within the container*/
+    .chart-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    .card {
+      padding: 10px;
+      margin: 0px;
+      border: 1px solid grey;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0px 1px 5px 2px rgba(10, 10, 10, 0.2);
+      width: 230px;
+      _height: 100px;
+    }
+
+    .card .name {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #003044;
+    }
+
+    .card .position {
+      font-size: 1rem;
+      font-weight: 300;
+      color: #009adb;
+    }
+    .card .info {
+      display: flex;
+      flex-direction: column;
+    }
+    .encumbered {
+      border-right: 3px solid green;
+    }
+
+    .unencumbered {
+      border-right: 3px solid red;
+    }
+  </style>
   <script>
-        const chartElement = document.querySelector(".chart-container");
-        console.log("chartElement", chartElement);
+    const chartElement = document.querySelector(".chart-container");
+    console.log("chartElement", chartElement);
 
+    fetch("./orgchart.json")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        const orgChart = new graphjs.OrgChart(chartElement);
+        console.log("orgChart", orgChart);
 
+        orgChart.setNodeClass(function (node) {
+          return node.data.encumbered ? "encumbered" : "unencumbered";
+        });
 
-        fetch("./orgchart.json")
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(data);
-            const orgChart = new graphjs.OrgChart(chartElement);
-            console.log("orgChart", orgChart);
-            orgChart.setNodeHtml ( function (node) {
-                return `
-                  <div class="position-card" style="left: ${node.x}px; top: ${node.y}px">
-                    <div class="custom-info">
-                      <div class="job-title">CUSTOM ${node.data.job_title}</div>
-                      <div class="name">${node.data.name}</div>
-                    </div>
-                  </div>
-                `;
-              });
-            orgChart.setData(data);
-          })
-          .catch((error) => {
-            // handle any errors
-            console.error(error);
-          });
+        orgChart.setNodeHtml(function (node) {
+          return `
+          <div class="card">
+            <div class="info">
+              <div class="position">${node.data.job_title}</div>
+                <div class="name">${node.data.name}</div>
+              </div>
+            </div>
+          </div>`;
+        });
+        orgChart.setData(data);
+        orgChart.renderNodes();
+      })
+      .catch((error) => {
+        // handle any errors
+        console.error(error);
+      });
   </script>
 </html>
