@@ -1,9 +1,9 @@
 [
-    {"id": "O", "parentId": null, "data": {"name": "Emily Johnson", "job_title": "Chief Administrative Officer", "picture": "1.jpg"}},
-    {"id": "E", "parentId": "O", "data": {"name": "Daniel Adams", "job_title": "Public Relations Manager", "pic": "2.jpg"}},
-    {"id": "F", "parentId": "O", "data": {"name": "Michelle Brown", "job_title": "Government Affairs Specialist", "pic": "3.jpg"}},
-    {"id": "E1", "parentId": "E", "data": {"name": "Christopher Williams", "job_title": "Press Secretary", "pic": "4.jpg"}},
-    {"id": "E2", "parentId": "E", "data": {"name": "Elizabeth Martin", "job_title": "Communications Director", "pic": "4.jpg"}},
-    {"id": "F1", "parentId": "F", "data": {"name": "Matthew Scott", "job_title": "Legislative Analyst", "pic": "4.jpg"}},
-    {"id": "F2", "parentId": "F", "data": {"name": "Samantha Davis", "job_title": "Public Policy Advisor", "pic": "4.jpg"}}
+    {"id": "O", "parentId": null, "data": {"name": "Emily Johnson", "job_title": "Chief Administrative Officer", "encumbered": true}},
+    {"id": "E", "parentId": "O", "data": {"name": "Daniel Adams", "job_title": "Public Relations Manager", "encumbered": true}},
+    {"id": "F", "parentId": "O", "data": {"name": "Vacant", "job_title": "Government Affairs Specialist", "encumbered": false }},
+    {"id": "E1", "parentId": "E", "data": {"name": "Christopher Williams", "job_title": "Press Secretary", "encumbered": true }},
+    {"id": "E2", "parentId": "E", "data": {"name": "Elizabeth Martin", "job_title": "Communications Director", "encumbered": true}},
+    {"id": "F1", "parentId": "F", "data": {"name": "Matthew Scott", "job_title": "Legislative Analyst", "encumbered": true}},
+    {"id": "F2", "parentId": "F", "data": {"name": "Samantha Davis", "job_title": "Public Policy Advisor", "encumbered": true}}
 ]
