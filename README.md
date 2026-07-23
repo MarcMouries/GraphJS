@@ -33,3 +33,33 @@ chart.display();
     </tr>
   </tbody>
 </table>
+
+## Development
+
+GraphJS is bundled with [Bun](https://bun.sh) (no Rollup/Webpack). The source is native ES modules.
+
+```bash
+bun install        # install dev tooling (nothing external is required to build)
+bun run build      # produce dist/esm, dist/cjs and dist/umd bundles
+bun test           # run the test suite
+bun run dev        # rebuild the ESM bundle on change (watch mode)
+```
+
+### Build outputs
+
+| Field     | File                        | Format |
+|-----------|-----------------------------|--------|
+| `module`  | `dist/esm/index.js`         | ESM (`import`) |
+| `main`    | `dist/cjs/index.cjs`        | CommonJS (`require`) |
+| `browser` | `dist/umd/graphjs.min.js`   | IIFE — exposes `window.graphjs` |
+
+Build artifacts under `dist/` are generated on demand (and on `prepublishOnly`); they are not
+committed. For a `<script>` tag, load the UMD bundle and use the `graphjs` global:
+
+```html
+<script src="dist/umd/graphjs.min.js"></script>
+<script>
+  const graph = new graphjs.Graph();
+  const layout = new graphjs.ForceDirected(graph, { center: { x: 400, y: 300 } });
+</script>
+```

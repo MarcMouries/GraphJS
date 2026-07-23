@@ -1,33 +1,35 @@
 {
 	"name": "graphjs",
-	"version": "0.0.4",
-	"description": "GraphJS",
+	"version": "0.0.5",
+	"description": "GraphJS — a small graph data-structure, layout and rendering engine",
 	"author": {
 		"name": "Marc Mouries"
 	},
-	"main": "dist/cjs/index.js",
+	"type": "module",
+	"main": "dist/cjs/index.cjs",
 	"module": "dist/esm/index.js",
 	"browser": "dist/umd/graphjs.min.js",
 	"jsdelivr": "dist/umd/graphjs.min.js",
 	"unpkg": "dist/umd/graphjs.min.js",
-	"dependencies": {},
-	"devDependencies": {
-		"@babel/core": "^7.16.0",
-		"@babel/preset-env": "^7.16.4",
-		"@rollup/plugin-babel": "^5.3.0",
-		"@rollup/plugin-node-resolve": "^13.0.6",
-		"del-cli": "^4.0.1",
-		"eslint": "^8.4.1",
-		"rollup": "^2.60.1",
-		"rollup-plugin-terser": "^7.0.2"
+	"exports": {
+		".": {
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.cjs",
+			"default": "./dist/esm/index.js"
+		}
 	},
+	"dependencies": {},
+	"devDependencies": {},
 	"files": [
-		"dist"
+		"dist",
+		"src"
 	],
 	"keywords": [
 		"graph",
 		"visualization",
-		"canvas"
+		"canvas",
+		"svg",
+		"force-directed"
 	],
 	"license": "ISC",
 	"repository": {
@@ -35,9 +37,13 @@
 		"url": "https://github.com/MarcMouries/GraphJS.git"
 	},
 	"scripts": {
-		"build": "rollup -c",
-		"dev": "rollup -c -w",
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"clean": "rm -fr dist"
+		"clean": "rm -rf dist",
+		"build:esm": "bun build src/index.js --outfile dist/esm/index.js --format=esm --sourcemap=linked",
+		"build:cjs": "bun build src/index.js --outfile dist/cjs/index.cjs --format=cjs --sourcemap=linked",
+		"build:iife": "bun build src/iife.js --outfile dist/umd/graphjs.min.js --format=iife --minify --sourcemap=linked",
+		"build": "bun run clean && bun run build:esm && bun run build:cjs && bun run build:iife",
+		"dev": "bun build src/index.js --outfile dist/esm/index.js --format=esm --watch",
+		"test": "bun test",
+		"prepublishOnly": "bun run build"
 	}
 }
