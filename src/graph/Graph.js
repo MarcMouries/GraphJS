@@ -70,7 +70,7 @@ export default class Graph {
     return Array.from(this.nodeList.values());
   }
 
-  addLink(sourceNode_id, targetNode_id) {
+  addLink(sourceNode_id, targetNode_id, attributes = {}) {
     var sourceNode = this.getNode(sourceNode_id);
     if (sourceNode == undefined) {
       throw new TypeError("Trying to add a link to the non-existent node with id: " + sourceNode_id);
@@ -80,7 +80,7 @@ export default class Graph {
       throw new TypeError("Trying to add a link to the non-existent node with id: " + targetNode_id);
     }
 
-    var link = new Link(sourceNode, targetNode);
+    var link = new Link(sourceNode, targetNode, attributes);
     var exists = false;
 
     this.linkList.forEach(function (item) {
@@ -110,32 +110,75 @@ export default class Graph {
    * @param {*} json_input
    */
   loadJSON(json_input) {
-    console.log("Graph.loadJSON: json_string: ");
-    console.log(json_input);
-    var json_object;
-    if (typeof json_input === "string") {
-      console.log("Graph.loadJSON: input is of type string: ");
-      json_object = JSON.parse(json_input);
-    } else if (typeof json_input === "object") {
-      console.log("Graph.loadJSON: input is of type object: ");
-      json_object = json_input;
-    }
+    var json_object = typeof json_input === "string" ? JSON.parse(json_input) : json_input;
 
-    var nodes = json_object["nodes"];
+    var nodes = json_object["nodes"] || [];
     for (let index = 0; index < nodes.length; index++) {
-      var node = nodes[index];
-      this.addObject(node);
+      this.addObject(nodes[index]);
     }
 
-    var links = json_object["links"];
-    if (links) {
-      for (let index = 0; index < links.length; index++) {
-        var link = links[index];
-        this.addLink(link.source, link.target);
-      }
+    // Accept both `links` and `edges` as the edge collection.
+    var links = json_object["links"] || json_object["edges"] || [];
+    for (let index = 0; index < links.length; index++) {
+      var link = links[index];
+      // Pass the whole edge object so its metadata (label, type, color, ...)
+      // is stored on the Link.
+      this.addLink(link.source, link.target, link);
     }
-    console.log("Graph.loadJSON:  loaded Graph=");
-    console.log(this.graph);
+    return this;
+  }
+
+  /**
+   *  All nodes and links within `depth` hops of `nodeId` (undirected),
+   *  including the start node.
+   * @returns {{ nodes: Node[], links: Link[] }}
+   */
+  getNeighbors(nodeId, depth = 1) {
+    const start = this.getNode(nodeId);
+    if (!start) return { nodes: [], links: [] };
+
+    // Build an undirected adjacency map from the link list.
+    const neighbours = new Map();
+    const link = (a, b) => {
+      if (!neighbours.has(a)) neighbours.set(a, new Set());
+      neighbours.get(a).add(b);
+    };
+    for (const l of this.linkList) {
+      link(l.source.id, l.target.id);
+      link(l.target.id, l.source.id);
+    }
+
+    const visited = new Set([nodeId]);
+    let frontier = [nodeId];
+    for (let d = 0; d < depth; d++) {
+      const next = [];
+      for (const id of frontier) {
+        for (const nid of neighbours.get(id) || []) {
+          if (!visited.has(nid)) {
+            visited.add(nid);
+            next.push(nid);
+          }
+        }
+      }
+      frontier = next;
+    }
+
+    const nodes = Array.from(visited).map((id) => this.getNode(id));
+    const links = this.linkList.filter((l) => visited.has(l.source.id) && visited.has(l.target.id));
+    return { nodes, links };
+  }
+
+  /**
+   *  Degree centrality of a node: incident edges / (nodeCount - 1).
+   */
+  getCentrality(nodeId) {
+    const total = this.getNodeCount();
+    if (total <= 1) return 0;
+    let degree = 0;
+    for (const l of this.linkList) {
+      if (l.source.id === nodeId || l.target.id === nodeId) degree++;
+    }
+    return degree / (total - 1);
   }
 
   toString() {
