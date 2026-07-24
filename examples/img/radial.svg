@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="610" height="540" viewBox="0 0 610 540" font-family="-apple-system, Segoe UI, Roboto, sans-serif">
+<rect width="610" height="540" rx="10" fill="#0d1117"/>
+<line x1="330.0" y1="317.3" x2="435.2" y2="393.7" stroke="#30363d" stroke-width="1.5"/>
+<line x1="330.0" y1="317.3" x2="289.8" y2="440.9" stroke="#30363d" stroke-width="1.5"/>
+<line x1="330.0" y1="317.3" x2="200.0" y2="317.3" stroke="#30363d" stroke-width="1.5"/>
+<line x1="330.0" y1="317.3" x2="289.8" y2="193.6" stroke="#30363d" stroke-width="1.5"/>
+<line x1="330.0" y1="317.3" x2="435.2" y2="240.9" stroke="#30363d" stroke-width="1.5"/>
+<line x1="435.2" y1="393.7" x2="540.3" y2="470.1" stroke="#30363d" stroke-width="1.5"/>
+<line x1="200.0" y1="317.3" x2="70.0" y2="317.3" stroke="#30363d" stroke-width="1.5"/>
+<line x1="289.8" y1="193.6" x2="249.7" y2="70.0" stroke="#30363d" stroke-width="1.5"/>
+<line x1="435.2" y1="240.9" x2="540.3" y2="164.5" stroke="#30363d" stroke-width="1.5"/>
+<circle cx="330.0" cy="317.3" r="26" fill="#f78166" stroke="#0d1117" stroke-width="2"/>
+<text x="330.0" y="317.3" fill="#e6edf3" font-size="11" text-anchor="middle" dy="40">Subject</text>
+<circle cx="435.2" cy="393.7" r="16" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+<text x="435.2" y="393.7" fill="#e6edf3" font-size="11" text-anchor="middle" dy="30">Wife</text>
+<circle cx="289.8" cy="440.9" r="16" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+<text x="289.8" y="440.9" fill="#e6edf3" font-size="11" text-anchor="middle" dy="30">Brother</text>
+<circle cx="200.0" cy="317.3" r="16" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+<text x="200.0" y="317.3" fill="#e6edf3" font-size="11" text-anchor="middle" dy="30">Associate</text>
+<circle cx="289.8" cy="193.6" r="16" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+<text x="289.8" y="193.6" fill="#e6edf3" font-size="11" text-anchor="middle" dy="30">Address</text>
+<circle cx="435.2" cy="240.9" r="16" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+<text x="435.2" y="240.9" fill="#e6edf3" font-size="11" text-anchor="middle" dy="30">Vehicle</text>
+<circle cx="540.3" cy="470.1" r="16" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+<text x="540.3" y="470.1" fill="#e6edf3" font-size="11" text-anchor="middle" dy="30">Child</text>
+<circle cx="70.0" cy="317.3" r="16" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+<text x="70.0" y="317.3" fill="#e6edf3" font-size="11" text-anchor="middle" dy="30">Co-def.</text>
+<circle cx="249.7" cy="70.0" r="16" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+<text x="249.7" y="70.0" fill="#e6edf3" font-size="11" text-anchor="middle" dy="30">Arrest</text>
+<circle cx="540.3" cy="164.5" r="16" fill="#3fb950" stroke="#0d1117" stroke-width="2"/>
+<text x="540.3" y="164.5" fill="#e6edf3" font-size="11" text-anchor="middle" dy="30">Plate</text>
+</svg>

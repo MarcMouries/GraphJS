@@ -10,29 +10,54 @@ GraphJS is a framework for easily representing and displaying graphs in JavaScri
 Very easy to use.
 
 ```JavaScript
+import { Graph, ForceDirected } from "graphjs";
 
-// Load the graph
-let graph = new graphJS.Graph();
-graph.loadJSON(json_graph);
+// Load a graph from JSON ({ nodes, links } or { nodes, edges })
+const graph = new Graph();
+graph.loadJSON({
+  nodes: [{ id: "a" }, { id: "b" }, { id: "c" }],
+  edges: [{ source: "a", target: "b" }, { source: "b", target: "c" }],
+});
 
-// Display the graph
-let chart = new graphJS.Chart( graph );
-let layout = new graphJS.ForceDirected( graph );
-chart.display();
-
+// Lay it out with the force-directed simulation
+const layout = new ForceDirected(graph, { center: { x: 400, y: 300 } });
+layout.on("tick", () => { /* nodes have updated x / y — draw them */ });
+layout.on("end",  () => { /* simulation settled */ });
+layout.start();
 ```
 
-<table id="result_table" class="result_table">
-  <caption></caption>
-  <thead><tr><th>Org Chart</th>          <th>Forced Layout</th>          <th>Radial Layout</th></tr></thead>
+## Layouts
+
+<table>
+  <thead>
+    <tr><th>Org Chart — <code>TreeLayout</code></th><th>Force-Directed — <code>ForceDirected</code></th><th>Radial — <code>RadialLayout</code></th></tr>
+  </thead>
   <tbody>
     <tr>
-	<td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Departments_in_advertising_agencies.jpg/440px-Departments_in_advertising_agencies.jpg"></td>
-	<td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/SocialNetworkAnalysis.png/500px-SocialNetworkAnalysis.png"></td>	
-	<td><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Radial-graph-schematic.svg/400px-Radial-graph-schematic.svg.png"></td>
+      <td><img src="examples/img/org-chart.svg" width="300" alt="Org chart / tree layout"></td>
+      <td><img src="examples/img/force-directed.svg" width="300" alt="Force-directed layout"></td>
+      <td><img src="examples/img/radial.svg" width="300" alt="Radial layout"></td>
     </tr>
   </tbody>
 </table>
+
+## Examples
+
+The images above are produced by the scripts in [`examples/`](examples/). Each builds a graph,
+runs a layout, and renders an SVG (see [`examples/render.js`](examples/render.js) for the tiny
+headless SVG renderer):
+
+| Example | Layout |
+|---------|--------|
+| [`examples/org-chart.js`](examples/org-chart.js) | `TreeLayout` (Walker's algorithm) |
+| [`examples/force-directed.js`](examples/force-directed.js) | `ForceDirected` |
+| [`examples/radial.js`](examples/radial.js) | `RadialLayout` |
+
+Regenerate all of them with:
+
+```bash
+bun run examples        # writes examples/img/*.svg
+```
 
 ## Development
 
