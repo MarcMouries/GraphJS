@@ -107,6 +107,53 @@ describe("ForceDirected — pinning", () => {
 	});
 });
 
+describe("ForceDirected — collision", () => {
+	function twoNodesAt(ax, bx, opts) {
+		const g = new Graph();
+		g.addNode(new Node("a"));
+		g.addNode(new Node("b"));
+		const layout = new ForceDirected(g, { gravity: 0, repulsion: 0, center: { x: 0, y: 0 }, ...opts });
+		const [a, b] = g.getNodes();
+		a.x = ax; a.y = 0; a.vx = 0; a.vy = 0;
+		b.x = bx; b.y = 0; b.vx = 0; b.vy = 0;
+		return { layout, a, b };
+	}
+
+	test("pushes overlapping nodes apart to at least the summed radii", () => {
+		const { layout, a, b } = twoNodesAt(0, 10, { collisionRadius: 50 }); // minDist 100
+		layout.start();
+		expect(dist(a, b)).toBeGreaterThanOrEqual(99);
+	});
+
+	test("does nothing when nodes are already clear of each other", () => {
+		const { layout, a, b } = twoNodesAt(0, 300, { collisionRadius: 50 });
+		layout.start();
+		expect(dist(a, b)).toBeCloseTo(300, 0);
+	});
+
+	test("collisionRadius accepts a per-node function", () => {
+		const { layout, a, b } = twoNodesAt(0, 10, {
+			collisionRadius: (n) => (n.id === "a" ? 80 : 20), // minDist 100
+		});
+		layout.start();
+		expect(dist(a, b)).toBeGreaterThanOrEqual(99);
+	});
+
+	test("a pinned node stays put; its partner absorbs the whole push", () => {
+		const { layout, a, b } = twoNodesAt(0, 10, { collisionRadius: 50 });
+		layout.pinNode("a", 0, 0);
+		layout.start();
+		expect(a.x).toBe(0); // pinned
+		expect(b.x).toBeGreaterThanOrEqual(99); // pushed the full distance
+	});
+
+	test("no collision force by default (opt-in via collisionRadius)", () => {
+		const { layout, a, b } = twoNodesAt(0, 10, {}); // no collisionRadius
+		layout.start();
+		expect(dist(a, b)).toBeCloseTo(10, 0); // untouched (no forces at all)
+	});
+});
+
 describe("ForceDirected — options", () => {
 	test("honours the legacy GRAVITY / REPULSION aliases", () => {
 		const g = new Graph();

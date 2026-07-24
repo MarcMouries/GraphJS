@@ -26,9 +26,10 @@ graph.loadJSON(data);
 
 const layout = new ForceDirected(graph, {
 	center: { x: 0, y: 0 },
-	linkDistance: 160,
-	repulsion: 30000,
-	gravity: 0.04,
+	linkDistance: 120,
+	repulsion: 6000,
+	gravity: 0.06,
+	collisionRadius: 34, // keep node cards from overlapping
 });
 layout.on("end", () => process.stdout.write(renderGraphSVG(graph, { radius: 15, nodeFill: "#1f6feb" }) + "\n"));
 layout.start(); // headless: runs to convergence, then fires "end"

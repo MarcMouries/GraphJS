@@ -28,6 +28,8 @@ const DEFAULTS = {
 	alphaDecay: 0.0228, // cooling rate per tick
 	alphaMin: 0.001, // simulation settles below this alpha
 	center: null, // { x, y }; defaults to the origin
+	collisionRadius: null, // number | (node) => number; null disables collision
+	collisionStrength: 0.8, // how hard overlapping nodes are pushed apart (0..1)
 };
 
 export default class ForceDirected extends AbstractGraphLayout {
@@ -46,6 +48,8 @@ export default class ForceDirected extends AbstractGraphLayout {
 			alphaDecay: o.alphaDecay ?? DEFAULTS.alphaDecay,
 			alphaMin: o.alphaMin ?? DEFAULTS.alphaMin,
 			center: o.center ?? DEFAULTS.center ?? { x: 0, y: 0 },
+			collisionRadius: o.collisionRadius ?? DEFAULTS.collisionRadius,
+			collisionStrength: o.collisionStrength ?? DEFAULTS.collisionStrength,
 		};
 		this.center = this.options.center;
 
@@ -108,6 +112,12 @@ export default class ForceDirected extends AbstractGraphLayout {
 	_resolveLinkDistance(link) {
 		const d = this.options.linkDistance;
 		return typeof d === "function" ? d(link) : d;
+	}
+
+	_resolveCollisionRadius(node) {
+		const c = this.options.collisionRadius;
+		if (c == null) return 0;
+		return typeof c === "function" ? c(node) : c;
 	}
 
 	// -----------------------------------------------------------------
@@ -284,6 +294,46 @@ export default class ForceDirected extends AbstractGraphLayout {
 				node.y += node.vy * scale;
 			}
 			this._syncPos(node);
+		}
+
+		// Collision: separate overlapping nodes (position-based, respects pins).
+		if (this.options.collisionRadius != null) {
+			const strength = this.options.collisionStrength;
+			for (let i = 0; i < nodes.length; i++) {
+				for (let j = i + 1; j < nodes.length; j++) {
+					const a = nodes[i];
+					const b = nodes[j];
+					const minDist = this._resolveCollisionRadius(a) + this._resolveCollisionRadius(b);
+					if (minDist <= 0) continue;
+					let dx = b.x - a.x;
+					let dy = b.y - a.y;
+					let d2 = dx * dx + dy * dy;
+					if (d2 === 0) {
+						dx = (i - j) || 1;
+						dy = 1;
+						d2 = dx * dx + dy * dy;
+					}
+					const dist = Math.sqrt(d2);
+					if (dist >= minDist) continue;
+
+					const aPinned = a.fx != null && a.fy != null;
+					const bPinned = b.fx != null && b.fy != null;
+					if (aPinned && bPinned) continue;
+
+					const overlap = (minDist - dist) * strength;
+					const ux = dx / dist;
+					const uy = dy / dist;
+					// A pinned node stays put; its partner absorbs the whole push.
+					const aShare = aPinned ? 0 : bPinned ? 1 : 0.5;
+					const bShare = bPinned ? 0 : aPinned ? 1 : 0.5;
+					a.x -= ux * overlap * aShare;
+					a.y -= uy * overlap * aShare;
+					b.x += ux * overlap * bShare;
+					b.y += uy * overlap * bShare;
+					this._syncPos(a);
+					this._syncPos(b);
+				}
+			}
 		}
 	}
 }
